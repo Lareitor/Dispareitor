@@ -1,6 +1,7 @@
 #include "DispareitorPersonaje.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 
 ADispareitorPersonaje::ADispareitorPersonaje() {
@@ -15,6 +16,9 @@ ADispareitorPersonaje::ADispareitorPersonaje() {
 	Camara = CreateDefaultSubobject<UCameraComponent>(TEXT("Camara"));
 	Camara->SetupAttachment(BrazoCamara, USpringArmComponent::SocketName);
 	Camara->bUsePawnControlRotation = false;
+
+	bUseControllerRotationYaw = false;
+	GetCharacterMovement()->bOrientRotationToMovement = true; 
 }
 
 void ADispareitorPersonaje::BeginPlay() {
