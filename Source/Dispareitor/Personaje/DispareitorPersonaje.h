@@ -16,6 +16,11 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	void MoverAdelanteAtras(float Valor);
+	void MoverIzquierdaDerecha(float Valor);
+	void Girar(float Valor);
+	void MoverArribaAbajo(float Valor);
+
 private:
 	UPROPERTY(VisibleAnywhere, Category = Camara)	
 	class USpringArmComponent* BrazoCamara;
