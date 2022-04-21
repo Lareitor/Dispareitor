@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -7,23 +5,24 @@
 #include "DispareitorPersonaje.generated.h"
 
 UCLASS()
-class DISPAREITOR_API ADispareitorPersonaje : public ACharacter
-{
+class DISPAREITOR_API ADispareitorPersonaje : public ACharacter {
 	GENERATED_BODY()
 
-public:
-	// Sets default values for this character's properties
-	ADispareitorPersonaje();	
-
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
 public:	
-	// Called every frame
+	ADispareitorPersonaje();	
 	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+protected:
+	virtual void BeginPlay() override;
+
+private:
+	UPROPERTY(VisibleAnywhere, Category = Camara)	
+	class USpringArmComponent* BrazoCamara;
+
+	UPROPERTY(VisibleAnywhere, Category = Camara)	
+	class UCameraComponent* Camara;
+
+public:	
+	
 };
