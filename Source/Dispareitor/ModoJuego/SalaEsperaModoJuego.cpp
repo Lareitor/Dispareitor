@@ -4,8 +4,13 @@
 void ASalaEsperaModoJuego::PostLogin(APlayerController* ControladorJugador) {
     Super::PostLogin(ControladorJugador);
 
-    int32 NumeroDeJugadores = GameState.Get()-> PlayerArray.Num();
-    if(NumeroDeJugadores == 1) {
+    int32 NumeroDeJugadores = GameState.Get()->PlayerArray.Num();
+
+    if (GEngine) {
+		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, FString(TEXT("Numero de jugadores: " + NumeroDeJugadores)));
+	}
+
+    if(NumeroDeJugadores == 2) {
         UWorld* Mundo = GetWorld();
         if(Mundo) {
             bUseSeamlessTravel = true;
