@@ -38,7 +38,7 @@ void ADispareitorPersonaje::SetupPlayerInputComponent(UInputComponent* PlayerInp
 	PlayerInputComponent->BindAxis("MoverAdelanteAtras", this, &ADispareitorPersonaje::MoverAdelanteAtras);
 	PlayerInputComponent->BindAxis("MoverIzquierdaDerecha", this, &ADispareitorPersonaje::MoverIzquierdaDerecha);
 	PlayerInputComponent->BindAxis("Girar", this, &ADispareitorPersonaje::Girar);
-	PlayerInputComponent->BindAxis("MoverArribaAbajo", this, &ADispareitorPersonaje::MoverArribaAbajo);
+	PlayerInputComponent->BindAxis("MirarArribaAbajo", this, &ADispareitorPersonaje::MirarArribaAbajo);
 }
 
 void ADispareitorPersonaje::MoverAdelanteAtras(float Valor) {
@@ -61,7 +61,7 @@ void ADispareitorPersonaje::Girar(float Valor) {
 	AddControllerYawInput(Valor);
 }
 
-void ADispareitorPersonaje::MoverArribaAbajo(float Valor) {
+void ADispareitorPersonaje::MirarArribaAbajo(float Valor) {
 	AddControllerPitchInput(Valor);
 }
 

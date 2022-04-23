@@ -19,7 +19,7 @@ protected:
 	void MoverAdelanteAtras(float Valor);
 	void MoverIzquierdaDerecha(float Valor);
 	void Girar(float Valor);
-	void MoverArribaAbajo(float Valor);
+	void MirarArribaAbajo(float Valor);
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = Camara)	
