@@ -2,6 +2,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/WidgetComponent.h"
 
 
 ADispareitorPersonaje::ADispareitorPersonaje() {
@@ -19,6 +20,9 @@ ADispareitorPersonaje::ADispareitorPersonaje() {
 
 	bUseControllerRotationYaw = false;
 	GetCharacterMovement()->bOrientRotationToMovement = true; 
+
+	HUDSobreLaCabeza = CreateDefaultSubobject<UWidgetComponent>(TEXT("HUDSobreLaCabeza"));
+	HUDSobreLaCabeza->SetupAttachment(RootComponent);
 }
 
 void ADispareitorPersonaje::BeginPlay() {

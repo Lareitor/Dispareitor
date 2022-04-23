@@ -28,6 +28,9 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = Camara)	
 	class UCameraComponent* Camara;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class UWidgetComponent* HUDSobreLaCabeza;
+
 public:	
 	
 };
