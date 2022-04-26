@@ -23,6 +23,9 @@ public:
 protected:	
 	virtual void BeginPlay() override;
 
+	UFUNCTION()
+	virtual void CallbackEsferaSolapada(UPrimitiveComponent* ComponenteSolapado, AActor* OtroActor, UPrimitiveComponent* OtroComponente, int32 OtroIndice, bool bFromSweep, const FHitResult& SweepResult);
+
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Propiedades")
 	USkeletalMeshComponent* Malla;
@@ -30,8 +33,11 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Propiedades")
 	class USphereComponent* Esfera;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, Category = "Propiedades")
 	EEstado Estado;
+
+	UPROPERTY(VisibleAnywhere, Category = "Propiedades")
+	class UWidgetComponent* LeyendaSobreArma;
 
 public:		
 	
