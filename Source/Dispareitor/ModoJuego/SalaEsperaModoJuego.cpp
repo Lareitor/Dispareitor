@@ -10,7 +10,7 @@ void ASalaEsperaModoJuego::PostLogin(APlayerController* ControladorJugador) {
 		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, FString(TEXT("Numero de jugadores: " + NumeroDeJugadores)));
 	}
 
-    if(NumeroDeJugadores == 2) {
+    if(NumeroDeJugadores == 3) {
         UWorld* Mundo = GetWorld();
         if(Mundo) {
             bUseSeamlessTravel = true;
