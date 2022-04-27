@@ -12,6 +12,7 @@ public:
 	ADispareitorPersonaje();	
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 protected:
 	virtual void BeginPlay() override;
@@ -31,6 +32,15 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UWidgetComponent* HUDSobreLaCabeza;
 
+	// Cuando cambie esta variable en el servidor se replicará su estado automaticamente en los clientes seleccionados
+	// La replicación funciona sola en una direccion servidor -> clientes
+	UPROPERTY(ReplicatedUsing = CallbackArmaSolapada) 
+	class AArma* ArmaSolapada;
+		
+	UFUNCTION()
+	void CallbackArmaSolapada(AArma* ArmaReplicadaAnterior);
+
 public:	
+	void ActivarArmaSolapada(AArma* Arma);
 	
 };

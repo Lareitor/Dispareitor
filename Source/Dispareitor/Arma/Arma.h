@@ -19,12 +19,16 @@ class DISPAREITOR_API AArma : public AActor {
 public:		
 	AArma();
 	virtual void Tick(float DeltaTime) override;
+	void MostrarLeyendaSobreArma(bool bMostrarLeyendaSobreArma);
 
 protected:	
 	virtual void BeginPlay() override;
 
 	UFUNCTION()
-	virtual void CallbackEsferaSolapada(UPrimitiveComponent* ComponenteSolapado, AActor* OtroActor, UPrimitiveComponent* OtroComponente, int32 OtroIndice, bool bFromSweep, const FHitResult& SweepResult);
+	virtual void CallbackEsferaSolapadaInicio(UPrimitiveComponent* ComponenteSolapado, AActor* OtroActor, UPrimitiveComponent* OtroComponente, int32 OtroIndice, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+	virtual void CallbackEsferaSolapadaFin(UPrimitiveComponent* ComponenteSolapado, AActor* OtroActor, UPrimitiveComponent* OtroComponente, int32 OtroIndice);
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Propiedades")

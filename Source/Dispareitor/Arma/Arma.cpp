@@ -22,13 +22,18 @@ AArma::AArma() {
 	LeyendaSobreArma->SetupAttachment(RootComponent);
 }
 
+void AArma::Tick(float DeltaTime) {
+	Super::Tick(DeltaTime);
+}
+
 void AArma::BeginPlay() {
 	Super::BeginPlay();	
 	
 	if(HasAuthority()) { // Somos el servidor. Es lo mismo que GetLocalRole() == ENetRole::ROLE_Authority
 		Esfera->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		Esfera->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
-		Esfera->OnComponentBeginOverlap.AddDynamic(this, &AArma::CallbackEsferaSolapada);		
+		Esfera->OnComponentBeginOverlap.AddDynamic(this, &AArma::CallbackEsferaSolapadaInicio);		
+		Esfera->OnComponentEndOverlap.AddDynamic(this, &AArma::CallbackEsferaSolapadaFin);
 	}
 
 	if(LeyendaSobreArma) {
@@ -36,14 +41,23 @@ void AArma::BeginPlay() {
 	}
 }
 
-void AArma::Tick(float DeltaTime) {
-	Super::Tick(DeltaTime);
+void AArma::CallbackEsferaSolapadaInicio(UPrimitiveComponent* ComponenteSolapado, AActor* OtroActor, UPrimitiveComponent* OtroComponente, int32 OtroIndice, bool bFromSweep, const FHitResult& SweepResult) { 
+	ADispareitorPersonaje* DispareitorPersonaje = Cast<ADispareitorPersonaje>(OtroActor);
+	if(DispareitorPersonaje) {
+		DispareitorPersonaje->ActivarArmaSolapada(this);
+	}
 }
 
-void AArma::CallbackEsferaSolapada(UPrimitiveComponent* ComponenteSolapado, AActor* OtroActor, UPrimitiveComponent* OtroComponente, int32 OtroIndice, bool bFromSweep, const FHitResult& SweepResult) { 
+void AArma::CallbackEsferaSolapadaFin(UPrimitiveComponent* ComponenteSolapado, AActor* OtroActor, UPrimitiveComponent* OtroComponente, int32 OtroIndice) {
 	ADispareitorPersonaje* DispareitorPersonaje = Cast<ADispareitorPersonaje>(OtroActor);
-	if(DispareitorPersonaje && LeyendaSobreArma) {
-		LeyendaSobreArma->SetVisibility(true);
+	if(DispareitorPersonaje) {
+		DispareitorPersonaje->ActivarArmaSolapada(nullptr);
+	}
+}
+
+void AArma::MostrarLeyendaSobreArma(bool bMostrarLeyendaSobreArma) {
+	if(LeyendaSobreArma) {
+		LeyendaSobreArma->SetVisibility(bMostrarLeyendaSobreArma);
 	}
 }
 
