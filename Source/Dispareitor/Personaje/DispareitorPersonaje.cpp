@@ -85,7 +85,18 @@ void ADispareitorPersonaje::MirarArribaAbajo(float Valor) {
 }
 
 void ADispareitorPersonaje::Equipar() {
-	if(Combate && HasAuthority()) {
+	if(Combate) {
+		if(HasAuthority()) { // Estamos en el servidor
+			Combate->EquiparArma(ArmaSolapada);
+		} else { // Estamos en un cliente
+			ServidorEquipar();
+		}		
+	}
+}
+
+// Aunque la definicion de la funcion es ServidorEquipar hay que añadirle _Implementation, ya que UE creará ServidorEquipar y nuestros _Implementation que incluirá el codigo que se ejecuta en el servidor  
+void ADispareitorPersonaje::ServidorEquipar_Implementation() {
+	if(Combate) {
 		Combate->EquiparArma(ArmaSolapada);
 	}
 }

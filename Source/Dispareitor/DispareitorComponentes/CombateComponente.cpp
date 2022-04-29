@@ -26,7 +26,6 @@ void UCombateComponente::EquiparArma(class AArma* ArmaAEquipar) {
 	if(ManoDerechaSocket) {
 		ManoDerechaSocket->AttachActor(ArmaEquipada, DispareitorPersonaje->GetMesh());
 	}
-	ArmaEquipada->SetOwner(DispareitorPersonaje);
-	ArmaEquipada->MostrarLeyendaSobreArma(false);
+	ArmaEquipada->SetOwner(DispareitorPersonaje);	
 }
 

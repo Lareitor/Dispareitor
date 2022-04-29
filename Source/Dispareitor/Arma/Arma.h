@@ -19,6 +19,7 @@ class DISPAREITOR_API AArma : public AActor {
 public:		
 	AArma();
 	virtual void Tick(float DeltaTime) override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	void MostrarLeyendaSobreArma(bool bMostrarLeyendaSobreArma);
 
 protected:	
@@ -37,13 +38,16 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Propiedades")
 	class USphereComponent* Esfera;
 
-	UPROPERTY(VisibleAnywhere, Category = "Propiedades")
+	UPROPERTY(ReplicatedUsing = CallbackEstado, VisibleAnywhere, Category = "Propiedades")
 	EEstado Estado;
+
+	UFUNCTION()
+	void CallbackEstado();
 
 	UPROPERTY(VisibleAnywhere, Category = "Propiedades")
 	class UWidgetComponent* LeyendaSobreArma;
 
 public:		
-	FORCEINLINE void ActualizarEstado(EEstado EstadoAActualizar) {Estado = EstadoAActualizar;}
-
+	void ActualizarEstado(EEstado EstadoAActualizar);
+	FORCEINLINE USphereComponent* ObtenerEsfera() const { return Esfera; }
 };

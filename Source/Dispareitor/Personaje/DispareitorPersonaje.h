@@ -44,6 +44,11 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	class UCombateComponente* Combate;
 
+	// Hace esta funcion de tipo RPC, para llamarla desde los clientes pero que se ejecuten en el servidor
+	// Reliable garantiza que la información llega al servidor (el cliente recibe una confirmación de parte del servidor, si no la recibe vuelve a enviar la info)
+	UFUNCTION(Server, Reliable) 
+	void ServidorEquipar();
+
 public:	
 	void ActivarArmaSolapada(AArma* Arma);
 	

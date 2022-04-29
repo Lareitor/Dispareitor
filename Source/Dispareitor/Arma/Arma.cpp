@@ -2,6 +2,8 @@
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Dispareitor/Personaje/DispareitorPersonaje.h"
+#include "Net/UnrealNetwork.h"
+
 
 AArma::AArma() {
 	PrimaryActorTick.bCanEverTick = false;
@@ -41,6 +43,13 @@ void AArma::BeginPlay() {
 	}
 }
 
+void AArma::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const {
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AArma, Estado);
+}
+
+
 void AArma::CallbackEsferaSolapadaInicio(UPrimitiveComponent* ComponenteSolapado, AActor* OtroActor, UPrimitiveComponent* OtroComponente, int32 OtroIndice, bool bFromSweep, const FHitResult& SweepResult) { 
 	ADispareitorPersonaje* DispareitorPersonaje = Cast<ADispareitorPersonaje>(OtroActor);
 	if(DispareitorPersonaje) {
@@ -52,6 +61,25 @@ void AArma::CallbackEsferaSolapadaFin(UPrimitiveComponent* ComponenteSolapado, A
 	ADispareitorPersonaje* DispareitorPersonaje = Cast<ADispareitorPersonaje>(OtroActor);
 	if(DispareitorPersonaje) {
 		DispareitorPersonaje->ActivarArmaSolapada(nullptr);
+	}
+}
+
+void AArma::ActualizarEstado(EEstado EstadoAActualizar) {
+	Estado = EstadoAActualizar;
+
+	switch(Estado) {
+		case EEstado::EEA_Equipada:
+			MostrarLeyendaSobreArma(false);
+			Esfera->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		break;
+	}	
+}
+
+void AArma::CallbackEstado() {
+	switch(Estado) {
+		case EEstado::EEA_Equipada:
+			MostrarLeyendaSobreArma(false);			
+		break;
 	}
 }
 
