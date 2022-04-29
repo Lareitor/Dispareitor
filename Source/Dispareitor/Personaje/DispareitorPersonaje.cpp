@@ -5,6 +5,7 @@
 #include "Components/WidgetComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Dispareitor/Arma/Arma.h"
+#include "Dispareitor/DispareitorComponentes/CombateComponente.h"
 
 
 ADispareitorPersonaje::ADispareitorPersonaje() {
@@ -25,6 +26,10 @@ ADispareitorPersonaje::ADispareitorPersonaje() {
 
 	HUDSobreLaCabeza = CreateDefaultSubobject<UWidgetComponent>(TEXT("HUDSobreLaCabeza"));
 	HUDSobreLaCabeza->SetupAttachment(RootComponent);
+
+	Combate = CreateDefaultSubobject<UCombateComponente>(TEXT("CombateComponente"));
+	// No necesitamos registrar los componentes en GetLifetimeReplicatedProps, solo necesitamos activarles esta propiedad
+	Combate->SetIsReplicated(true);
 }
 
 void ADispareitorPersonaje::BeginPlay() {
@@ -40,11 +45,19 @@ void ADispareitorPersonaje::SetupPlayerInputComponent(UInputComponent* PlayerInp
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	PlayerInputComponent->BindAction("Saltar", IE_Pressed, this, &ADispareitorPersonaje::Jump);
+	PlayerInputComponent->BindAction("Equipar", IE_Pressed, this, &ADispareitorPersonaje::Equipar);
 
 	PlayerInputComponent->BindAxis("MoverAdelanteAtras", this, &ADispareitorPersonaje::MoverAdelanteAtras);
 	PlayerInputComponent->BindAxis("MoverIzquierdaDerecha", this, &ADispareitorPersonaje::MoverIzquierdaDerecha);
 	PlayerInputComponent->BindAxis("Girar", this, &ADispareitorPersonaje::Girar);
 	PlayerInputComponent->BindAxis("MirarArribaAbajo", this, &ADispareitorPersonaje::MirarArribaAbajo);
+}
+
+void ADispareitorPersonaje::PostInitializeComponents() {
+	Super::PostInitializeComponents();
+	if(Combate) {
+		Combate->DispareitorPersonaje = this;
+	}
 }
 
 void ADispareitorPersonaje::MoverAdelanteAtras(float Valor) {
@@ -69,6 +82,12 @@ void ADispareitorPersonaje::Girar(float Valor) {
 
 void ADispareitorPersonaje::MirarArribaAbajo(float Valor) {
 	AddControllerPitchInput(Valor);
+}
+
+void ADispareitorPersonaje::Equipar() {
+	if(Combate && HasAuthority()) {
+		Combate->EquiparArma(ArmaSolapada);
+	}
 }
 
 // En esta funcion es donde registramos las variables que queremos replicar

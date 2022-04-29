@@ -44,6 +44,6 @@ private:
 	class UWidgetComponent* LeyendaSobreArma;
 
 public:		
-	
+	FORCEINLINE void ActualizarEstado(EEstado EstadoAActualizar) {Estado = EstadoAActualizar;}
 
 };
