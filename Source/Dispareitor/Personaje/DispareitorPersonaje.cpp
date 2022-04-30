@@ -50,6 +50,8 @@ void ADispareitorPersonaje::SetupPlayerInputComponent(UInputComponent* PlayerInp
 	PlayerInputComponent->BindAction("Saltar", IE_Pressed, this, &ADispareitorPersonaje::Jump);
 	PlayerInputComponent->BindAction("Equipar", IE_Pressed, this, &ADispareitorPersonaje::Equipar);
 	PlayerInputComponent->BindAction("Agachar", IE_Pressed, this, &ADispareitorPersonaje::Agachar);
+	PlayerInputComponent->BindAction("Apuntar", IE_Pressed, this, &ADispareitorPersonaje::ApuntarPulsado);
+	PlayerInputComponent->BindAction("Apuntar", IE_Released, this, &ADispareitorPersonaje::ApuntarLiberado);
 
 	PlayerInputComponent->BindAxis("MoverAdelanteAtras", this, &ADispareitorPersonaje::MoverAdelanteAtras);
 	PlayerInputComponent->BindAxis("MoverIzquierdaDerecha", this, &ADispareitorPersonaje::MoverIzquierdaDerecha);
@@ -106,6 +108,18 @@ void ADispareitorPersonaje::Agachar() {
 	}
 }
 
+void ADispareitorPersonaje::ApuntarPulsado() {
+	if(CombateComponente) {
+		CombateComponente->ActualizarApuntando(true);
+	}
+}
+
+void ADispareitorPersonaje::ApuntarLiberado() {
+	if(CombateComponente) {
+		CombateComponente->ActualizarApuntando(false);
+	}
+}
+
 // Aunque la definicion de la funcion es ServidorEquipar hay que añadirle _Implementation, ya que UE creará ServidorEquipar y nosotros _Implementation que incluirá el codigo que se ejecuta en el servidor  
 void ADispareitorPersonaje::ServidorEquipar_Implementation() {
 	if(CombateComponente) {
@@ -152,4 +166,8 @@ void ADispareitorPersonaje::AlReplicarArmaSolapada(AArma* ArmaReplicadaAnterior)
 
 bool ADispareitorPersonaje::EstaArmaEquipada() {
 	return CombateComponente && CombateComponente->ArmaEquipada;
+}
+
+bool ADispareitorPersonaje::EstaApuntando() {
+	return CombateComponente && CombateComponente->bApuntando;
 }

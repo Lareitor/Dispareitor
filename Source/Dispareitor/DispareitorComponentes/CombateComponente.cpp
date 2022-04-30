@@ -20,6 +20,7 @@ void UCombateComponente::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(UCombateComponente, ArmaEquipada);
+	DOREPLIFETIME(UCombateComponente, bApuntando);
 }
 
 void UCombateComponente::EquiparArma(class AArma* ArmaAEquipar) {
@@ -35,4 +36,17 @@ void UCombateComponente::EquiparArma(class AArma* ArmaAEquipar) {
 	}
 	ArmaEquipada->SetOwner(DispareitorPersonaje);	
 }
+
+void UCombateComponente::ActualizarApuntando(bool Apuntando) {
+	// Aunque esta funcion es posible que la llamemos desde el cliente, por cuestiones cosmeticas podemos hacerlo ahora
+	bApuntando = Apuntando; 
+	// Si lo estamos ejecutando en un cliente se invocará esta función en el servidor, y si lo estamos ejecutando en el servidor se ejecutará en él mismo
+	ServidorActualizarApuntando(bApuntando);
+	
+}
+
+void UCombateComponente::ServidorActualizarApuntando_Implementation(bool Apuntando) {
+	bApuntando = Apuntando; 
+}
+
 

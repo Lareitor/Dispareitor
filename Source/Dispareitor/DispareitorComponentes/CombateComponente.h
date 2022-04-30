@@ -20,12 +20,19 @@ public:
 
 protected:	
 	virtual void BeginPlay() override;
+	void ActualizarApuntando(bool Apuntado);
+
+	UFUNCTION(Server, Reliable)
+	void ServidorActualizarApuntando(bool Apuntando);
 
 private:
 	class ADispareitorPersonaje* DispareitorPersonaje;
 
 	UPROPERTY(Replicated)
 	AArma* ArmaEquipada;
+
+	UPROPERTY(Replicated)
+	bool bApuntando;
 
 public:		
 	

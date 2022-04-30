@@ -29,4 +29,5 @@ void UDispareitorInstanciaAnimacion::NativeUpdateAnimation(float DeltaTime) {
     bEstaAcelerando = DispareitorPersonaje->GetCharacterMovement()->GetCurrentAcceleration().Size() > 0.f ? true : false;
     bArmaEquipada = DispareitorPersonaje->EstaArmaEquipada();
     bEstaAgachado = DispareitorPersonaje->bIsCrouched;
+    bApuntando = DispareitorPersonaje->EstaApuntando();
 }

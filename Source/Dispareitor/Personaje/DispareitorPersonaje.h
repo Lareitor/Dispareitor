@@ -23,6 +23,8 @@ protected:
 	void MirarArribaAbajo(float Valor);
 	void Equipar();
 	void Agachar();
+	void ApuntarPulsado();
+	void ApuntarLiberado();
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Camara")	
@@ -53,4 +55,5 @@ private:
 public:	
 	void ActivarArmaSolapada(AArma* Arma);
 	bool EstaArmaEquipada();
+	bool EstaApuntando();
 };
