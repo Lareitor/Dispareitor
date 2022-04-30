@@ -138,3 +138,6 @@ void ADispareitorPersonaje::AlReplicarArmaSolapada(AArma* ArmaReplicadaAnterior)
 	}
 }
 
+bool ADispareitorPersonaje::EstaArmaEquipada() {
+	return CombateComponente && CombateComponente->ArmaEquipada;
+}

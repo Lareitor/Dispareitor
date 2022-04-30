@@ -2,6 +2,7 @@
 #include "Dispareitor/Arma/Arma.h"
 #include "Dispareitor/Personaje/DispareitorPersonaje.h"
 #include "Engine/SkeletalMeshSocket.h"
+#include "Net/UnrealNetwork.h"
 
 UCombateComponente::UCombateComponente() {
 	PrimaryComponentTick.bCanEverTick = false;
@@ -13,6 +14,12 @@ void UCombateComponente::BeginPlay() {
 
 void UCombateComponente::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+}
+
+void UCombateComponente::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const {
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UCombateComponente, ArmaEquipada);
 }
 
 void UCombateComponente::EquiparArma(class AArma* ArmaAEquipar) {

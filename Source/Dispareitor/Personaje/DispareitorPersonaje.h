@@ -51,5 +51,5 @@ private:
 
 public:	
 	void ActivarArmaSolapada(AArma* Arma);
-	
+	bool EstaArmaEquipada();
 };
