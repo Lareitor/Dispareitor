@@ -30,6 +30,9 @@ ADispareitorPersonaje::ADispareitorPersonaje() {
 	CombateComponente = CreateDefaultSubobject<UCombateComponente>(TEXT("CombateComponente"));
 	// No necesitamos registrar los componentes en GetLifetimeReplicatedProps, solo necesitamos activarles esta propiedad
 	CombateComponente->SetIsReplicated(true);
+
+	// Activar que se pueda agachar (esta propiedad tambien existe en el BP)
+	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
 }
 
 void ADispareitorPersonaje::BeginPlay() {
@@ -46,6 +49,7 @@ void ADispareitorPersonaje::SetupPlayerInputComponent(UInputComponent* PlayerInp
 
 	PlayerInputComponent->BindAction("Saltar", IE_Pressed, this, &ADispareitorPersonaje::Jump);
 	PlayerInputComponent->BindAction("Equipar", IE_Pressed, this, &ADispareitorPersonaje::Equipar);
+	PlayerInputComponent->BindAction("Agachar", IE_Pressed, this, &ADispareitorPersonaje::Agachar);
 
 	PlayerInputComponent->BindAxis("MoverAdelanteAtras", this, &ADispareitorPersonaje::MoverAdelanteAtras);
 	PlayerInputComponent->BindAxis("MoverIzquierdaDerecha", this, &ADispareitorPersonaje::MoverIzquierdaDerecha);
@@ -91,6 +95,14 @@ void ADispareitorPersonaje::Equipar() {
 		} else { // Estamos en un cliente
 			ServidorEquipar();
 		}		
+	}
+}
+
+void ADispareitorPersonaje::Agachar() {
+	if(bIsCrouched) {
+		UnCrouch();
+	} else {
+		Crouch(); // Si se lleva a cabo con exito activa Character.bIsCrouched a 1 (true) (ademas de replicarlo automaticamente en los clientes) que podemos chequear en nuestro clase animacion
 	}
 }
 

@@ -22,6 +22,7 @@ protected:
 	void Girar(float Valor);
 	void MirarArribaAbajo(float Valor);
 	void Equipar();
+	void Agachar();
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Camara")	
