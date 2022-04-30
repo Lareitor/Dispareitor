@@ -27,9 +27,9 @@ ADispareitorPersonaje::ADispareitorPersonaje() {
 	HUDSobreLaCabeza = CreateDefaultSubobject<UWidgetComponent>(TEXT("HUDSobreLaCabeza"));
 	HUDSobreLaCabeza->SetupAttachment(RootComponent);
 
-	Combate = CreateDefaultSubobject<UCombateComponente>(TEXT("CombateComponente"));
+	CombateComponente = CreateDefaultSubobject<UCombateComponente>(TEXT("CombateComponente"));
 	// No necesitamos registrar los componentes en GetLifetimeReplicatedProps, solo necesitamos activarles esta propiedad
-	Combate->SetIsReplicated(true);
+	CombateComponente->SetIsReplicated(true);
 }
 
 void ADispareitorPersonaje::BeginPlay() {
@@ -55,8 +55,8 @@ void ADispareitorPersonaje::SetupPlayerInputComponent(UInputComponent* PlayerInp
 
 void ADispareitorPersonaje::PostInitializeComponents() {
 	Super::PostInitializeComponents();
-	if(Combate) {
-		Combate->DispareitorPersonaje = this;
+	if(CombateComponente) {
+		CombateComponente->DispareitorPersonaje = this;
 	}
 }
 
@@ -85,19 +85,19 @@ void ADispareitorPersonaje::MirarArribaAbajo(float Valor) {
 }
 
 void ADispareitorPersonaje::Equipar() {
-	if(Combate) {
+	if(CombateComponente) {
 		if(HasAuthority()) { // Estamos en el servidor
-			Combate->EquiparArma(ArmaSolapada);
+			CombateComponente->EquiparArma(ArmaSolapada);
 		} else { // Estamos en un cliente
 			ServidorEquipar();
 		}		
 	}
 }
 
-// Aunque la definicion de la funcion es ServidorEquipar hay que añadirle _Implementation, ya que UE creará ServidorEquipar y nuestros _Implementation que incluirá el codigo que se ejecuta en el servidor  
+// Aunque la definicion de la funcion es ServidorEquipar hay que añadirle _Implementation, ya que UE creará ServidorEquipar y nosotros _Implementation que incluirá el codigo que se ejecuta en el servidor  
 void ADispareitorPersonaje::ServidorEquipar_Implementation() {
-	if(Combate) {
-		Combate->EquiparArma(ArmaSolapada);
+	if(CombateComponente) {
+		CombateComponente->EquiparArma(ArmaSolapada);
 	}
 }
 
@@ -128,8 +128,8 @@ void ADispareitorPersonaje::ActivarArmaSolapada(AArma* Arma) {
 
 // Para los clientes
 // Se llama automaticamente en el cliente cuando la variable es replicada por el servidor. Nunca se llama en el servidor
-// Acepta 0 ó 1 argumento. Si le pasamos argumento tiene que ser del tipo de la variable replicada, y se rellenará con el valor anterior replicado 
-void ADispareitorPersonaje::CallbackArmaSolapada(AArma* ArmaReplicadaAnterior) {
+// Acepta 0 ó 1 argumento. Si le pasamos argumento tiene que ser del tipo de la variable replicada, y se rellenará con el valor anterior replicado o null si no lo tuviera
+void ADispareitorPersonaje::AlReplicarArmaSolapada(AArma* ArmaReplicadaAnterior) {
 	if(ArmaSolapada) {
 		ArmaSolapada->MostrarLeyendaSobreArma(true);
 	}

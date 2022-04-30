@@ -38,11 +38,11 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Propiedades")
 	class USphereComponent* Esfera;
 
-	UPROPERTY(ReplicatedUsing = CallbackEstado, VisibleAnywhere, Category = "Propiedades")
+	UPROPERTY(ReplicatedUsing = AlReplicarEstado, VisibleAnywhere, Category = "Propiedades")
 	EEstado Estado;
 
 	UFUNCTION()
-	void CallbackEstado();
+	void AlReplicarEstado();
 
 	UPROPERTY(VisibleAnywhere, Category = "Propiedades")
 	class UWidgetComponent* LeyendaSobreArma;

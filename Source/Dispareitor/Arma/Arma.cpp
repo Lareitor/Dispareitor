@@ -75,7 +75,7 @@ void AArma::ActualizarEstado(EEstado EstadoAActualizar) {
 	}	
 }
 
-void AArma::CallbackEstado() {
+void AArma::AlReplicarEstado() {
 	switch(Estado) {
 		case EEstado::EEA_Equipada:
 			MostrarLeyendaSobreArma(false);			

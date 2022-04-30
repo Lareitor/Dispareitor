@@ -24,10 +24,10 @@ protected:
 	void Equipar();
 
 private:
-	UPROPERTY(VisibleAnywhere, Category = Camara)	
+	UPROPERTY(VisibleAnywhere, Category = "Camara")	
 	class USpringArmComponent* BrazoCamara;
 
-	UPROPERTY(VisibleAnywhere, Category = Camara)	
+	UPROPERTY(VisibleAnywhere, Category = "Camara")	
 	class UCameraComponent* Camara;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
@@ -35,14 +35,14 @@ private:
 
 	// Cuando cambie esta variable en el servidor se replicará su estado automaticamente en los clientes seleccionados
 	// La replicación funciona sola en una direccion servidor -> clientes
-	UPROPERTY(ReplicatedUsing = CallbackArmaSolapada) 
+	UPROPERTY(ReplicatedUsing = AlReplicarArmaSolapada) 
 	class AArma* ArmaSolapada;
 		
 	UFUNCTION()
-	void CallbackArmaSolapada(AArma* ArmaReplicadaAnterior);
+	void AlReplicarArmaSolapada(AArma* ArmaReplicadaAnterior);
 
 	UPROPERTY(VisibleAnywhere)
-	class UCombateComponente* Combate;
+	class UCombateComponente* CombateComponente;
 
 	// Hace esta funcion de tipo RPC, para llamarla desde los clientes pero que se ejecuten en el servidor
 	// Reliable garantiza que la información llega al servidor (el cliente recibe una confirmación de parte del servidor, si no la recibe vuelve a enviar la info)
