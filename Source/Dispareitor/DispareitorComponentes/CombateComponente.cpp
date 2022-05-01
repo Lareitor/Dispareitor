@@ -3,6 +3,7 @@
 #include "Dispareitor/Personaje/DispareitorPersonaje.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Net/UnrealNetwork.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 UCombateComponente::UCombateComponente() {
 	PrimaryComponentTick.bCanEverTick = false;
@@ -35,6 +36,8 @@ void UCombateComponente::EquiparArma(class AArma* ArmaAEquipar) {
 		ManoDerechaSocket->AttachActor(ArmaEquipada, DispareitorPersonaje->GetMesh());
 	}
 	ArmaEquipada->SetOwner(DispareitorPersonaje);	
+	DispareitorPersonaje->GetCharacterMovement()->bOrientRotationToMovement = false;
+	DispareitorPersonaje->bUseControllerRotationYaw = true;
 }
 
 void UCombateComponente::ActualizarApuntando(bool Apuntando) {
@@ -48,5 +51,11 @@ void UCombateComponente::ActualizarApuntando(bool Apuntando) {
 void UCombateComponente::ServidorActualizarApuntando_Implementation(bool Apuntando) {
 	bApuntando = Apuntando; 
 }
-
+ 
+void UCombateComponente::AlReplicarArmaEquipada() {
+	if(ArmaEquipada && DispareitorPersonaje) {
+		DispareitorPersonaje->GetCharacterMovement()->bOrientRotationToMovement = false;
+		DispareitorPersonaje->bUseControllerRotationYaw = true;
+	}
+}
 

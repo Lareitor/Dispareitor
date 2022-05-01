@@ -33,4 +33,15 @@ private:
 
 	UPROPERTY(BlueprintReadOnly, Category = Movimiento, meta = (AllowPrivateAccess = "true"))
 	bool bApuntando;
+
+	UPROPERTY(BlueprintReadOnly, Category = Movimiento, meta = (AllowPrivateAccess = "true"))
+	float GiroDesviacion;
+
+	UPROPERTY(BlueprintReadOnly, Category = Movimiento, meta = (AllowPrivateAccess = "true"))
+	float Inclinacion;
+
+	FRotator PersonajeRotacionUltimoFrame;
+	FRotator PersonajeRotacion;
+	FRotator DeltaRotacion;
+
 };

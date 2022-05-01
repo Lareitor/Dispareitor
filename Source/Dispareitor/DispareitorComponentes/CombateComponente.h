@@ -25,10 +25,13 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void ServidorActualizarApuntando(bool Apuntando);
 
+	UFUNCTION()
+	void AlReplicarArmaEquipada();
+
 private:
 	class ADispareitorPersonaje* DispareitorPersonaje;
 
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing = AlReplicarArmaEquipada)
 	AArma* ArmaEquipada;
 
 	UPROPERTY(Replicated)
