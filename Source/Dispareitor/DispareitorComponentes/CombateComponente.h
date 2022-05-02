@@ -37,6 +37,12 @@ private:
 	UPROPERTY(Replicated)
 	bool bApuntando;
 
+	UPROPERTY(EditAnywhere)
+	float VelocidadCaminarBase;
+
+	UPROPERTY(EditAnywhere)
+	float VelocidadCaminarApuntando;
+
 public:		
 	
 };

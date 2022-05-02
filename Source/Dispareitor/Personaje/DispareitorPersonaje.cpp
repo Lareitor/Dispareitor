@@ -6,6 +6,7 @@
 #include "Net/UnrealNetwork.h"
 #include "Dispareitor/Arma/Arma.h"
 #include "Dispareitor/DispareitorComponentes/CombateComponente.h"
+#include "Components/CapsuleComponent.h"
 
 
 ADispareitorPersonaje::ADispareitorPersonaje() {
@@ -33,6 +34,10 @@ ADispareitorPersonaje::ADispareitorPersonaje() {
 
 	// Activar que se pueda agachar (esta propiedad tambien existe en el BP)
 	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
+
+	//Para evitar que un jugador choque con la camara de otro
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore); 
+	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore); 
 }
 
 void ADispareitorPersonaje::BeginPlay() {

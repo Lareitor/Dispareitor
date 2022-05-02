@@ -7,10 +7,17 @@
 
 UCombateComponente::UCombateComponente() {
 	PrimaryComponentTick.bCanEverTick = false;
+
+	VelocidadCaminarBase = 600.f;
+	VelocidadCaminarApuntando = 400.f;
 }
 
 void UCombateComponente::BeginPlay() {
 	Super::BeginPlay();	
+
+	if(DispareitorPersonaje) {
+		DispareitorPersonaje->GetCharacterMovement()->MaxWalkSpeed = VelocidadCaminarBase;
+	}
 }
 
 void UCombateComponente::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) {
@@ -45,11 +52,18 @@ void UCombateComponente::ActualizarApuntando(bool Apuntando) {
 	bApuntando = Apuntando; 
 	// Si lo estamos ejecutando en un cliente se invocará esta función en el servidor, y si lo estamos ejecutando en el servidor se ejecutará en él mismo
 	ServidorActualizarApuntando(bApuntando);
+
+	if(DispareitorPersonaje) {
+		DispareitorPersonaje->GetCharacterMovement()->MaxWalkSpeed = bApuntando ? VelocidadCaminarApuntando : VelocidadCaminarBase;
+	}
 	
 }
 
 void UCombateComponente::ServidorActualizarApuntando_Implementation(bool Apuntando) {
 	bApuntando = Apuntando; 
+	if(DispareitorPersonaje) {
+		DispareitorPersonaje->GetCharacterMovement()->MaxWalkSpeed = bApuntando ? VelocidadCaminarApuntando : VelocidadCaminarBase;
+	} 
 }
  
 void UCombateComponente::AlReplicarArmaEquipada() {
