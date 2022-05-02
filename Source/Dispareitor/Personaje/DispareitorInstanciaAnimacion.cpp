@@ -26,10 +26,10 @@ void UDispareitorInstanciaAnimacion::NativeUpdateAnimation(float DeltaTime) {
     VelocidadTemporal.Z = 0.f;
     Velocidad = VelocidadTemporal.Size();
 
-    bEstaEnElAire = DispareitorPersonaje->GetCharacterMovement()->IsFalling();
-    bEstaAcelerando = DispareitorPersonaje->GetCharacterMovement()->GetCurrentAcceleration().Size() > 0.f ? true : false;
+    bEnElAire = DispareitorPersonaje->GetCharacterMovement()->IsFalling();
+    bAcelerando = DispareitorPersonaje->GetCharacterMovement()->GetCurrentAcceleration().Size() > 0.f ? true : false;
     bArmaEquipada = DispareitorPersonaje->EstaArmaEquipada();
-    bEstaAgachado = DispareitorPersonaje->bIsCrouched;
+    bAgachado = DispareitorPersonaje->bIsCrouched;
     bApuntando = DispareitorPersonaje->EstaApuntando();
 
     // GiroDesviacion para el Strafing 

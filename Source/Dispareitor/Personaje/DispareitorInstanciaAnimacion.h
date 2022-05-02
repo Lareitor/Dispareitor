@@ -20,16 +20,16 @@ private:
 	float Velocidad;
 
 	UPROPERTY(BlueprintReadOnly, Category = Movimiento, meta = (AllowPrivateAccess = "true"))
-	bool bEstaEnElAire;
+	bool bEnElAire;
 
 	UPROPERTY(BlueprintReadOnly, Category = Movimiento, meta = (AllowPrivateAccess = "true"))
-	bool bEstaAcelerando;
+	bool bAcelerando;
 
 	UPROPERTY(BlueprintReadOnly, Category = Movimiento, meta = (AllowPrivateAccess = "true"))
 	bool bArmaEquipada;
 
 	UPROPERTY(BlueprintReadOnly, Category = Movimiento, meta = (AllowPrivateAccess = "true"))
-	bool bEstaAgachado;
+	bool bAgachado;
 
 	UPROPERTY(BlueprintReadOnly, Category = Movimiento, meta = (AllowPrivateAccess = "true"))
 	bool bApuntando;
