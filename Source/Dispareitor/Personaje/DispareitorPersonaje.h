@@ -25,6 +25,7 @@ protected:
 	void Agachar();
 	void ApuntarPulsado();
 	void ApuntarLiberado();
+	void CalcularDesplazamientoEnApuntado(float DeltaTime);
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Camara")	
@@ -52,8 +53,14 @@ private:
 	UFUNCTION(Server, Reliable) 
 	void ServidorEquipar();
 
+	float AOGiro;
+	float AOInclinacion;
+	FRotator ArmadoRotacionInicial;
+
 public:	
 	void ActivarArmaSolapada(AArma* Arma);
 	bool EstaArmaEquipada();
 	bool EstaApuntando();
+	FORCEINLINE float ObtenerAOGiro() const { return AOGiro; } 
+	FORCEINLINE float ObtenerAOInclinacion() const { return AOInclinacion; } 
 };

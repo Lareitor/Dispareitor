@@ -7,7 +7,7 @@
 #include "Dispareitor/Arma/Arma.h"
 #include "Dispareitor/DispareitorComponentes/CombateComponente.h"
 #include "Components/CapsuleComponent.h"
-
+#include "Kismet/KismetMathLibrary.h"
 
 ADispareitorPersonaje::ADispareitorPersonaje() {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -46,6 +46,7 @@ void ADispareitorPersonaje::BeginPlay() {
 
 void ADispareitorPersonaje::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
+	CalcularDesplazamientoEnApuntado(DeltaTime);
 }
 
 // Called to bind functionality to input
@@ -175,4 +176,30 @@ bool ADispareitorPersonaje::EstaArmaEquipada() {
 
 bool ADispareitorPersonaje::EstaApuntando() {
 	return CombateComponente && CombateComponente->bApuntando;
+}
+
+// Calcular el desplazamiento del giro (yaw) e inclinacion (pitch) cuando estamos armados y parados
+void ADispareitorPersonaje::CalcularDesplazamientoEnApuntado(float DeltaTime) {
+	if(CombateComponente && CombateComponente->ArmaEquipada == nullptr) {
+		return;
+	}
+
+	FVector VelocidadTemporal = GetVelocity();
+    VelocidadTemporal.Z = 0.f;
+    float Velocidad = VelocidadTemporal.Size();
+	bool bEnElAire = GetCharacterMovement()->IsFalling();
+
+	if(Velocidad == 0.f && !bEnElAire) { // Está parado y no saltando
+		FRotator ArmadoRotacionActual = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
+		FRotator DeltaArmadoRotacion = UKismetMathLibrary::NormalizedDeltaRotator(ArmadoRotacionActual, ArmadoRotacionInicial);
+		AOGiro = DeltaArmadoRotacion.Yaw;
+		bUseControllerRotationYaw = false;
+	} // TODO Cambiar este if por un else
+	if(Velocidad > 0.f || bEnElAire) { // corriendo o saltando
+		AOGiro = 0.f;
+		bUseControllerRotationYaw = true;
+		ArmadoRotacionInicial = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
+	}
+
+	AOInclinacion = GetBaseAimRotation().Pitch;
 }

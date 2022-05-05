@@ -51,4 +51,7 @@ void UDispareitorInstanciaAnimacion::NativeUpdateAnimation(float DeltaTime) {
     const float InclinacionObjetivo = Delta.Yaw / DeltaTime; // Lo escala y lo hacemos proporcional al DeltaTime
     const float Interpolacion = FMath::FInterpTo(Inclinacion, InclinacionObjetivo, DeltaTime, 6.f);  // Si la velocidad de interpolacion (ultimo parametro) es 0 devuelve InclinacionObjetivo
     Inclinacion = FMath::Clamp(Interpolacion, -90.f, 90.f);
+
+    AOGiro = DispareitorPersonaje->ObtenerAOGiro();
+    AOInclinacion = DispareitorPersonaje->ObtenerAOInclinacion();
 }

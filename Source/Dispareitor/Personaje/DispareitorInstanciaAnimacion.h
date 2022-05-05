@@ -40,6 +40,14 @@ private:
 	UPROPERTY(BlueprintReadOnly, Category = Movimiento, meta = (AllowPrivateAccess = "true"))
 	float Inclinacion;
 
+	// AO = Aim Offset
+	UPROPERTY(BlueprintReadOnly, Category = Movimiento, meta = (AllowPrivateAccess = "true"))
+	float AOGiro;
+
+	UPROPERTY(BlueprintReadOnly, Category = Movimiento, meta = (AllowPrivateAccess = "true"))
+	float AOInclinacion;
+
+
 	FRotator PersonajeRotacionUltimoFrame;
 	FRotator PersonajeRotacion;
 	FRotator DeltaRotacion;
