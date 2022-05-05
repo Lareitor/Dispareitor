@@ -202,4 +202,14 @@ void ADispareitorPersonaje::CalcularDesplazamientoEnApuntado(float DeltaTime) {
 	}
 
 	AOInclinacion = GetBaseAimRotation().Pitch;
+	// Debido a la compresion que realiza UE a la hora de enviar estos valores por la red,  transforma los valores negativos en positivos, por los que cuando estamos mirando hacia abajo en el cliente 
+	// (inclinacion negativa) en el server volverá a mirar hacia arriba
+	// Para solucionarlo utilizamos esta solucion  
+	if(AOInclinacion > 90.f && !IsLocallyControlled()) { // estamos en el server
+		// Mapear Inclinación [270,360) a [-90, 0)]
+		FVector2D RangoEntrada(270.f, 360.f);
+		FVector2D RangoSalida(-90.f, 0.f);
+		AOInclinacion = FMath::GetMappedRangeValueClamped(RangoEntrada, RangoSalida, AOInclinacion);
+
+	}
 }
