@@ -50,4 +50,5 @@ private:
 public:		
 	void ActualizarEstado(EEstado EstadoAActualizar);
 	FORCEINLINE USphereComponent* ObtenerEsfera() const { return Esfera; }
+	FORCEINLINE USkeletalMeshComponent* ObtenerMalla() const { return Malla; }
 };

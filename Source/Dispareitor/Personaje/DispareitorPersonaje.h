@@ -63,4 +63,5 @@ public:
 	bool EstaApuntando();
 	FORCEINLINE float ObtenerAOGiro() const { return AOGiro; } 
 	FORCEINLINE float ObtenerAOInclinacion() const { return AOInclinacion; } 
+	AArma* ObtenerArmaEquipada();
 };

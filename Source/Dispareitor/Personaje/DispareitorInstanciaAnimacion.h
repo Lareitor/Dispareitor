@@ -28,6 +28,8 @@ private:
 	UPROPERTY(BlueprintReadOnly, Category = Movimiento, meta = (AllowPrivateAccess = "true"))
 	bool bArmaEquipada;
 
+	class AArma* ArmaEquipada;
+
 	UPROPERTY(BlueprintReadOnly, Category = Movimiento, meta = (AllowPrivateAccess = "true"))
 	bool bAgachado;
 
@@ -46,6 +48,9 @@ private:
 
 	UPROPERTY(BlueprintReadOnly, Category = Movimiento, meta = (AllowPrivateAccess = "true"))
 	float AOInclinacion;
+
+	UPROPERTY(BlueprintReadOnly, Category = Movimiento, meta = (AllowPrivateAccess = "true"))
+	FTransform ManoIzquierdaTransform;
 
 
 	FRotator PersonajeRotacionUltimoFrame;

@@ -213,3 +213,7 @@ void ADispareitorPersonaje::CalcularDesplazamientoEnApuntado(float DeltaTime) {
 
 	}
 }
+
+AArma* ADispareitorPersonaje::ObtenerArmaEquipada() {
+	return CombateComponente == nullptr ? nullptr : CombateComponente->ArmaEquipada;
+}

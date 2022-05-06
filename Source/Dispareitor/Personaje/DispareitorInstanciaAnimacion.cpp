@@ -5,6 +5,7 @@
 #include "DispareitorPersonaje.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Dispareitor/Arma/Arma.h"
 
 void UDispareitorInstanciaAnimacion::NativeInitializeAnimation() {
     Super::NativeInitializeAnimation();
@@ -29,6 +30,7 @@ void UDispareitorInstanciaAnimacion::NativeUpdateAnimation(float DeltaTime) {
     bEnElAire = DispareitorPersonaje->GetCharacterMovement()->IsFalling();
     bAcelerando = DispareitorPersonaje->GetCharacterMovement()->GetCurrentAcceleration().Size() > 0.f ? true : false;
     bArmaEquipada = DispareitorPersonaje->EstaArmaEquipada();
+    ArmaEquipada = DispareitorPersonaje->ObtenerArmaEquipada();
     bAgachado = DispareitorPersonaje->bIsCrouched;
     bApuntando = DispareitorPersonaje->EstaApuntando();
 
@@ -54,4 +56,15 @@ void UDispareitorInstanciaAnimacion::NativeUpdateAnimation(float DeltaTime) {
 
     AOGiro = DispareitorPersonaje->ObtenerAOGiro();
     AOInclinacion = DispareitorPersonaje->ObtenerAOInclinacion();
+
+    if(bArmaEquipada && ArmaEquipada && ArmaEquipada->ObtenerMalla() && DispareitorPersonaje->GetMesh()) {
+        // Obtener ManoIzquierdaTransform en espacio de mundo a partir de ManoIzquierdaSocket (arma)
+        ManoIzquierdaTransform = ArmaEquipada->ObtenerMalla()->GetSocketTransform(FName("ManoIzquierdaSocket"), ERelativeTransformSpace::RTS_World);
+        // Despues de llamar a TransformToBoneSpace, estas variables contendrán la posicion y rotacion de ManoIzquierdaSocket (arma) transformada a posicion relativa en espacio de huesos de nuestra hand_r (personaje)
+        FVector PosicionSalida;
+        FRotator RotacionSalida;
+        DispareitorPersonaje->GetMesh()->TransformToBoneSpace(FName("hand_r"), ManoIzquierdaTransform.GetLocation(), FRotator::ZeroRotator, PosicionSalida, RotacionSalida);
+        ManoIzquierdaTransform.SetLocation(PosicionSalida);
+        ManoIzquierdaTransform.SetRotation(FQuat(RotacionSalida));
+    }
 }
