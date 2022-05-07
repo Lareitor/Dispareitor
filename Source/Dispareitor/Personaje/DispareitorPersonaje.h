@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Dispareitor/Tipos/GirarEnSitio.h"
 #include "DispareitorPersonaje.generated.h"
 
 UCLASS()
@@ -57,6 +58,9 @@ private:
 	float AOInclinacion;
 	FRotator ArmadoRotacionInicial;
 
+	EGirarEnSitio GirarEnSitio;
+	void CalcularGirarEnSitio(float DeltaTime);
+
 public:	
 	void ActivarArmaSolapada(AArma* Arma);
 	bool EstaArmaEquipada();
@@ -64,4 +68,5 @@ public:
 	FORCEINLINE float ObtenerAOGiro() const { return AOGiro; } 
 	FORCEINLINE float ObtenerAOInclinacion() const { return AOInclinacion; } 
 	AArma* ObtenerArmaEquipada();
+	FORCEINLINE EGirarEnSitio ObtenerGirarEnSitio() const { return GirarEnSitio; }
 };

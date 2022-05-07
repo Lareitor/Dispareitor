@@ -38,6 +38,8 @@ ADispareitorPersonaje::ADispareitorPersonaje() {
 	//Para evitar que un jugador choque con la camara de otro
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore); 
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore); 
+
+	GirarEnSitio = EGirarEnSitio::EGES_NoGirar;
 }
 
 void ADispareitorPersonaje::BeginPlay() {
@@ -194,11 +196,13 @@ void ADispareitorPersonaje::CalcularDesplazamientoEnApuntado(float DeltaTime) {
 		FRotator DeltaArmadoRotacion = UKismetMathLibrary::NormalizedDeltaRotator(ArmadoRotacionActual, ArmadoRotacionInicial);
 		AOGiro = DeltaArmadoRotacion.Yaw;
 		bUseControllerRotationYaw = false;
+		CalcularGirarEnSitio(DeltaTime);
 	} // TODO Cambiar este if por un else
 	if(Velocidad > 0.f || bEnElAire) { // corriendo o saltando
 		AOGiro = 0.f;
 		bUseControllerRotationYaw = true;
 		ArmadoRotacionInicial = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
+		GirarEnSitio = EGirarEnSitio::EGES_NoGirar;
 	}
 
 	AOInclinacion = GetBaseAimRotation().Pitch;
@@ -210,7 +214,14 @@ void ADispareitorPersonaje::CalcularDesplazamientoEnApuntado(float DeltaTime) {
 		FVector2D RangoEntrada(270.f, 360.f);
 		FVector2D RangoSalida(-90.f, 0.f);
 		AOInclinacion = FMath::GetMappedRangeValueClamped(RangoEntrada, RangoSalida, AOInclinacion);
+	}
+}
 
+void ADispareitorPersonaje::CalcularGirarEnSitio(float DeltaTime) {
+	if(AOGiro > 90.f) {
+		GirarEnSitio = EGirarEnSitio::EGES_Derecha;
+	} else if(AOGiro < -90.f ) {
+		GirarEnSitio = EGirarEnSitio::EGES_Izquierda;
 	}
 }
 

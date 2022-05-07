@@ -33,6 +33,7 @@ void UDispareitorInstanciaAnimacion::NativeUpdateAnimation(float DeltaTime) {
     ArmaEquipada = DispareitorPersonaje->ObtenerArmaEquipada();
     bAgachado = DispareitorPersonaje->bIsCrouched;
     bApuntando = DispareitorPersonaje->EstaApuntando();
+    GirarEnSitio = DispareitorPersonaje->ObtenerGirarEnSitio();
 
     // GiroDesviacion para el Strafing 
     // Es una rotacion global, independiente de adonde mire el personaje. Si esta mirando al X global sera 0. Al rotar hacia la derecha se incrementa hasta 180. Luego pasa -180 y decrece hasta 0.

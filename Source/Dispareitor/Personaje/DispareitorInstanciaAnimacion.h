@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
+#include "Dispareitor/Tipos/GirarEnSitio.h"
 #include "DispareitorInstanciaAnimacion.generated.h"
 
 UCLASS()
@@ -52,9 +53,11 @@ private:
 	UPROPERTY(BlueprintReadOnly, Category = Movimiento, meta = (AllowPrivateAccess = "true"))
 	FTransform ManoIzquierdaTransform;
 
-
 	FRotator PersonajeRotacionUltimoFrame;
 	FRotator PersonajeRotacion;
 	FRotator DeltaRotacion;
+
+	UPROPERTY(BlueprintReadOnly, Category = Movimiento, meta = (AllowPrivateAccess = "true"))
+	EGirarEnSitio GirarEnSitio;
 
 };

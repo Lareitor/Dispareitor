@@ -9,7 +9,7 @@ enum class EEstado : uint8 {
 	EEA_Inicial UMETA(DisplayName = "Inicial"),
 	EEA_Equipada UMETA(DisplayName = "Equipada"),
 	EEA_Desequipada UMETA(DisplayName = "Desequipada"),
-	EEA_Max UMETA(DisplayName = "MAX") // Para saber cuantos valores hay almacenados. Bastaría con obtener el valor numerico de este
+	EEA_Maximo UMETA(DisplayName = "Maximo") // Para saber cuantos valores hay almacenados. Bastaría con obtener el valor numerico de este
 };
 
 UCLASS()
