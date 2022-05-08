@@ -55,6 +55,7 @@ private:
 	void ServidorEquipar();
 
 	float AOGiro;
+	float InterpolacionAOGiro;
 	float AOInclinacion;
 	FRotator ArmadoRotacionInicial;
 

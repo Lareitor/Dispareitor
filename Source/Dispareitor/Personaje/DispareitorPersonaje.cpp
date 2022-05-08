@@ -195,7 +195,10 @@ void ADispareitorPersonaje::CalcularDesplazamientoEnApuntado(float DeltaTime) {
 		FRotator ArmadoRotacionActual = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
 		FRotator DeltaArmadoRotacion = UKismetMathLibrary::NormalizedDeltaRotator(ArmadoRotacionActual, ArmadoRotacionInicial);
 		AOGiro = DeltaArmadoRotacion.Yaw;
-		bUseControllerRotationYaw = false;
+		if(GirarEnSitio == EGirarEnSitio::EGES_NoGirar) {
+			InterpolacionAOGiro = AOGiro;
+		}
+		bUseControllerRotationYaw = true;
 		CalcularGirarEnSitio(DeltaTime);
 	} // TODO Cambiar este if por un else
 	if(Velocidad > 0.f || bEnElAire) { // corriendo o saltando
@@ -222,6 +225,15 @@ void ADispareitorPersonaje::CalcularGirarEnSitio(float DeltaTime) {
 		GirarEnSitio = EGirarEnSitio::EGES_Derecha;
 	} else if(AOGiro < -90.f ) {
 		GirarEnSitio = EGirarEnSitio::EGES_Izquierda;
+	}
+	if(GirarEnSitio != EGirarEnSitio::EGES_NoGirar) {
+		InterpolacionAOGiro = FMath::FInterpTo(InterpolacionAOGiro, 0.f, DeltaTime, 4.f);
+		AOGiro = InterpolacionAOGiro;
+		if(FMath::Abs(AOGiro) < 15.f) {
+			GirarEnSitio = EGirarEnSitio::EGES_NoGirar;
+			ArmadoRotacionInicial = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
+
+		}
 	}
 }
 
