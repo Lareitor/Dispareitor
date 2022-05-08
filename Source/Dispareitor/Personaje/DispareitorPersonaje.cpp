@@ -40,6 +40,8 @@ ADispareitorPersonaje::ADispareitorPersonaje() {
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore); 
 
 	GirarEnSitio = EGirarEnSitio::EGES_NoGirar;
+	NetUpdateFrequency = 66.f;
+	MinNetUpdateFrequency = 33.f;
 }
 
 void ADispareitorPersonaje::BeginPlay() {
