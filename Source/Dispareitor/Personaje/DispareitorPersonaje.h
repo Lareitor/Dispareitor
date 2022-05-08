@@ -27,6 +27,7 @@ protected:
 	void ApuntarPulsado();
 	void ApuntarLiberado();
 	void CalcularDesplazamientoEnApuntado(float DeltaTime);
+	virtual void Jump() override;
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Camara")	
