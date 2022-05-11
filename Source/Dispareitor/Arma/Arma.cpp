@@ -3,7 +3,8 @@
 #include "Components/WidgetComponent.h"
 #include "Dispareitor/Personaje/DispareitorPersonaje.h"
 #include "Net/UnrealNetwork.h"
-
+#include "Animation/AnimationAsset.h"
+#include "Components/SkeletalMeshComponent.h" 
 
 AArma::AArma() {
 	PrimaryActorTick.bCanEverTick = false;
@@ -89,3 +90,8 @@ void AArma::MostrarLeyendaSobreArma(bool bMostrarLeyendaSobreArma) {
 	}
 }
 
+void AArma::Disparar() {
+	if(AnimacionDisparar) {
+		Malla->PlayAnimation(AnimacionDisparar, false);
+	}
+}

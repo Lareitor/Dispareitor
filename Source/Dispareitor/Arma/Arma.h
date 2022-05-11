@@ -21,6 +21,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	void MostrarLeyendaSobreArma(bool bMostrarLeyendaSobreArma);
+	void Disparar();
 
 protected:	
 	virtual void BeginPlay() override;
@@ -32,10 +33,10 @@ protected:
 	virtual void CallbackEsferaSolapadaFin(UPrimitiveComponent* ComponenteSolapado, AActor* OtroActor, UPrimitiveComponent* OtroComponente, int32 OtroIndice);
 
 private:
-	UPROPERTY(VisibleAnywhere, Category = "Propiedades")
+	UPROPERTY(VisibleAnywhere, Category = Propiedades)
 	USkeletalMeshComponent* Malla;
 
-	UPROPERTY(VisibleAnywhere, Category = "Propiedades")
+	UPROPERTY(VisibleAnywhere, Category = Propiedades)
 	class USphereComponent* Esfera;
 
 	UPROPERTY(ReplicatedUsing = AlReplicarEstado, VisibleAnywhere, Category = "Propiedades")
@@ -44,8 +45,11 @@ private:
 	UFUNCTION()
 	void AlReplicarEstado();
 
-	UPROPERTY(VisibleAnywhere, Category = "Propiedades")
+	UPROPERTY(VisibleAnywhere, Category = Propiedades)
 	class UWidgetComponent* LeyendaSobreArma;
+
+	UPROPERTY(EditAnywhere, Category = Propiedades)
+	class UAnimationAsset* AnimacionDisparar;
 
 public:		
 	void ActualizarEstado(EEstado EstadoAActualizar);

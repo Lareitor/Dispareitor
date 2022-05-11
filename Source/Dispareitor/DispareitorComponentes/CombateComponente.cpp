@@ -75,8 +75,9 @@ void UCombateComponente::AlReplicarArmaEquipada() {
 
 void UCombateComponente::DispararPresionado(bool bPresionado) {
 	bDispararPresionado = bPresionado;
-	if(DispareitorPersonaje && bDispararPresionado) {
+	if(DispareitorPersonaje && bDispararPresionado && ArmaEquipada) {
 		DispareitorPersonaje->EjecutarMontajeDispararArma(bApuntando);
+		ArmaEquipada->Disparar();
 	}
 }
 
