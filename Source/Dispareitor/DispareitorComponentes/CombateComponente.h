@@ -28,6 +28,8 @@ protected:
 	UFUNCTION()
 	void AlReplicarArmaEquipada();
 
+	void DispararPresionado(bool bPresionado);
+
 private:
 	class ADispareitorPersonaje* DispareitorPersonaje;
 
@@ -42,6 +44,8 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	float VelocidadCaminarApuntando;
+
+	bool bDispararPresionado;
 
 public:		
 	

@@ -15,6 +15,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void PostInitializeComponents() override;
+	void EjecutarMontajeDispararArma(bool bApuntando);
 
 protected:
 	virtual void BeginPlay() override;
@@ -28,12 +29,14 @@ protected:
 	void ApuntarLiberado();
 	void CalcularDesplazamientoEnApuntado(float DeltaTime);
 	virtual void Jump() override;
+	void DispararPulsado();
+	void DispararLiberado();
 
 private:
-	UPROPERTY(VisibleAnywhere, Category = "Camara")	
+	UPROPERTY(VisibleAnywhere, Category = Camara)	
 	class USpringArmComponent* BrazoCamara;
 
-	UPROPERTY(VisibleAnywhere, Category = "Camara")	
+	UPROPERTY(VisibleAnywhere, Category = Camara)	
 	class UCameraComponent* Camara;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
@@ -62,6 +65,9 @@ private:
 
 	EGirarEnSitio GirarEnSitio;
 	void CalcularGirarEnSitio(float DeltaTime);
+
+	UPROPERTY(EditAnywhere, Category = Combate)
+	class UAnimMontage* MontajeDispararArma;
 
 public:	
 	void ActivarArmaSolapada(AArma* Arma);

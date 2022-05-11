@@ -73,3 +73,11 @@ void UCombateComponente::AlReplicarArmaEquipada() {
 	}
 }
 
+void UCombateComponente::DispararPresionado(bool bPresionado) {
+	bDispararPresionado = bPresionado;
+	if(DispareitorPersonaje && bDispararPresionado) {
+		DispareitorPersonaje->EjecutarMontajeDispararArma(bApuntando);
+	}
+}
+
+

@@ -8,6 +8,7 @@
 #include "Dispareitor/DispareitorComponentes/CombateComponente.h"
 #include "Components/CapsuleComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "DispareitorInstanciaAnimacion.h"
 
 ADispareitorPersonaje::ADispareitorPersonaje() {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -63,6 +64,9 @@ void ADispareitorPersonaje::SetupPlayerInputComponent(UInputComponent* PlayerInp
 	PlayerInputComponent->BindAction("Agachar", IE_Pressed, this, &ADispareitorPersonaje::Agachar);
 	PlayerInputComponent->BindAction("Apuntar", IE_Pressed, this, &ADispareitorPersonaje::ApuntarPulsado);
 	PlayerInputComponent->BindAction("Apuntar", IE_Released, this, &ADispareitorPersonaje::ApuntarLiberado);
+	PlayerInputComponent->BindAction("Disparar", IE_Pressed, this, &ADispareitorPersonaje::DispararPulsado);
+	PlayerInputComponent->BindAction("Disparar", IE_Released, this, &ADispareitorPersonaje::DispararLiberado);
+
 
 	PlayerInputComponent->BindAxis("MoverAdelanteAtras", this, &ADispareitorPersonaje::MoverAdelanteAtras);
 	PlayerInputComponent->BindAxis("MoverIzquierdaDerecha", this, &ADispareitorPersonaje::MoverIzquierdaDerecha);
@@ -136,6 +140,18 @@ void ADispareitorPersonaje::ApuntarPulsado() {
 void ADispareitorPersonaje::ApuntarLiberado() {
 	if(CombateComponente) {
 		CombateComponente->ActualizarApuntando(false);
+	}
+}
+
+void ADispareitorPersonaje::DispararPulsado() {
+	if(CombateComponente) {
+		CombateComponente->DispararPresionado(true);
+	}
+}
+
+void ADispareitorPersonaje::DispararLiberado() {
+	if(CombateComponente) {
+		CombateComponente->DispararPresionado(false);
 	}
 }
 
@@ -250,4 +266,17 @@ void ADispareitorPersonaje::CalcularGirarEnSitio(float DeltaTime) {
 
 AArma* ADispareitorPersonaje::ObtenerArmaEquipada() {
 	return CombateComponente == nullptr ? nullptr : CombateComponente->ArmaEquipada;
+}
+
+void ADispareitorPersonaje::EjecutarMontajeDispararArma(bool bApuntando) {
+	if(CombateComponente == nullptr || CombateComponente->ArmaEquipada == nullptr) {
+		return;
+	}
+
+	UAnimInstance* InstanciaAnimacion = GetMesh()->GetAnimInstance();
+	if(InstanciaAnimacion && MontajeDispararArma) {
+		InstanciaAnimacion->Montage_Play(MontajeDispararArma);
+		FName NombreSeccion = bApuntando ? FName("RifleMira") : FName("RifleCadera");
+		InstanciaAnimacion->Montage_JumpToSection(NombreSeccion);
+	}
 }
