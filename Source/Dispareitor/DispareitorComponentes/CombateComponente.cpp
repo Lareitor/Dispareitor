@@ -75,10 +75,21 @@ void UCombateComponente::AlReplicarArmaEquipada() {
 
 void UCombateComponente::DispararPresionado(bool bPresionado) {
 	bDispararPresionado = bPresionado;
-	if(DispareitorPersonaje && bDispararPresionado && ArmaEquipada) {
+	if(bDispararPresionado) {
+		// Si estamos en el server se ejecutar en el server y se estamos en un cliente se ejectura en el server
+		ServidorDisparar();
+	}	
+}
+
+// Esta funcion solo se ejecutará en el servidor
+void UCombateComponente::ServidorDisparar_Implementation() {
+	MulticastDisparar();
+}
+
+// Esta función se ejecutará en el servidor + clientes
+void UCombateComponente::MulticastDisparar_Implementation() {
+	if(DispareitorPersonaje && ArmaEquipada) {
 		DispareitorPersonaje->EjecutarMontajeDispararArma(bApuntando);
 		ArmaEquipada->Disparar();
 	}
 }
-
-

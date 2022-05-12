@@ -30,6 +30,13 @@ protected:
 
 	void DispararPresionado(bool bPresionado);
 
+	UFUNCTION(Server, Reliable)
+	void ServidorDisparar();
+
+	// RPC Multicast. Si se invoca en el servidor, se ejecuta en el servidor+ clientes, si se invoca en el cliente solo se ejecuta en ese cliente
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastDisparar();
+
 private:
 	class ADispareitorPersonaje* DispareitorPersonaje;
 
