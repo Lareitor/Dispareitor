@@ -4,6 +4,7 @@
 #include "Components/ActorComponent.h"
 #include "CombateComponente.generated.h"
 
+#define RAYO_LONGITUD 80000.f;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class DISPAREITOR_API UCombateComponente : public UActorComponent {
@@ -36,6 +37,8 @@ protected:
 	// RPC Multicast. Si se invoca en el servidor, se ejecuta en el servidor+ clientes, si se invoca en el cliente solo se ejecuta en ese cliente
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastDisparar();
+
+	void CrucetaRayo(FHitResult& RayoResultado);
 
 private:
 	class ADispareitorPersonaje* DispareitorPersonaje;

@@ -4,9 +4,11 @@
 #include "Engine/SkeletalMeshSocket.h"
 #include "Net/UnrealNetwork.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "DrawDebugHelpers.h"
 
 UCombateComponente::UCombateComponente() {
-	PrimaryComponentTick.bCanEverTick = false;
+	PrimaryComponentTick.bCanEverTick = true;
 
 	VelocidadCaminarBase = 600.f;
 	VelocidadCaminarApuntando = 400.f;
@@ -22,6 +24,9 @@ void UCombateComponente::BeginPlay() {
 
 void UCombateComponente::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	FHitResult RayoResultado;
+	CrucetaRayo(RayoResultado);
 }
 
 void UCombateComponente::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const {
@@ -93,3 +98,26 @@ void UCombateComponente::MulticastDisparar_Implementation() {
 		ArmaEquipada->Disparar();
 	}
 }
+
+void UCombateComponente::CrucetaRayo(FHitResult& RayoResultado) {
+	FVector2D PantallaTamano;
+	if(GEngine && GEngine->GameViewport) {
+		GEngine->GameViewport->GetViewportSize(PantallaTamano);
+	}
+
+	FVector2D CrucetaLocalizacion(PantallaTamano.X / 2.f, PantallaTamano.Y / 2.f);
+	FVector CrucetaMundoPosicion;
+	FVector CrucetaMundoDireccion;
+	bool bPantallaAMundo = UGameplayStatics::DeprojectScreenToWorld(UGameplayStatics::GetPlayerController(this, 0), CrucetaLocalizacion, CrucetaMundoPosicion, CrucetaMundoDireccion);
+	if(bPantallaAMundo) {
+		FVector Inicio = CrucetaMundoPosicion;
+		FVector Fin = Inicio + CrucetaMundoDireccion * RAYO_LONGITUD;
+		GetWorld()->LineTraceSingleByChannel(RayoResultado, Inicio, Fin, ECollisionChannel::ECC_Visibility);		
+		if(!RayoResultado.bBlockingHit) { // Si no alcanzamos nada ponemos como punto de impacto el final del rayo
+			RayoResultado.ImpactPoint = Fin;
+		} else {
+			DrawDebugSphere(GetWorld(), RayoResultado.ImpactPoint, 12.f, 12.f, FColor::Red);
+		}
+	}
+}
+
