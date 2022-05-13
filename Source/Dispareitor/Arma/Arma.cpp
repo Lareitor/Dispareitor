@@ -90,7 +90,7 @@ void AArma::MostrarLeyendaSobreArma(bool bMostrarLeyendaSobreArma) {
 	}
 }
 
-void AArma::Disparar() {
+void AArma::Disparar(const FVector& Objetivo) {
 	if(AnimacionDisparar) {
 		Malla->PlayAnimation(AnimacionDisparar, false);
 	}

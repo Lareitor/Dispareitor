@@ -95,7 +95,7 @@ void UCombateComponente::ServidorDisparar_Implementation() {
 void UCombateComponente::MulticastDisparar_Implementation() {
 	if(DispareitorPersonaje && ArmaEquipada) {
 		DispareitorPersonaje->EjecutarMontajeDispararArma(bApuntando);
-		ArmaEquipada->Disparar();
+		ArmaEquipada->Disparar(Objetivo);
 	}
 }
 
@@ -115,7 +115,9 @@ void UCombateComponente::CrucetaRayo(FHitResult& RayoResultado) {
 		GetWorld()->LineTraceSingleByChannel(RayoResultado, Inicio, Fin, ECollisionChannel::ECC_Visibility);		
 		if(!RayoResultado.bBlockingHit) { // Si no alcanzamos nada ponemos como punto de impacto el final del rayo
 			RayoResultado.ImpactPoint = Fin;
+			Objetivo = Fin;
 		} else {
+			Objetivo = RayoResultado.ImpactPoint;
 			DrawDebugSphere(GetWorld(), RayoResultado.ImpactPoint, 12.f, 12.f, FColor::Red);
 		}
 	}

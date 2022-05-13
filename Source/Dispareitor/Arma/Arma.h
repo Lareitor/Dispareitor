@@ -21,7 +21,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	void MostrarLeyendaSobreArma(bool bMostrarLeyendaSobreArma);
-	void Disparar();
+	virtual void Disparar(const FVector& Objetivo);
 
 protected:	
 	virtual void BeginPlay() override;

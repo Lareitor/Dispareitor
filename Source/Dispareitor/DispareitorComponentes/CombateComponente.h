@@ -57,6 +57,8 @@ private:
 
 	bool bDispararPresionado;
 
+	FVector Objetivo;
+
 public:		
 	
 };
