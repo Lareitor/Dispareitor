@@ -1,5 +1,6 @@
 #include "Proyectil.h"
 #include "Components/BoxComponent.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 
 AProyectil::AProyectil() {
 	PrimaryActorTick.bCanEverTick = true;
@@ -11,6 +12,9 @@ AProyectil::AProyectil() {
 	CajaColision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	CajaColision->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
 	CajaColision->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
+
+	ProyectilMovimientoComponente = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProyectilMovimientoComponente"));
+	ProyectilMovimientoComponente->bRotationFollowsVelocity = true;
 }
 
 void AProyectil::BeginPlay() {
