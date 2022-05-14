@@ -4,8 +4,12 @@
 
 void AArmaProyectil::Disparar(const FVector& Objetivo) {
     Super::Disparar(Objetivo);
-    APawn* PeonInstigador = Cast<APawn>(GetOwner());
 
+    if(!HasAuthority()) {
+        return;
+    }
+
+    APawn* PeonInstigador = Cast<APawn>(GetOwner());
     const USkeletalMeshSocket* MuzzleFlashSocket = ObtenerMalla()->GetSocketByName(FName("MuzzleFlash"));
     if(MuzzleFlashSocket) {
         FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(ObtenerMalla());

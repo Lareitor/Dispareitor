@@ -1,9 +1,14 @@
 #include "Proyectil.h"
 #include "Components/BoxComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Particles/ParticleSystemComponent.h"
+#include "Particles/ParticleSystem.h"
 
 AProyectil::AProyectil() {
 	PrimaryActorTick.bCanEverTick = true;
+	// El proyectil es creado en el servidor pero como tenemos esta variable a true, es replicada en los clientes tambien
+	bReplicates = true;
 
 	CajaColision = CreateDefaultSubobject<UBoxComponent>(TEXT("CajaColision"));
 	SetRootComponent(CajaColision);
@@ -19,6 +24,10 @@ AProyectil::AProyectil() {
 
 void AProyectil::BeginPlay() {
 	Super::BeginPlay();
+
+	if(Traza) {
+		TrazaComponente = UGameplayStatics::SpawnEmitterAttached(Traza, CajaColision, FName(), GetActorLocation(), GetActorRotation(), EAttachLocation::KeepWorldPosition);
+	}
 }
 
 void AProyectil::Tick(float DeltaTime) {
