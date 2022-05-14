@@ -4,6 +4,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Particles/ParticleSystem.h"
+#include "Sound/SoundCue.h"
 
 AProyectil::AProyectil() {
 	PrimaryActorTick.bCanEverTick = true;
@@ -28,9 +29,31 @@ void AProyectil::BeginPlay() {
 	if(Traza) {
 		TrazaComponente = UGameplayStatics::SpawnEmitterAttached(Traza, CajaColision, FName(), GetActorLocation(), GetActorRotation(), EAttachLocation::KeepWorldPosition);
 	}
+
+	// El servidor es el que se encarga de manejar la colision
+	if(HasAuthority()) {
+		CajaColision->OnComponentHit.AddDynamic(this, &AProyectil::CallbackAlGolpear);
+	}
 }
 
 void AProyectil::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 }
+
+void AProyectil::CallbackAlGolpear(UPrimitiveComponent* ComponenteGolpeante, AActor* ActorGolpeado, UPrimitiveComponent* ComponenteGolpeado, FVector ImpulsoNormal, const FHitResult& GolpeResultado) {
+	// Al llamar a este metodo se propaga a todos los clientes y se invoca a Destroyed, y es ahí donde realizamos el efecto de particulas y sonido
+	Destroy();
+}
+
+void AProyectil::Destroyed() {
+	Super::Destroyed();
+
+	if(ImpactoParticulas) {
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactoParticulas, GetActorTransform());
+	}
+	if(ImpactoSonido) {
+		UGameplayStatics::PlaySoundAtLocation(this, ImpactoSonido, GetActorLocation());
+	}
+}
+
 

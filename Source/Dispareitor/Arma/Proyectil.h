@@ -11,9 +11,13 @@ class DISPAREITOR_API AProyectil : public AActor {
 public:	
 	AProyectil();
 	virtual void Tick(float DeltaTime) override;
+	virtual void Destroyed() override;
 
 protected:
 	virtual void BeginPlay() override;
+	
+	UFUNCTION()
+	virtual  void CallbackAlGolpear(UPrimitiveComponent* ComponenteGolpeante, AActor* ActorGolpeado, UPrimitiveComponent* ComponenteGolpeado, FVector ImpulsoNormal, const FHitResult& GolpeResultado);
 
 private:
 	UPROPERTY(EditAnywhere)
@@ -26,6 +30,12 @@ private:
 	class UParticleSystem* Traza;
 
 	class UParticleSystemComponent* TrazaComponente;
+
+	UPROPERTY(EditAnywhere)
+	UParticleSystem* ImpactoParticulas;
+
+	UPROPERTY(EditAnywhere)
+	class USoundCue* ImpactoSonido;
 
 public:	
 	
