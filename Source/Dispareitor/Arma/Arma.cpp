@@ -5,6 +5,8 @@
 #include "Net/UnrealNetwork.h"
 #include "Animation/AnimationAsset.h"
 #include "Components/SkeletalMeshComponent.h" 
+#include "Casquillo.h"
+#include "Engine/SkeletalMeshSocket.h"
 
 AArma::AArma() {
 	PrimaryActorTick.bCanEverTick = false;
@@ -93,5 +95,15 @@ void AArma::MostrarLeyendaSobreArma(bool bMostrarLeyendaSobreArma) {
 void AArma::Disparar(const FVector& Objetivo) {
 	if(AnimacionDisparar) {
 		Malla->PlayAnimation(AnimacionDisparar, false);
+	}
+	if(Casquillo) {
+		const USkeletalMeshSocket* CasquilloSocket = Malla->GetSocketByName(FName("AmmoEject"));
+		if(CasquilloSocket) {
+			FTransform CasquilloSocketTransform = CasquilloSocket->GetSocketTransform(Malla);
+			UWorld* Mundo = GetWorld();
+			if(Mundo) {
+				Mundo->SpawnActor<ACasquillo>(Casquillo, CasquilloSocketTransform.GetLocation(), CasquilloSocketTransform.GetRotation().Rotator());
+			}
+		}
 	}
 }

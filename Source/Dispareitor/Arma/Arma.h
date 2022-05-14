@@ -51,6 +51,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = Propiedades)
 	class UAnimationAsset* AnimacionDisparar;
 
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class ACasquillo> Casquillo;
+
 public:		
 	void ActualizarEstado(EEstado EstadoAActualizar);
 	FORCEINLINE USphereComponent* ObtenerEsfera() const { return Esfera; }
