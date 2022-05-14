@@ -9,6 +9,7 @@
 
 UCombateComponente::UCombateComponente() {
 	PrimaryComponentTick.bCanEverTick = true;
+	SetIsReplicatedByDefault(true);
 
 	VelocidadCaminarBase = 600.f;
 	VelocidadCaminarApuntando = 400.f;
