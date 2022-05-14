@@ -32,11 +32,11 @@ protected:
 	void DispararPresionado(bool bPresionado);
 
 	UFUNCTION(Server, Reliable)
-	void ServidorDisparar();
+	void ServidorDisparar(const FVector_NetQuantize& Objetivo);
 
 	// RPC Multicast. Si se invoca en el servidor, se ejecuta en el servidor+ clientes, si se invoca en el cliente solo se ejecuta en ese cliente
 	UFUNCTION(NetMulticast, Reliable)
-	void MulticastDisparar();
+	void MulticastDisparar(const FVector_NetQuantize& Objetivo);
 
 	void CrucetaRayo(FHitResult& RayoResultado);
 
@@ -56,9 +56,7 @@ private:
 	float VelocidadCaminarApuntando;
 
 	bool bDispararPresionado;
-
-	FVector Objetivo;
-
+	
 public:		
 	
 };

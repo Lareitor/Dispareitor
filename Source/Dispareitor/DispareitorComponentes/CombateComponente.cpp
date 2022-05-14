@@ -24,9 +24,6 @@ void UCombateComponente::BeginPlay() {
 
 void UCombateComponente::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	FHitResult RayoResultado;
-	CrucetaRayo(RayoResultado);
 }
 
 void UCombateComponente::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const {
@@ -81,18 +78,21 @@ void UCombateComponente::AlReplicarArmaEquipada() {
 void UCombateComponente::DispararPresionado(bool bPresionado) {
 	bDispararPresionado = bPresionado;
 	if(bDispararPresionado) {
-		// Si estamos en el server se ejecutar en el server y se estamos en un cliente se ejectura en el server
-		ServidorDisparar();
+		FHitResult RayoResultado;
+		CrucetaRayo(RayoResultado);
+
+		// Si estamos en el server se ejecutar en el server y si estamos en un cliente se ejectura en el server
+		ServidorDisparar(RayoResultado.ImpactPoint);
 	}	
 }
 
 // Esta funcion solo se ejecutará en el servidor
-void UCombateComponente::ServidorDisparar_Implementation() {
-	MulticastDisparar();
+void UCombateComponente::ServidorDisparar_Implementation(const FVector_NetQuantize& Objetivo) {
+	MulticastDisparar(Objetivo);
 }
 
 // Esta función se ejecutará en el servidor + clientes
-void UCombateComponente::MulticastDisparar_Implementation() {
+void UCombateComponente::MulticastDisparar_Implementation(const FVector_NetQuantize& Objetivo) {
 	if(DispareitorPersonaje && ArmaEquipada) {
 		DispareitorPersonaje->EjecutarMontajeDispararArma(bApuntando);
 		ArmaEquipada->Disparar(Objetivo);
@@ -112,14 +112,7 @@ void UCombateComponente::CrucetaRayo(FHitResult& RayoResultado) {
 	if(bPantallaAMundo) {
 		FVector Inicio = CrucetaMundoPosicion;
 		FVector Fin = Inicio + CrucetaMundoDireccion * RAYO_LONGITUD;
-		GetWorld()->LineTraceSingleByChannel(RayoResultado, Inicio, Fin, ECollisionChannel::ECC_Visibility);		
-		if(!RayoResultado.bBlockingHit) { // Si no alcanzamos nada ponemos como punto de impacto el final del rayo
-			RayoResultado.ImpactPoint = Fin;
-			Objetivo = Fin;
-		} else {
-			Objetivo = RayoResultado.ImpactPoint;
-			DrawDebugSphere(GetWorld(), RayoResultado.ImpactPoint, 12.f, 12.f, FColor::Red);
-		}
+		GetWorld()->LineTraceSingleByChannel(RayoResultado, Inicio, Fin, ECollisionChannel::ECC_Visibility);
 	}
 }
 
