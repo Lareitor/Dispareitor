@@ -17,7 +17,7 @@ protected:
 	virtual void BeginPlay() override;
 	
 	UFUNCTION()
-	virtual  void CallbackAlGolpear(UPrimitiveComponent* ComponenteGolpeante, AActor* ActorGolpeado, UPrimitiveComponent* ComponenteGolpeado, FVector ImpulsoNormal, const FHitResult& GolpeResultado);
+	virtual void CallbackAlGolpear(UPrimitiveComponent* ComponenteGolpeante, AActor* ActorGolpeado, UPrimitiveComponent* ComponenteGolpeado, FVector ImpulsoNormal, const FHitResult& GolpeResultado);
 
 private:
 	UPROPERTY(EditAnywhere)

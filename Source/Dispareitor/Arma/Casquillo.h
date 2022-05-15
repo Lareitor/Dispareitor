@@ -14,8 +14,17 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	UFUNCTION()
+	virtual void CallbackAlGolpear(UPrimitiveComponent* ComponenteGolpeante, AActor* ActorGolpeado, UPrimitiveComponent* ComponenteGolpeado, FVector ImpulsoNormal, const FHitResult& GolpeResultado);
+
 private: 
 	UPROPERTY(VisibleAnywhere)
-	UStaticMeshComponent* Malla;		
+	UStaticMeshComponent* Malla;
+
+	UPROPERTY(EditAnywhere)
+	float ImpulsoEyeccion;	
+
+	UPROPERTY(EditAnywhere)
+	class USoundCue* Sonido;	
 
 };
