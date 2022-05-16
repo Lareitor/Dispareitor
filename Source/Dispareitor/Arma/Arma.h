@@ -23,6 +23,21 @@ public:
 	void MostrarLeyendaSobreArma(bool bMostrarLeyendaSobreArma);
 	virtual void Disparar(const FVector& Objetivo);
 
+	UPROPERTY(EditAnywhere, Category = Cruceta)
+	class UTexture2D* CrucetaCentro;
+
+	UPROPERTY(EditAnywhere, Category = Cruceta)
+	UTexture2D* CrucetaIzquierda;
+
+	UPROPERTY(EditAnywhere, Category = Cruceta)
+	UTexture2D* CrucetaDerecha;
+
+	UPROPERTY(EditAnywhere, Category = Cruceta)
+	UTexture2D* CrucetaArriba;
+
+	UPROPERTY(EditAnywhere, Category = Cruceta)
+	UTexture2D* CrucetaAbajo;
+
 protected:	
 	virtual void BeginPlay() override;
 

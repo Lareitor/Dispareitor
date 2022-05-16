@@ -40,8 +40,12 @@ protected:
 
 	void CrucetaRayo(FHitResult& RayoResultado);
 
+	void ActualizarHUDCruceta(float DeltaTime);
+
 private:
 	class ADispareitorPersonaje* DispareitorPersonaje;
+	class ADispareitorControladorJugador* DispareitorControladorJugador;
+	class ADispareitorHUD* DispareitorHUD;
 
 	UPROPERTY(ReplicatedUsing = AlReplicarArmaEquipada)
 	AArma* ArmaEquipada;

@@ -6,6 +6,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
+#include "Dispareitor/ControladorJugador/DispareitorControladorJugador.h"
+#include "Dispareitor/HUD/DispareitorHUD.h"
 
 UCombateComponente::UCombateComponente() {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -25,6 +27,36 @@ void UCombateComponente::BeginPlay() {
 
 void UCombateComponente::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	
+	ActualizarHUDCruceta(DeltaTime);
+}
+
+void UCombateComponente::ActualizarHUDCruceta(float DeltaTime) {
+	if(DispareitorPersonaje == nullptr || DispareitorPersonaje->Controller == nullptr) {
+		return;
+	}
+
+	DispareitorControladorJugador = DispareitorControladorJugador == nullptr ? Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller) : DispareitorControladorJugador; 
+	if(DispareitorControladorJugador) {
+		DispareitorHUD = DispareitorHUD == nullptr ? Cast<ADispareitorHUD>(DispareitorControladorJugador->GetHUD()) : DispareitorHUD;
+		if(DispareitorHUD) {
+			FHUDTexturas HUDTexturas;
+			if(ArmaEquipada) {
+				HUDTexturas.CrucetaCentro = ArmaEquipada->CrucetaCentro;
+				HUDTexturas.CrucetaIzquierda = ArmaEquipada->CrucetaIzquierda;
+				HUDTexturas.CrucetaDerecha = ArmaEquipada->CrucetaDerecha;
+				HUDTexturas.CrucetaArriba = ArmaEquipada->CrucetaArriba;
+				HUDTexturas.CrucetaAbajo = ArmaEquipada->CrucetaAbajo;
+			} else {
+				HUDTexturas.CrucetaCentro = nullptr;
+				HUDTexturas.CrucetaIzquierda = nullptr;
+				HUDTexturas.CrucetaDerecha = nullptr;
+				HUDTexturas.CrucetaArriba = nullptr;
+				HUDTexturas.CrucetaAbajo = nullptr;
+			}
+			DispareitorHUD->ActualizarHUDTexturas(HUDTexturas);
+		}
+	}
 }
 
 void UCombateComponente::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const {
