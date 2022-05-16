@@ -13,7 +13,7 @@ public:
 	UTexture2D* CrucetaDerecha;
 	UTexture2D* CrucetaArriba;
 	UTexture2D* CrucetaAbajo;
-}
+};
 
 UCLASS()
 class DISPAREITOR_API ADispareitorHUD : public AHUD {
@@ -24,6 +24,7 @@ public:
 
 private:
 	FHUDTexturas HUDTexturas;
+	void DibujarCruceta(UTexture2D* Textura, FVector2D PantallaCentro);
 
 public:
 	FORCEINLINE void ActualizarHUDTexturas(const FHUDTexturas& HUDT) { HUDTexturas = HUDT; }		
