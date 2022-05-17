@@ -38,7 +38,7 @@ protected:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastDisparar(const FVector_NetQuantize& Objetivo);
 
-	void CrucetaRayo(FHitResult& RayoResultado);
+	void CalcularRayoDesdeCruceta(FHitResult& RayoResultado);
 
 	void ActualizarHUDCruceta(float DeltaTime);
 
@@ -63,6 +63,8 @@ private:
 
 	float CrucetaFactorVelocidad;
 	float CrucetaFactorEnAire;
+
+	FVector ObjetoAlcanzado;
 	
 public:		
 	

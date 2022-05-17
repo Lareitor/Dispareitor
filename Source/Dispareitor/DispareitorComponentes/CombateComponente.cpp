@@ -29,6 +29,12 @@ void UCombateComponente::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
 	ActualizarHUDCruceta(DeltaTime);
+
+	if(DispareitorPersonaje && DispareitorPersonaje->IsLocallyControlled()) {
+		FHitResult RayoResultado;
+		CalcularRayoDesdeCruceta(RayoResultado);
+		ObjetoAlcanzado = RayoResultado.ImpactPoint;
+	}
 }
 
 void UCombateComponente::ActualizarHUDCruceta(float DeltaTime) {
@@ -128,7 +134,7 @@ void UCombateComponente::DispararPresionado(bool bPresionado) {
 	bDispararPresionado = bPresionado;
 	if(bDispararPresionado) {
 		FHitResult RayoResultado;
-		CrucetaRayo(RayoResultado);
+		CalcularRayoDesdeCruceta(RayoResultado);
 
 		// Si estamos en el server se ejecutar en el server y si estamos en un cliente se ejectura en el server
 		ServidorDisparar(RayoResultado.ImpactPoint);
@@ -148,7 +154,7 @@ void UCombateComponente::MulticastDisparar_Implementation(const FVector_NetQuant
 	}
 }
 
-void UCombateComponente::CrucetaRayo(FHitResult& RayoResultado) {
+void UCombateComponente::CalcularRayoDesdeCruceta(FHitResult& RayoResultado) {
 	FVector2D PantallaTamano;
 	if(GEngine && GEngine->GameViewport) {
 		GEngine->GameViewport->GetViewportSize(PantallaTamano);
@@ -162,6 +168,10 @@ void UCombateComponente::CrucetaRayo(FHitResult& RayoResultado) {
 		FVector Inicio = CrucetaMundoPosicion;
 		FVector Fin = Inicio + CrucetaMundoDireccion * RAYO_LONGITUD;
 		GetWorld()->LineTraceSingleByChannel(RayoResultado, Inicio, Fin, ECollisionChannel::ECC_Visibility);
+		// Si no hemos colisionado con nada, hacemos que punto de impacto sea el final del rayo
+		if(!RayoResultado.bBlockingHit) {
+			RayoResultado.ImpactPoint = Fin;
+		}
 	}
 }
 

@@ -280,3 +280,11 @@ void ADispareitorPersonaje::EjecutarMontajeDispararArma(bool bApuntando) {
 		InstanciaAnimacion->Montage_JumpToSection(NombreSeccion);
 	}
 }
+
+FVector ADispareitorPersonaje::ObtenerObjetoAlcanzado() const {
+	if(CombateComponente == nullptr || CombateComponente->ArmaEquipada == nullptr) {
+		return FVector();
+	} else {
+		return CombateComponente->ObjetoAlcanzado;	
+	}
+}

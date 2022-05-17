@@ -77,4 +77,5 @@ public:
 	FORCEINLINE float ObtenerAOInclinacion() const { return AOInclinacion; } 
 	AArma* ObtenerArmaEquipada();
 	FORCEINLINE EGirarEnSitio ObtenerGirarEnSitio() const { return GirarEnSitio; }
+	FVector ObtenerObjetoAlcanzado() const;
 };
