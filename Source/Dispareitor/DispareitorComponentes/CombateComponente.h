@@ -60,6 +60,9 @@ private:
 	float VelocidadCaminarApuntando;
 
 	bool bDispararPresionado;
+
+	float CrucetaFactorVelocidad;
+	float CrucetaFactorEnAire;
 	
 public:		
 	

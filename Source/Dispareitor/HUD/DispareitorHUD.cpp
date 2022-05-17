@@ -9,28 +9,35 @@ void ADispareitorHUD::DrawHUD() {
         GEngine->GameViewport->GetViewportSize(PantallaTamano);
         const FVector2D PantallaCentro(PantallaTamano.X / 2.f, PantallaTamano.Y / 2.f);
 
+        float AperturaEscalada = CrucetaAperturaMaxima * HUDTexturas.CrucetaApertura;    
+
         if(HUDTexturas.CrucetaCentro) {
-            DibujarCruceta(HUDTexturas.CrucetaCentro, PantallaCentro);
+            FVector2D Apertura(0.f, 0.f);
+            DibujarCruceta(HUDTexturas.CrucetaCentro, PantallaCentro, Apertura);
         }
         if(HUDTexturas.CrucetaIzquierda) {
-            DibujarCruceta(HUDTexturas.CrucetaIzquierda, PantallaCentro);
+            FVector2D Apertura(-AperturaEscalada, 0.f);
+            DibujarCruceta(HUDTexturas.CrucetaIzquierda, PantallaCentro, Apertura);
         }
         if(HUDTexturas.CrucetaDerecha) {
-            DibujarCruceta(HUDTexturas.CrucetaDerecha, PantallaCentro);
+            FVector2D Apertura(AperturaEscalada, 0.f);
+            DibujarCruceta(HUDTexturas.CrucetaDerecha, PantallaCentro, Apertura);
         }
         if(HUDTexturas.CrucetaArriba) {
-            DibujarCruceta(HUDTexturas.CrucetaArriba, PantallaCentro);
+            FVector2D Apertura(0.f, -AperturaEscalada);
+            DibujarCruceta(HUDTexturas.CrucetaArriba, PantallaCentro, Apertura);
         }
         if(HUDTexturas.CrucetaAbajo) {
-            DibujarCruceta(HUDTexturas.CrucetaAbajo, PantallaCentro);
+            FVector2D Apertura(0.f, AperturaEscalada);
+            DibujarCruceta(HUDTexturas.CrucetaAbajo, PantallaCentro, Apertura);
         }
     }
 }
 
-void ADispareitorHUD::DibujarCruceta(UTexture2D* Textura, FVector2D PantallaCentro) {
+void ADispareitorHUD::DibujarCruceta(UTexture2D* Textura, FVector2D PantallaCentro, FVector2D Apertura) {
     const float TexturaAnchura = Textura->GetSizeX();
     const float TexturaAltura = Textura->GetSizeY();
-    const FVector2D TexturaPuntoDondeDibujar(PantallaCentro.X - (TexturaAnchura / 2.f), PantallaCentro.Y - (TexturaAltura / 2.f));
+    const FVector2D TexturaPuntoDondeDibujar(PantallaCentro.X - (TexturaAnchura / 2.f) + Apertura.X, PantallaCentro.Y - (TexturaAltura / 2.f) + Apertura.Y);
 
     DrawTexture(Textura, TexturaPuntoDondeDibujar.X, TexturaPuntoDondeDibujar.Y, TexturaAnchura, TexturaAltura, 0.f, 0.f, 1.f, 1.f, FLinearColor::White);
 }

@@ -13,6 +13,7 @@ public:
 	UTexture2D* CrucetaDerecha;
 	UTexture2D* CrucetaArriba;
 	UTexture2D* CrucetaAbajo;
+	float CrucetaApertura;
 };
 
 UCLASS()
@@ -24,7 +25,10 @@ public:
 
 private:
 	FHUDTexturas HUDTexturas;
-	void DibujarCruceta(UTexture2D* Textura, FVector2D PantallaCentro);
+	void DibujarCruceta(UTexture2D* Textura, FVector2D PantallaCentro, FVector2D Apertura);
+
+	UPROPERTY(EditAnywhere)
+	float CrucetaAperturaMaxima = 16.f;
 
 public:
 	FORCEINLINE void ActualizarHUDTexturas(const FHUDTexturas& HUDT) { HUDTexturas = HUDT; }		

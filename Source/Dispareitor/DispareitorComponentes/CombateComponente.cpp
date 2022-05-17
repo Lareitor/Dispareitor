@@ -54,6 +54,22 @@ void UCombateComponente::ActualizarHUDCruceta(float DeltaTime) {
 				HUDTexturas.CrucetaArriba = nullptr;
 				HUDTexturas.CrucetaAbajo = nullptr;
 			}
+
+			// Mapear la velocidad del jugador al rango [0, 1] para controlar la apertura de la cruceta
+			FVector2D VelocidadCaminarRango(0.f, DispareitorPersonaje->GetCharacterMovement()->MaxWalkSpeed);
+			FVector2D VelocidadNormalizadaRango(0.f, 1.f);
+			FVector Velocidad = DispareitorPersonaje->GetVelocity();
+			Velocidad.Z = 0.f;
+			CrucetaFactorVelocidad = FMath::GetMappedRangeValueClamped(VelocidadCaminarRango, VelocidadNormalizadaRango, Velocidad.Size());
+			
+			if(DispareitorPersonaje->GetCharacterMovement()->IsFalling()) {
+				CrucetaFactorEnAire = FMath::FInterpTo(CrucetaFactorEnAire, 2.25f, DeltaTime, 2.25f);
+			} else {
+				CrucetaFactorEnAire = FMath::FInterpTo(CrucetaFactorEnAire, 0.f, DeltaTime, 30.f);
+			}
+			
+			HUDTexturas.CrucetaApertura = CrucetaFactorVelocidad + CrucetaFactorEnAire;
+
 			DispareitorHUD->ActualizarHUDTexturas(HUDTexturas);
 		}
 	}
