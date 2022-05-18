@@ -38,6 +38,12 @@ public:
 	UPROPERTY(EditAnywhere, Category = Cruceta)
 	UTexture2D* CrucetaAbajo;
 
+	UPROPERTY(EditAnywhere)
+	float ZoomFOV = 30.f;
+
+	UPROPERTY(EditAnywhere)
+	float ZoomVelocidadInterpolacion = 20.f;
+
 protected:	
 	virtual void BeginPlay() override;
 
@@ -73,4 +79,7 @@ public:
 	void ActualizarEstado(EEstado EstadoAActualizar);
 	FORCEINLINE USphereComponent* ObtenerEsfera() const { return Esfera; }
 	FORCEINLINE USkeletalMeshComponent* ObtenerMalla() const { return Malla; }
+	FORCEINLINE float ObtenerZoomFOV() const { return ZoomFOV; }
+	FORCEINLINE float ObtenerVelocidadInterpolacion() const { return ZoomVelocidadInterpolacion; }
+
 };

@@ -65,6 +65,18 @@ private:
 	float CrucetaFactorEnAire;
 
 	FVector ObjetoAlcanzado;
+
+	float PorDefectoFOV;
+
+	UPROPERTY(EditAnywhere, Category = Combate)
+	float ZoomFOV =  30.f;
+
+	float ActualFOV;
+
+	UPROPERTY(EditAnywhere, Category = Combate)
+	float ZoomVelocidadInterpolacion = 20.f;
+
+	void InterpolarFOV(float DeltaTime);
 	
 public:		
 	

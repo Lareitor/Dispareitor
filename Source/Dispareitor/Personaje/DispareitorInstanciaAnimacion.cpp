@@ -71,12 +71,12 @@ void UDispareitorInstanciaAnimacion::NativeUpdateAnimation(float DeltaTime) {
         // Como la rotacion de la mano derecha para que apunte en la direccion de la cruceta es solo cosmetica, solo lo aplicamos si somos el player local, no lo replicamos para ahorra ancho de banda
         if(DispareitorPersonaje->IsLocallyControlled()) {
             bControladoLocalmente = true;
-             //FTransform ManoDerechaTransform = ArmaEquipada->ObtenerMalla()->GetSocketTransform(FName("hand_r"), ERelativeTransformSpace::RTS_World);
-            FTransform ManoDerechaTransform = DispareitorPersonaje->GetMesh()->GetSocketTransform(FName("hand_r"), ERelativeTransformSpace::RTS_World);
+            FTransform ManoDerechaTransform = ArmaEquipada->ObtenerMalla()->GetSocketTransform(FName("foo"), ERelativeTransformSpace::RTS_World);
+            //FTransform ManoDerechaTransform = DispareitorPersonaje->GetMesh()->GetBoneTransform(DispareitorPersonaje->GetMesh()->GetBoneIndex(FName("hand_r")));  // GetSocketTransform(FName("hand_r"), ERelativeTransformSpace::RTS_World);
             ManoDerechaRotacion = UKismetMathLibrary::FindLookAtRotation(ManoDerechaTransform.GetLocation(), ManoDerechaTransform.GetLocation() + (ManoDerechaTransform.GetLocation() - DispareitorPersonaje->ObtenerObjetoAlcanzado()) );
  
             /*FTransform ArmaBocaTransform = ArmaEquipada->ObtenerMalla()->GetSocketTransform(FName("MuzzleFlash"), ERelativeTransformSpace::RTS_World);
-             FVector ArmaBocaX(FRotationMatrix(ArmaBocaTransform.GetRotation().Rotator()).GetUnitAxis(EAxis::X));
+            FVector ArmaBocaX(FRotationMatrix(ArmaBocaTransform.GetRotation().Rotator()).GetUnitAxis(EAxis::X));
             DrawDebugLine(GetWorld(), ArmaBocaTransform.GetLocation(), ArmaBocaTransform.GetLocation() + ArmaBocaX * 1000.f, FColor::Red);
             DrawDebugLine(GetWorld(), ArmaBocaTransform.GetLocation(), DispareitorPersonaje->ObtenerObjetoAlcanzado(), FColor::Green);*/ 
         }

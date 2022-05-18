@@ -78,4 +78,5 @@ public:
 	AArma* ObtenerArmaEquipada();
 	FORCEINLINE EGirarEnSitio ObtenerGirarEnSitio() const { return GirarEnSitio; }
 	FVector ObtenerObjetoAlcanzado() const;
+	FORCEINLINE UCameraComponent* ObtenerCamara() const { return Camara; }
 };

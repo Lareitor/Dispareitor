@@ -8,6 +8,7 @@
 #include "DrawDebugHelpers.h"
 #include "Dispareitor/ControladorJugador/DispareitorControladorJugador.h"
 #include "Dispareitor/HUD/DispareitorHUD.h"
+#include "Camera/CameraComponent.h"
 
 UCombateComponente::UCombateComponente() {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -22,18 +23,24 @@ void UCombateComponente::BeginPlay() {
 
 	if(DispareitorPersonaje) {
 		DispareitorPersonaje->GetCharacterMovement()->MaxWalkSpeed = VelocidadCaminarBase;
+		
+		if(DispareitorPersonaje->ObtenerCamara()) {
+			PorDefectoFOV = DispareitorPersonaje->ObtenerCamara()->FieldOfView;
+			ActualFOV = PorDefectoFOV;
+		}
 	}
 }
 
 void UCombateComponente::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	
-	ActualizarHUDCruceta(DeltaTime);
 
 	if(DispareitorPersonaje && DispareitorPersonaje->IsLocallyControlled()) {
 		FHitResult RayoResultado;
 		CalcularRayoDesdeCruceta(RayoResultado);
 		ObjetoAlcanzado = RayoResultado.ImpactPoint;
+
+		ActualizarHUDCruceta(DeltaTime);
+		InterpolarFOV(DeltaTime);
 	}
 }
 
@@ -172,6 +179,21 @@ void UCombateComponente::CalcularRayoDesdeCruceta(FHitResult& RayoResultado) {
 		if(!RayoResultado.bBlockingHit) {
 			RayoResultado.ImpactPoint = Fin;
 		}
+	}
+}
+
+void UCombateComponente::InterpolarFOV(float DeltaTime) {
+	if(ArmaEquipada == nullptr) {
+		return;
+	}
+
+	if(bApuntando) {
+		ActualFOV = FMath::FInterpTo(ActualFOV, ArmaEquipada->ObtenerZoomFOV(), DeltaTime, ArmaEquipada->ObtenerVelocidadInterpolacion());
+	} else {
+		ActualFOV = FMath::FInterpTo(ActualFOV, PorDefectoFOV, DeltaTime, ZoomVelocidadInterpolacion);
+	}
+	if(DispareitorPersonaje && DispareitorPersonaje->ObtenerCamara()) {
+		DispareitorPersonaje->ObtenerCamara()->SetFieldOfView(ActualFOV);
 	}
 }
 
