@@ -183,7 +183,14 @@ void UCombateComponente::CalcularRayoDesdeCruceta(FHitResult& RayoResultado) {
 	FVector CrucetaMundoDireccion;
 	bool bPantallaAMundo = UGameplayStatics::DeprojectScreenToWorld(UGameplayStatics::GetPlayerController(this, 0), CrucetaLocalizacion, CrucetaMundoPosicion, CrucetaMundoDireccion);
 	if(bPantallaAMundo) {
+		// La cruceta se dibuja justo donde está la camara
 		FVector Inicio = CrucetaMundoPosicion;
+
+		if(DispareitorPersonaje) {
+			float DistanciaCamaraAPersonaje = (DispareitorPersonaje->GetActorLocation() - Inicio).Size();
+			Inicio += CrucetaMundoDireccion * (DistanciaCamaraAPersonaje + 100.f);
+		}
+
 		FVector Fin = Inicio + CrucetaMundoDireccion * RAYO_LONGITUD;
 		GetWorld()->LineTraceSingleByChannel(RayoResultado, Inicio, Fin, ECollisionChannel::ECC_Visibility);
 		// Si no hemos colisionado con nada, hacemos que punto de impacto sea el final del rayo

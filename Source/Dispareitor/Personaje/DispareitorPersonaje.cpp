@@ -56,6 +56,7 @@ void ADispareitorPersonaje::BeginPlay() {
 void ADispareitorPersonaje::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 	CalcularDesplazamientoEnApuntado(DeltaTime);
+	EsconderCamaraSiPersonajeCerca();
 }
 
 // Called to bind functionality to input
@@ -289,5 +290,22 @@ FVector ADispareitorPersonaje::ObtenerObjetoAlcanzado() const {
 		return FVector();
 	} else {
 		return CombateComponente->ObjetoAlcanzado;	
+	}
+}
+
+void ADispareitorPersonaje::EsconderCamaraSiPersonajeCerca() {
+	if(!IsLocallyControlled()) {
+		return;
+	}
+	if((Camara->GetComponentLocation() - GetActorLocation()).Size() < CamaraLimiteCerca) {
+		GetMesh()->SetVisibility(false);
+		if(CombateComponente && CombateComponente->ArmaEquipada && CombateComponente->ArmaEquipada->ObtenerMalla()) {
+			CombateComponente->ArmaEquipada->ObtenerMalla()->bOwnerNoSee = true;
+		}
+	} else {
+		GetMesh()->SetVisibility(true);
+		if(CombateComponente && CombateComponente->ArmaEquipada && CombateComponente->ArmaEquipada->ObtenerMalla()) {
+			CombateComponente->ArmaEquipada->ObtenerMalla()->bOwnerNoSee = false;
+		}
 	}
 }

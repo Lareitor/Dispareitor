@@ -70,6 +70,11 @@ private:
 	UPROPERTY(EditAnywhere, Category = Combate)
 	class UAnimMontage* MontajeDispararArma;
 
+	void EsconderCamaraSiPersonajeCerca();
+
+	UPROPERTY(EditAnywhere)
+	float CamaraLimiteCerca = 200.f;
+
 public:	
 	void ActivarArmaSolapada(AArma* Arma);
 	bool EstaArmaEquipada();
