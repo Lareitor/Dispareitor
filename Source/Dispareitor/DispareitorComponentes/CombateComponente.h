@@ -63,6 +63,8 @@ private:
 
 	float CrucetaFactorVelocidad;
 	float CrucetaFactorEnAire;
+	float CrucetaFactorApuntado;
+	float CrucetaFactorDisparo;
 
 	FVector ObjetoAlcanzado;
 

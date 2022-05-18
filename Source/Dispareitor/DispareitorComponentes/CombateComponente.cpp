@@ -81,7 +81,16 @@ void UCombateComponente::ActualizarHUDCruceta(float DeltaTime) {
 				CrucetaFactorEnAire = FMath::FInterpTo(CrucetaFactorEnAire, 0.f, DeltaTime, 30.f);
 			}
 			
-			HUDTexturas.CrucetaApertura = CrucetaFactorVelocidad + CrucetaFactorEnAire;
+			if(bApuntando) {
+				CrucetaFactorApuntado =  FMath::FInterpTo(CrucetaFactorApuntado, 0.58f, DeltaTime, 30.f);
+			} else {
+				CrucetaFactorApuntado =  FMath::FInterpTo(CrucetaFactorApuntado, 0.f, DeltaTime, 30.f);
+
+			}
+
+			CrucetaFactorDisparo = FMath::FInterpTo(CrucetaFactorDisparo, 0.f, DeltaTime, 40.f);
+			
+			HUDTexturas.CrucetaApertura = 0.5f + CrucetaFactorVelocidad + CrucetaFactorEnAire - CrucetaFactorApuntado + CrucetaFactorDisparo;
 
 			DispareitorHUD->ActualizarHUDTexturas(HUDTexturas);
 		}
@@ -145,6 +154,10 @@ void UCombateComponente::DispararPresionado(bool bPresionado) {
 
 		// Si estamos en el server se ejecutar en el server y si estamos en un cliente se ejectura en el server
 		ServidorDisparar(RayoResultado.ImpactPoint);
+
+		if(ArmaEquipada) {
+			CrucetaFactorDisparo = 0.75f;
+		}
 	}	
 }
 
