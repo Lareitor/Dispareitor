@@ -7,7 +7,6 @@
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
 #include "Dispareitor/ControladorJugador/DispareitorControladorJugador.h"
-#include "Dispareitor/HUD/DispareitorHUD.h"
 #include "Camera/CameraComponent.h"
 
 UCombateComponente::UCombateComponente() {
@@ -53,7 +52,6 @@ void UCombateComponente::ActualizarHUDCruceta(float DeltaTime) {
 	if(DispareitorControladorJugador) {
 		DispareitorHUD = DispareitorHUD == nullptr ? Cast<ADispareitorHUD>(DispareitorControladorJugador->GetHUD()) : DispareitorHUD;
 		if(DispareitorHUD) {
-			FHUDTexturas HUDTexturas;
 			if(ArmaEquipada) {
 				HUDTexturas.CrucetaCentro = ArmaEquipada->CrucetaCentro;
 				HUDTexturas.CrucetaIzquierda = ArmaEquipada->CrucetaIzquierda;
@@ -191,6 +189,12 @@ void UCombateComponente::CalcularRayoDesdeCruceta(FHitResult& RayoResultado) {
 		// Si no hemos colisionado con nada, hacemos que punto de impacto sea el final del rayo
 		if(!RayoResultado.bBlockingHit) {
 			RayoResultado.ImpactPoint = Fin;
+		}
+
+		if(RayoResultado.GetActor() && RayoResultado.GetActor()->Implements<UInteractuarConCrucetaInterfaz>()){
+			HUDTexturas.CrucetaColor = FLinearColor::Red;
+		} else {
+			HUDTexturas.CrucetaColor = FLinearColor::White;
 		}
 	}
 }

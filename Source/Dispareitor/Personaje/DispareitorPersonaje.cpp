@@ -39,6 +39,9 @@ ADispareitorPersonaje::ADispareitorPersonaje() {
 	//Para evitar que un jugador choque con la camara de otro
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore); 
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore); 
+	// Para que el rayo que lanzamos desde la cruceta impacte en los rivales y poder asi cambiar su color a rojo
+	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block); 
+
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 0.f, 850.f);
 
 	GirarEnSitio = EGirarEnSitio::EGES_NoGirar;

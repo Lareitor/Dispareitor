@@ -72,8 +72,11 @@ void UDispareitorInstanciaAnimacion::NativeUpdateAnimation(float DeltaTime) {
         if(DispareitorPersonaje->IsLocallyControlled()) {
             bControladoLocalmente = true;
             FTransform ManoDerechaTransform = ArmaEquipada->ObtenerMalla()->GetSocketTransform(FName("foo"), ERelativeTransformSpace::RTS_World);
+            
+            FRotator RotacionAMirar = UKismetMathLibrary::FindLookAtRotation(ManoDerechaTransform.GetLocation(), ManoDerechaTransform.GetLocation() + (ManoDerechaTransform.GetLocation() - DispareitorPersonaje->ObtenerObjetoAlcanzado()));
             //FTransform ManoDerechaTransform = DispareitorPersonaje->GetMesh()->GetBoneTransform(DispareitorPersonaje->GetMesh()->GetBoneIndex(FName("hand_r")));  // GetSocketTransform(FName("hand_r"), ERelativeTransformSpace::RTS_World);
-            ManoDerechaRotacion = UKismetMathLibrary::FindLookAtRotation(ManoDerechaTransform.GetLocation(), ManoDerechaTransform.GetLocation() + (ManoDerechaTransform.GetLocation() - DispareitorPersonaje->ObtenerObjetoAlcanzado()) );
+            // Para evitar que cuando estemos mirando a algo lejano y luego pasemos a algo cercano el arma mire instantaneamente a ese objeto cercano, realizamos una interpolacion
+            ManoDerechaRotacion = FMath::RInterpTo(ManoDerechaRotacion, RotacionAMirar, DeltaTime, 30.f);
  
             /*FTransform ArmaBocaTransform = ArmaEquipada->ObtenerMalla()->GetSocketTransform(FName("MuzzleFlash"), ERelativeTransformSpace::RTS_World);
             FVector ArmaBocaX(FRotationMatrix(ArmaBocaTransform.GetRotation().Rotator()).GetUnitAxis(EAxis::X));

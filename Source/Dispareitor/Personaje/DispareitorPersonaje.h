@@ -3,10 +3,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Dispareitor/Tipos/GirarEnSitio.h"
+#include "Dispareitor/Interfaces/InteractuarConCrucetaInterfaz.h"
 #include "DispareitorPersonaje.generated.h"
 
 UCLASS()
-class DISPAREITOR_API ADispareitorPersonaje : public ACharacter {
+class DISPAREITOR_API ADispareitorPersonaje : public ACharacter, public IInteractuarConCrucetaInterfaz {
 	GENERATED_BODY()
 
 public:	

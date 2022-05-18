@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Dispareitor/HUD/DispareitorHUD.h"
 #include "CombateComponente.generated.h"
 
 #define RAYO_LONGITUD 80000.f;
@@ -67,6 +68,8 @@ private:
 	float CrucetaFactorDisparo;
 
 	FVector ObjetoAlcanzado;
+
+	FHUDTexturas HUDTexturas;
 
 	float PorDefectoFOV;
 
