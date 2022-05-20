@@ -9,6 +9,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "DispareitorInstanciaAnimacion.h"
+#include "Dispareitor/Dispareitor.h"
 
 ADispareitorPersonaje::ADispareitorPersonaje() {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -39,6 +40,8 @@ ADispareitorPersonaje::ADispareitorPersonaje() {
 	//Para evitar que un jugador choque con la camara de otro
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore); 
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore); 
+	// Le asignamos a la malla el nuevo tipo de canal que hemos creado para tener mayor precision al disparar
+	GetMesh()->SetCollisionObjectType(ECC_MallaDelEsqueleto);
 	// Para que el rayo que lanzamos desde la cruceta impacte en los rivales y poder asi cambiar su color a rojo
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block); 
 
@@ -166,6 +169,10 @@ void ADispareitorPersonaje::ServidorEquipar_Implementation() {
 	}
 }
 
+void ADispareitorPersonaje::MulticastImpacto_Implementation() {
+	EjecutarMontajeReaccionAImpacto();
+}
+
 // En esta funcion es donde registramos las variables que queremos replicar
 void ADispareitorPersonaje::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -281,6 +288,19 @@ void ADispareitorPersonaje::EjecutarMontajeDispararArma(bool bApuntando) {
 	if(InstanciaAnimacion && MontajeDispararArma) {
 		InstanciaAnimacion->Montage_Play(MontajeDispararArma);
 		FName NombreSeccion = bApuntando ? FName("RifleMira") : FName("RifleCadera");
+		InstanciaAnimacion->Montage_JumpToSection(NombreSeccion);
+	}
+}
+
+void ADispareitorPersonaje::EjecutarMontajeReaccionAImpacto() {
+	if(CombateComponente == nullptr || CombateComponente->ArmaEquipada == nullptr) {
+		return;
+	}
+
+	UAnimInstance* InstanciaAnimacion = GetMesh()->GetAnimInstance();
+	if(InstanciaAnimacion && MontajeReaccionAImpacto) {
+		InstanciaAnimacion->Montage_Play(MontajeReaccionAImpacto);
+		FName NombreSeccion("DesdeAdelante") ;
 		InstanciaAnimacion->Montage_JumpToSection(NombreSeccion);
 	}
 }

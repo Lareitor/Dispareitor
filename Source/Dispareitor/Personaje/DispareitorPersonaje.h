@@ -6,6 +6,8 @@
 #include "Dispareitor/Interfaces/InteractuarConCrucetaInterfaz.h"
 #include "DispareitorPersonaje.generated.h"
 
+// Si la cruceta no se pone roja al pasar sobre un enemigo, activar manualmente el check Trace Responses a Block en la malla del personaje
+// Si los disparos no son precisos a la malla comprobar que en la malla el tipo de canal es MallaDelEsqueleto
 UCLASS()
 class DISPAREITOR_API ADispareitorPersonaje : public ACharacter, public IInteractuarConCrucetaInterfaz {
 	GENERATED_BODY()
@@ -17,6 +19,9 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void PostInitializeComponents() override;
 	void EjecutarMontajeDispararArma(bool bApuntando);
+
+	UFUNCTION(NetMulticast, Unreliable) // Como no hacemos nada importate, es solo cosmetico le indicamos que sea unreliable
+	void MulticastImpacto();
 
 protected:
 	virtual void BeginPlay() override;
@@ -32,6 +37,7 @@ protected:
 	virtual void Jump() override;
 	void DispararPulsado();
 	void DispararLiberado();
+	void EjecutarMontajeReaccionAImpacto();
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = Camara)	
@@ -69,6 +75,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = Combate)
 	class UAnimMontage* MontajeDispararArma;
+
+	UPROPERTY(EditAnywhere, Category = Combate)
+	class UAnimMontage* MontajeReaccionAImpacto;
 
 	void EsconderCamaraSiPersonajeCerca();
 

@@ -5,6 +5,8 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "Particles/ParticleSystem.h"
 #include "Sound/SoundCue.h"
+#include "Dispareitor/Personaje/DispareitorPersonaje.h"
+#include "Dispareitor/Dispareitor.h"
 
 AProyectil::AProyectil() {
 	PrimaryActorTick.bCanEverTick = true;
@@ -18,6 +20,8 @@ AProyectil::AProyectil() {
 	CajaColision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	CajaColision->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
 	CajaColision->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
+	// Ya que tanto la capsula como la malla del personaje estan en el canal Pawn, y queremos ajustar los disparos a la malla, lo que hacemos es crear un canal especifico para la malla y colisionar con él
+	CajaColision->SetCollisionResponseToChannel(ECC_MallaDelEsqueleto, ECollisionResponse::ECR_Block);
 
 	ProyectilMovimientoComponente = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProyectilMovimientoComponente"));
 	ProyectilMovimientoComponente->bRotationFollowsVelocity = true;
@@ -32,7 +36,7 @@ void AProyectil::BeginPlay() {
 
 	// El servidor es el que se encarga de manejar la colision
 	if(HasAuthority()) {
-		CajaColision->OnComponentHit.AddDynamic(this, &AProyectil::CallbackAlGolpear);
+		CajaColision->OnComponentHit.AddDynamic(this, &AProyectil::CallbackAlImpactar);
 	}
 }
 
@@ -40,7 +44,12 @@ void AProyectil::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 }
 
-void AProyectil::CallbackAlGolpear(UPrimitiveComponent* ComponenteGolpeante, AActor* ActorGolpeado, UPrimitiveComponent* ComponenteGolpeado, FVector ImpulsoNormal, const FHitResult& GolpeResultado) {
+void AProyectil::CallbackAlImpactar(UPrimitiveComponent* ComponenteImpactante, AActor* ActorImpactado, UPrimitiveComponent* ComponenteImpactado, FVector ImpulsoNormal, const FHitResult& ImpactoResultado) {
+	ADispareitorPersonaje* DispareitorPersonaje = Cast<ADispareitorPersonaje>(ActorImpactado);
+	if(DispareitorPersonaje) {
+		DispareitorPersonaje->MulticastImpacto();
+	}
+
 	// Al llamar a este metodo se propaga a todos los clientes y se invoca a Destroyed, y es ahí donde realizamos el efecto de particulas y sonido
 	Destroy();
 }

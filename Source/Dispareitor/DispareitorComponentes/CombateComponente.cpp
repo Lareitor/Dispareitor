@@ -198,7 +198,7 @@ void UCombateComponente::CalcularRayoDesdeCruceta(FHitResult& RayoResultado) {
 			RayoResultado.ImpactPoint = Fin;
 		}
 
-		if(RayoResultado.GetActor() && RayoResultado.GetActor()->Implements<UInteractuarConCrucetaInterfaz>()){
+		if(RayoResultado.GetActor() && RayoResultado.GetActor()->Implements<UInteractuarConCrucetaInterfaz>()) {
 			HUDTexturas.CrucetaColor = FLinearColor::Red;
 		} else {
 			HUDTexturas.CrucetaColor = FLinearColor::White;
