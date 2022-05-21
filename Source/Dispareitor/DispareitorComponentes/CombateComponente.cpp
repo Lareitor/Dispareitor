@@ -8,6 +8,7 @@
 #include "DrawDebugHelpers.h"
 #include "Dispareitor/ControladorJugador/DispareitorControladorJugador.h"
 #include "Camera/CameraComponent.h"
+#include "TimerManager.h"
 
 UCombateComponente::UCombateComponente() {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -30,6 +31,13 @@ void UCombateComponente::BeginPlay() {
 	}
 }
 
+void UCombateComponente::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const {
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UCombateComponente, ArmaEquipada);
+	DOREPLIFETIME(UCombateComponente, bApuntando);
+}
+
 void UCombateComponente::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
@@ -38,12 +46,12 @@ void UCombateComponente::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 		CalcularRayoDesdeCruceta(RayoResultado);
 		ObjetoAlcanzado = RayoResultado.ImpactPoint;
 
-		ActualizarHUDCruceta(DeltaTime);
-		InterpolarFOV(DeltaTime);
+		TickActualizarHUDCruceta(DeltaTime);
+		TickInterpolarFOV(DeltaTime);
 	}
 }
 
-void UCombateComponente::ActualizarHUDCruceta(float DeltaTime) {
+void UCombateComponente::TickActualizarHUDCruceta(float DeltaTime) {
 	if(DispareitorPersonaje == nullptr || DispareitorPersonaje->Controller == nullptr) {
 		return;
 	}
@@ -95,13 +103,22 @@ void UCombateComponente::ActualizarHUDCruceta(float DeltaTime) {
 	}
 }
 
-void UCombateComponente::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const {
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+void UCombateComponente::TickInterpolarFOV(float DeltaTime) {
+	if(ArmaEquipada == nullptr) {
+		return;
+	}
 
-	DOREPLIFETIME(UCombateComponente, ArmaEquipada);
-	DOREPLIFETIME(UCombateComponente, bApuntando);
+	if(bApuntando) {
+		ActualFOV = FMath::FInterpTo(ActualFOV, ArmaEquipada->ObtenerZoomFOV(), DeltaTime, ArmaEquipada->ObtenerVelocidadInterpolacion());
+	} else {
+		ActualFOV = FMath::FInterpTo(ActualFOV, PorDefectoFOV, DeltaTime, ZoomVelocidadInterpolacion);
+	}
+	if(DispareitorPersonaje && DispareitorPersonaje->ObtenerCamara()) {
+		DispareitorPersonaje->ObtenerCamara()->SetFieldOfView(ActualFOV);
+	}
 }
 
+// Llamado por DispareitorPersonaje
 void UCombateComponente::EquiparArma(class AArma* ArmaAEquipar) {
 	if(DispareitorPersonaje == nullptr || ArmaAEquipar == nullptr) {
 		return;
@@ -146,17 +163,43 @@ void UCombateComponente::AlReplicarArmaEquipada() {
 
 void UCombateComponente::DispararPresionado(bool bPresionado) {
 	bDispararPresionado = bPresionado;
-	if(bDispararPresionado) {
-		FHitResult RayoResultado;
-		CalcularRayoDesdeCruceta(RayoResultado);
+	if(bDispararPresionado && ArmaEquipada) {
+		Disparar();
+	}	
+}
+
+void UCombateComponente::Disparar() {
+	if(bPuedoDisparar) {
+		bPuedoDisparar = false;
 
 		// Si estamos en el server se ejecutar en el server y si estamos en un cliente se ejectura en el server
-		ServidorDisparar(RayoResultado.ImpactPoint);
+		ServidorDisparar(ObjetoAlcanzado);
 
 		if(ArmaEquipada) {
 			CrucetaFactorDisparo = 0.75f;
 		}
-	}	
+
+		EmpezarDisparoTemporizador();
+	}
+}
+
+void UCombateComponente::EmpezarDisparoTemporizador() {
+	if(DispareitorPersonaje == nullptr || ArmaEquipada == nullptr) {
+		return;
+	}
+
+	DispareitorPersonaje->GetWorldTimerManager().SetTimer(DisparoTemporizador, this, &UCombateComponente::TerminadoDisparoTemporizador, ArmaEquipada->DisparoRetardo);
+}
+
+void UCombateComponente::TerminadoDisparoTemporizador() {
+	if(DispareitorPersonaje == nullptr || ArmaEquipada == nullptr) {
+		return;
+	}
+
+	bPuedoDisparar = true;
+	if(bDispararPresionado && ArmaEquipada->bAutomatica) {
+		Disparar();
+	}
 }
 
 // Esta funcion solo se ejecutará en el servidor
@@ -206,18 +249,4 @@ void UCombateComponente::CalcularRayoDesdeCruceta(FHitResult& RayoResultado) {
 	}
 }
 
-void UCombateComponente::InterpolarFOV(float DeltaTime) {
-	if(ArmaEquipada == nullptr) {
-		return;
-	}
-
-	if(bApuntando) {
-		ActualFOV = FMath::FInterpTo(ActualFOV, ArmaEquipada->ObtenerZoomFOV(), DeltaTime, ArmaEquipada->ObtenerVelocidadInterpolacion());
-	} else {
-		ActualFOV = FMath::FInterpTo(ActualFOV, PorDefectoFOV, DeltaTime, ZoomVelocidadInterpolacion);
-	}
-	if(DispareitorPersonaje && DispareitorPersonaje->ObtenerCamara()) {
-		DispareitorPersonaje->ObtenerCamara()->SetFieldOfView(ActualFOV);
-	}
-}
 

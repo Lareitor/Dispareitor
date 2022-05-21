@@ -41,7 +41,7 @@ protected:
 
 	void CalcularRayoDesdeCruceta(FHitResult& RayoResultado);
 
-	void ActualizarHUDCruceta(float DeltaTime);
+	void TickActualizarHUDCruceta(float DeltaTime);
 
 private:
 	class ADispareitorPersonaje* DispareitorPersonaje;
@@ -81,7 +81,14 @@ private:
 	UPROPERTY(EditAnywhere, Category = Combate)
 	float ZoomVelocidadInterpolacion = 20.f;
 
-	void InterpolarFOV(float DeltaTime);
+	void TickInterpolarFOV(float DeltaTime);
+
+	FTimerHandle DisparoTemporizador;
+	bool bPuedoDisparar = true;
+
+	void Disparar();
+	void EmpezarDisparoTemporizador();
+	void TerminadoDisparoTemporizador();
 	
 public:		
 	

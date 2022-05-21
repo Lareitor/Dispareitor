@@ -44,6 +44,12 @@ public:
 	UPROPERTY(EditAnywhere)
 	float ZoomVelocidadInterpolacion = 20.f;
 
+	UPROPERTY(EditAnywhere, Category = Combate)
+	float DisparoRetardo = 0.15f;
+
+	UPROPERTY(EditAnywhere, Category = Combate)
+	bool bAutomatica = true;
+
 protected:	
 	virtual void BeginPlay() override;
 
