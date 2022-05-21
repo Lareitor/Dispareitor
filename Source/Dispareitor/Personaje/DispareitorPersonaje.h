@@ -23,6 +23,8 @@ public:
 	UFUNCTION(NetMulticast, Unreliable) // Como no hacemos nada importate, es solo cosmetico le indicamos que sea unreliable
 	void MulticastImpacto();
 
+	virtual void OnRep_ReplicatedMovement() override;
+
 protected:
 	virtual void BeginPlay() override;
 	void MoverAdelanteAtras(float Valor);
@@ -33,7 +35,9 @@ protected:
 	void Agachar();
 	void ApuntarPulsado();
 	void ApuntarLiberado();
-	void CalcularDesplazamientoEnApuntado(float DeltaTime);
+	void CalcularGiroEInclinacionParadoYArmado(float DeltaTime);
+	void CalcularInclinacion();
+	void ProxiesSimuladosGiro();
 	virtual void Jump() override;
 	void DispararPulsado();
 	void DispararLiberado();
@@ -84,6 +88,16 @@ private:
 	UPROPERTY(EditAnywhere)
 	float CamaraLimiteCerca = 200.f;
 
+	bool bRotarHuesoRaiz;
+	// Para los proxies simulados
+	float GiroUmbral = 0.5f;
+	FRotator ProxyRotacionFrameAnterior;
+	FRotator ProxyRotacionFrameActual;
+	float ProxyGiro;
+	float TiempoDesdeUltimaReplicacionDeMovimiento;
+	
+	float CalcularVelocidad();
+
 public:	
 	void ActivarArmaSolapada(AArma* Arma);
 	bool EstaArmaEquipada();
@@ -94,4 +108,5 @@ public:
 	FORCEINLINE EGirarEnSitio ObtenerGirarEnSitio() const { return GirarEnSitio; }
 	FVector ObtenerObjetoAlcanzado() const;
 	FORCEINLINE UCameraComponent* ObtenerCamara() const { return Camara; }
+	FORCEINLINE bool DeboRotarHuesoRaiz() const { return bRotarHuesoRaiz; }
 };

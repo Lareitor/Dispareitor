@@ -66,4 +66,7 @@ private:
 	UPROPERTY(BlueprintReadOnly, Category = Movimiento, meta = (AllowPrivateAccess = "true"))
 	bool bControladoLocalmente;
 
+	UPROPERTY(BlueprintReadOnly, Category = Movimiento, meta = (AllowPrivateAccess = "true"))
+	bool bRotarHuesoRaiz;
+
 };

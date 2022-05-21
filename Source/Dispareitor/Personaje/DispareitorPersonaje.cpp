@@ -58,8 +58,29 @@ void ADispareitorPersonaje::BeginPlay() {
 
 void ADispareitorPersonaje::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
-	CalcularDesplazamientoEnApuntado(DeltaTime);
+
+	// ROLE_SimulatedProxy = 1, ROLE_AutonomousProxy = 2, ROLE_Authority = 3
+	// Solo lo ejecutamos para las instancias que tiene control local o están en el server
+	if(GetLocalRole() > ENetRole::ROLE_SimulatedProxy && IsLocallyControlled()) {
+		CalcularGiroEInclinacionParadoYArmado(DeltaTime);
+	} else {
+		TiempoDesdeUltimaReplicacionDeMovimiento += DeltaTime;
+		if(TiempoDesdeUltimaReplicacionDeMovimiento > 0.25f) {
+			OnRep_ReplicatedMovement();
+		}
+		CalcularInclinacion();
+	}
+
 	EsconderCamaraSiPersonajeCerca();
+}
+
+// Cada vez que el personaje se mueve llama a esta funcion, asi que la podemos usar en lugar del tick para calcular el giro en los proxies simulados
+// El problema es que solo se llama cuando se mueve, pero nos interesa llamarla regularmente, por lo que utilizamos la variable TiempoDesdeUltimaReplicacionDeMovimiento
+// para almacenar el tiempo desde la ultima replicacion de movimiento y si pasa un cierto umbral volvemos a llamar a esta funcion 
+void ADispareitorPersonaje::OnRep_ReplicatedMovement() {
+	Super::OnRep_ReplicatedMovement();
+	ProxiesSimuladosGiro();	
+	TiempoDesdeUltimaReplicacionDeMovimiento = 0.f;
 }
 
 // Called to bind functionality to input
@@ -218,18 +239,17 @@ bool ADispareitorPersonaje::EstaApuntando() {
 	return CombateComponente && CombateComponente->bApuntando;
 }
 
-// Calcular el desplazamiento del giro (yaw) e inclinacion (pitch) cuando estamos armados y parados
-void ADispareitorPersonaje::CalcularDesplazamientoEnApuntado(float DeltaTime) {
+// Calcular el desplazamiento del giro (yaw) e inclinacion (pitch) cuando estamos parados y armados
+void ADispareitorPersonaje::CalcularGiroEInclinacionParadoYArmado(float DeltaTime) {
 	if(CombateComponente && CombateComponente->ArmaEquipada == nullptr) {
 		return;
 	}
 
-	FVector VelocidadTemporal = GetVelocity();
-    VelocidadTemporal.Z = 0.f;
-    float Velocidad = VelocidadTemporal.Size();
+    float Velocidad = CalcularVelocidad();
 	bool bEnElAire = GetCharacterMovement()->IsFalling();
 
 	if(Velocidad == 0.f && !bEnElAire) { // Está parado y no saltando
+		bRotarHuesoRaiz = true;
 		FRotator ArmadoRotacionActual = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
 		FRotator DeltaArmadoRotacion = UKismetMathLibrary::NormalizedDeltaRotator(ArmadoRotacionActual, ArmadoRotacionInicial);
 		AOGiro = DeltaArmadoRotacion.Yaw;
@@ -238,14 +258,18 @@ void ADispareitorPersonaje::CalcularDesplazamientoEnApuntado(float DeltaTime) {
 		}
 		bUseControllerRotationYaw = true;
 		CalcularGirarEnSitio(DeltaTime);
-	} // TODO Cambiar este if por un else
-	if(Velocidad > 0.f || bEnElAire) { // corriendo o saltando
+	} else { // corriendo o saltando (Velocidad > 0.f || bEnElAire)
+		bRotarHuesoRaiz = false;
 		AOGiro = 0.f;
 		bUseControllerRotationYaw = true;
 		ArmadoRotacionInicial = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
 		GirarEnSitio = EGirarEnSitio::EGES_NoGirar;
 	}
 
+	CalcularInclinacion();
+}
+
+void ADispareitorPersonaje::CalcularInclinacion() {
 	AOInclinacion = GetBaseAimRotation().Pitch;
 	// Debido a la compresion que realiza UE a la hora de enviar estos valores por la red,  transforma los valores negativos en positivos, por los que cuando estamos mirando hacia abajo en el cliente 
 	// (inclinacion negativa) en el server volverá a mirar hacia arriba
@@ -272,6 +296,37 @@ void ADispareitorPersonaje::CalcularGirarEnSitio(float DeltaTime) {
 			ArmadoRotacionInicial = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
 
 		}
+	}
+}
+
+// Llamado solo por los proxies simulados para implementar el giro y evitar de este modo el jittering  
+void ADispareitorPersonaje::ProxiesSimuladosGiro() {
+	if(CombateComponente == nullptr || CombateComponente->ArmaEquipada == nullptr) {
+		return;
+	}
+
+	bRotarHuesoRaiz = false;
+
+	float Velocidad = CalcularVelocidad();
+	if(Velocidad > 0.f) {
+		GirarEnSitio = EGirarEnSitio::EGES_NoGirar;		
+		return;
+	}
+
+	ProxyRotacionFrameAnterior = ProxyRotacionFrameActual;
+	ProxyRotacionFrameActual = GetActorRotation();
+	ProxyGiro = UKismetMathLibrary::NormalizedDeltaRotator(ProxyRotacionFrameActual, ProxyRotacionFrameAnterior).Yaw;
+
+	if(FMath::Abs(ProxyGiro) > GiroUmbral) {
+		if(ProxyGiro > GiroUmbral) {
+			GirarEnSitio = 	EGirarEnSitio::EGES_Derecha;
+		} else if(ProxyGiro < -GiroUmbral) {
+			GirarEnSitio = EGirarEnSitio::EGES_Izquierda;
+		} else {
+			GirarEnSitio = EGirarEnSitio::EGES_NoGirar;	
+		}
+	} else {
+		GirarEnSitio = EGirarEnSitio::EGES_NoGirar;		
 	}
 }
 
@@ -328,4 +383,11 @@ void ADispareitorPersonaje::EsconderCamaraSiPersonajeCerca() {
 			CombateComponente->ArmaEquipada->ObtenerMalla()->bOwnerNoSee = false;
 		}
 	}
+}
+
+
+float ADispareitorPersonaje::CalcularVelocidad() {
+	FVector VelocidadTemporal = GetVelocity();
+    VelocidadTemporal.Z = 0.f;
+    return VelocidadTemporal.Size();
 }
