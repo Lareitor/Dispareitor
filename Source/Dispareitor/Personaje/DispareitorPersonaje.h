@@ -20,7 +20,8 @@ public:
 	virtual void PostInitializeComponents() override;
 	void EjecutarMontajeDispararArma(bool bApuntando);
 
-	UFUNCTION(NetMulticast, Unreliable) // Como no hacemos nada importate, es solo cosmetico le indicamos que sea unreliable
+	// RPC Multicast. Si se invoca en el servidor, se ejecuta en el servidor + clientes, si se invoca en el cliente solo se ejecuta en ese cliente
+	UFUNCTION(NetMulticast, Unreliable) // Como no hacemos nada importante, es solo cosmetico le indicamos que sea unreliable
 	void MulticastImpacto();
 
 	virtual void OnRep_ReplicatedMovement() override;
@@ -69,6 +70,7 @@ private:
 	UFUNCTION(Server, Reliable) 
 	void ServidorEquipar();
 
+	// AO = Aim Offset
 	float AOGiro;
 	float InterpolacionAOGiro;
 	float AOInclinacion;

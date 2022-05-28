@@ -12,7 +12,6 @@
 #include "Dispareitor/Dispareitor.h"
 
 ADispareitorPersonaje::ADispareitorPersonaje() {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	BrazoCamara = CreateDefaultSubobject<USpringArmComponent>(TEXT("BrazoCamara"));
@@ -42,7 +41,7 @@ ADispareitorPersonaje::ADispareitorPersonaje() {
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore); 
 	// Le asignamos a la malla el nuevo tipo de canal que hemos creado para tener mayor precision al disparar
 	GetMesh()->SetCollisionObjectType(ECC_MallaDelEsqueleto);
-	// Para que el rayo que lanzamos desde la cruceta impacte en los rivales y poder asi cambiar su color a rojo
+	// Para que el rayo que lanzamos desde la cruceta impacte a los jugadores y poder asi cambiar su color a rojo
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block); 
 
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 0.f, 850.f);
@@ -50,6 +49,14 @@ ADispareitorPersonaje::ADispareitorPersonaje() {
 	GirarEnSitio = EGirarEnSitio::EGES_NoGirar;
 	NetUpdateFrequency = 66.f;
 	MinNetUpdateFrequency = 33.f;
+}
+
+// En esta funcion es donde registramos las variables que queremos replicar
+void ADispareitorPersonaje::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const {
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	// Solo se replica el ArmaSolapada en el cliente que posee ADispareitorPersonaje
+	DOREPLIFETIME_CONDITION(ADispareitorPersonaje, ArmaSolapada, COND_OwnerOnly);
 }
 
 void ADispareitorPersonaje::BeginPlay() {
@@ -83,7 +90,6 @@ void ADispareitorPersonaje::OnRep_ReplicatedMovement() {
 	TiempoDesdeUltimaReplicacionDeMovimiento = 0.f;
 }
 
-// Called to bind functionality to input
 void ADispareitorPersonaje::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
@@ -133,16 +139,6 @@ void ADispareitorPersonaje::MirarArribaAbajo(float Valor) {
 	AddControllerPitchInput(Valor);
 }
 
-void ADispareitorPersonaje::Equipar() {
-	if(CombateComponente) {
-		if(HasAuthority()) { // Estamos en el servidor
-			CombateComponente->EquiparArma(ArmaSolapada);
-		} else { // Estamos en un cliente
-			ServidorEquipar();
-		}		
-	}
-}
-
 void ADispareitorPersonaje::Agachar() {
 	if(bIsCrouched) {
 		UnCrouch();
@@ -183,6 +179,16 @@ void ADispareitorPersonaje::DispararLiberado() {
 	}
 }
 
+void ADispareitorPersonaje::Equipar() {
+	if(CombateComponente) {
+		if(HasAuthority()) { // Estamos en el servidor
+			CombateComponente->EquiparArma(ArmaSolapada);
+		} else { // Estamos en un cliente
+			ServidorEquipar();
+		}		
+	}
+}
+
 // Aunque la definicion de la funcion es ServidorEquipar hay que añadirle _Implementation, ya que UE creará ServidorEquipar y nosotros _Implementation que incluirá el codigo que se ejecuta en el servidor  
 void ADispareitorPersonaje::ServidorEquipar_Implementation() {
 	if(CombateComponente) {
@@ -190,20 +196,9 @@ void ADispareitorPersonaje::ServidorEquipar_Implementation() {
 	}
 }
 
-void ADispareitorPersonaje::MulticastImpacto_Implementation() {
-	EjecutarMontajeReaccionAImpacto();
-}
-
-// En esta funcion es donde registramos las variables que queremos replicar
-void ADispareitorPersonaje::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const {
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	// Solo se replica el ArmaSolapada en el cliente que posee ADispareitorPersonaje
-	DOREPLIFETIME_CONDITION(ADispareitorPersonaje, ArmaSolapada, COND_OwnerOnly);
-}
-
-//Para el servidor
-//Sabemos que esta funcion solo es llamada en el servidor 
+// Para el servidor
+// Sabemos que esta funcion solo es llamada en el servidor 
+// Llamada por Arma al solapar y desolapar el arma
 void ADispareitorPersonaje::ActivarArmaSolapada(AArma* Arma) {
 	if(IsLocallyControlled()) { 
 		if(ArmaSolapada) {
@@ -239,12 +234,14 @@ bool ADispareitorPersonaje::EstaApuntando() {
 	return CombateComponente && CombateComponente->bApuntando;
 }
 
+// Llamado por Tick
 // Calcular el desplazamiento del giro (yaw) e inclinacion (pitch) cuando estamos parados y armados
 void ADispareitorPersonaje::CalcularGiroEInclinacionParadoYArmado(float DeltaTime) {
 	if(CombateComponente && CombateComponente->ArmaEquipada == nullptr) {
 		return;
 	}
 
+	bUseControllerRotationYaw = true;
     float Velocidad = CalcularVelocidad();
 	bool bEnElAire = GetCharacterMovement()->IsFalling();
 
@@ -256,12 +253,10 @@ void ADispareitorPersonaje::CalcularGiroEInclinacionParadoYArmado(float DeltaTim
 		if(GirarEnSitio == EGirarEnSitio::EGES_NoGirar) {
 			InterpolacionAOGiro = AOGiro;
 		}
-		bUseControllerRotationYaw = true;
 		CalcularGirarEnSitio(DeltaTime);
 	} else { // corriendo o saltando (Velocidad > 0.f || bEnElAire)
 		bRotarHuesoRaiz = false;
 		AOGiro = 0.f;
-		bUseControllerRotationYaw = true;
 		ArmadoRotacionInicial = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
 		GirarEnSitio = EGirarEnSitio::EGES_NoGirar;
 	}
@@ -269,6 +264,24 @@ void ADispareitorPersonaje::CalcularGiroEInclinacionParadoYArmado(float DeltaTim
 	CalcularInclinacion();
 }
 
+void ADispareitorPersonaje::CalcularGirarEnSitio(float DeltaTime) {
+	if(AOGiro > 90.f) {
+		GirarEnSitio = EGirarEnSitio::EGES_Derecha;
+	} else if(AOGiro < -90.f ) {
+		GirarEnSitio = EGirarEnSitio::EGES_Izquierda;
+	}
+
+	if(GirarEnSitio != EGirarEnSitio::EGES_NoGirar) {
+		InterpolacionAOGiro = FMath::FInterpTo(InterpolacionAOGiro, 0.f, DeltaTime, 4.f);
+		AOGiro = InterpolacionAOGiro;
+		if(FMath::Abs(AOGiro) < 15.f) {
+			GirarEnSitio = EGirarEnSitio::EGES_NoGirar;
+			ArmadoRotacionInicial = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
+		}
+	}
+}
+
+// Llamad por Tick y CalcularGiroEInclinacionParadoYArmado
 void ADispareitorPersonaje::CalcularInclinacion() {
 	AOInclinacion = GetBaseAimRotation().Pitch;
 	// Debido a la compresion que realiza UE a la hora de enviar estos valores por la red,  transforma los valores negativos en positivos, por los que cuando estamos mirando hacia abajo en el cliente 
@@ -279,23 +292,6 @@ void ADispareitorPersonaje::CalcularInclinacion() {
 		FVector2D RangoEntrada(270.f, 360.f);
 		FVector2D RangoSalida(-90.f, 0.f);
 		AOInclinacion = FMath::GetMappedRangeValueClamped(RangoEntrada, RangoSalida, AOInclinacion);
-	}
-}
-
-void ADispareitorPersonaje::CalcularGirarEnSitio(float DeltaTime) {
-	if(AOGiro > 90.f) {
-		GirarEnSitio = EGirarEnSitio::EGES_Derecha;
-	} else if(AOGiro < -90.f ) {
-		GirarEnSitio = EGirarEnSitio::EGES_Izquierda;
-	}
-	if(GirarEnSitio != EGirarEnSitio::EGES_NoGirar) {
-		InterpolacionAOGiro = FMath::FInterpTo(InterpolacionAOGiro, 0.f, DeltaTime, 4.f);
-		AOGiro = InterpolacionAOGiro;
-		if(FMath::Abs(AOGiro) < 15.f) {
-			GirarEnSitio = EGirarEnSitio::EGES_NoGirar;
-			ArmadoRotacionInicial = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
-
-		}
 	}
 }
 
@@ -334,6 +330,7 @@ AArma* ADispareitorPersonaje::ObtenerArmaEquipada() {
 	return CombateComponente == nullptr ? nullptr : CombateComponente->ArmaEquipada;
 }
 
+// Llamado por CombateComponente
 void ADispareitorPersonaje::EjecutarMontajeDispararArma(bool bApuntando) {
 	if(CombateComponente == nullptr || CombateComponente->ArmaEquipada == nullptr) {
 		return;
@@ -345,6 +342,11 @@ void ADispareitorPersonaje::EjecutarMontajeDispararArma(bool bApuntando) {
 		FName NombreSeccion = bApuntando ? FName("RifleMira") : FName("RifleCadera");
 		InstanciaAnimacion->Montage_JumpToSection(NombreSeccion);
 	}
+}
+
+// Llamado por Proyectil
+void ADispareitorPersonaje::MulticastImpacto_Implementation() {
+	EjecutarMontajeReaccionAImpacto();
 }
 
 void ADispareitorPersonaje::EjecutarMontajeReaccionAImpacto() {
@@ -361,13 +363,10 @@ void ADispareitorPersonaje::EjecutarMontajeReaccionAImpacto() {
 }
 
 FVector ADispareitorPersonaje::ObtenerObjetoAlcanzado() const {
-	if(CombateComponente == nullptr || CombateComponente->ArmaEquipada == nullptr) {
-		return FVector();
-	} else {
-		return CombateComponente->ObjetoAlcanzado;	
-	}
+	return (CombateComponente == nullptr || CombateComponente->ArmaEquipada == nullptr) ? FVector() : CombateComponente->ObjetoAlcanzado;	
 }
 
+// Llamado por Tick
 void ADispareitorPersonaje::EsconderCamaraSiPersonajeCerca() {
 	if(!IsLocallyControlled()) {
 		return;

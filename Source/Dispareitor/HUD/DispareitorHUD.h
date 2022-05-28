@@ -5,7 +5,7 @@
 #include "DispareitorHUD.generated.h"
 
 USTRUCT(BlueprintType) // Por si lo queremos usar desde BP
-struct FHUDTexturas {
+struct FHUDCruceta {
 	GENERATED_BODY()
 public:
 	class UTexture2D* CrucetaCentro;
@@ -25,13 +25,13 @@ public:
 	virtual void DrawHUD() override;
 
 private:
-	FHUDTexturas HUDTexturas;
+	FHUDCruceta HUDCruceta;
 	void DibujarCruceta(UTexture2D* Textura, FVector2D PantallaCentro, FVector2D Apertura, FLinearColor CrucetaColor);
 
 	UPROPERTY(EditAnywhere)
 	float CrucetaAperturaMaxima = 16.f;
 
 public:
-	FORCEINLINE void ActualizarHUDTexturas(const FHUDTexturas& HUDT) { HUDTexturas = HUDT; }		
+	FORCEINLINE void ActualizarHUDCruceta(const FHUDCruceta& HUDT) { HUDCruceta = HUDT; }		
 	
 };

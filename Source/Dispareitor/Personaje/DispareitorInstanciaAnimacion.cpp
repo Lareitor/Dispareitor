@@ -36,7 +36,7 @@ void UDispareitorInstanciaAnimacion::NativeUpdateAnimation(float DeltaTime) {
     GirarEnSitio = DispareitorPersonaje->ObtenerGirarEnSitio();
     bRotarHuesoRaiz = DispareitorPersonaje->DeboRotarHuesoRaiz();
 
-    // GiroDesviacion para el Strafing 
+    // GiroDesviacion para el strafing 
     // Es una rotacion global, independiente de adonde mire el personaje. Si esta mirando al X global sera 0. Al rotar hacia la derecha se incrementa hasta 180. Luego pasa -180 y decrece hasta 0.
     FRotator RotacionApuntado = DispareitorPersonaje->GetBaseAimRotation();
     // MakeRotFromX toma un vector como direccion y calcula su rotacion
@@ -51,8 +51,8 @@ void UDispareitorInstanciaAnimacion::NativeUpdateAnimation(float DeltaTime) {
     // Inclinacion tiene que ver entre el Giro del anterior frame y el actual
     PersonajeRotacionUltimoFrame = PersonajeRotacion;
     PersonajeRotacion = DispareitorPersonaje->GetActorRotation();
-    const FRotator Delta = UKismetMathLibrary::NormalizedDeltaRotator(PersonajeRotacion, PersonajeRotacionUltimoFrame);
-    const float InclinacionObjetivo = Delta.Yaw / DeltaTime; // Lo escala y lo hacemos proporcional al DeltaTime
+    const FRotator PersonajeRotacionDelta = UKismetMathLibrary::NormalizedDeltaRotator(PersonajeRotacion, PersonajeRotacionUltimoFrame);
+    const float InclinacionObjetivo = PersonajeRotacionDelta.Yaw / DeltaTime; // Lo escala y lo hacemos proporcional al DeltaTime
     const float Interpolacion = FMath::FInterpTo(Inclinacion, InclinacionObjetivo, DeltaTime, 6.f);  // Si la velocidad de interpolacion (ultimo parametro) es 0 devuelve InclinacionObjetivo
     Inclinacion = FMath::Clamp(Interpolacion, -90.f, 90.f);
 
@@ -69,20 +69,22 @@ void UDispareitorInstanciaAnimacion::NativeUpdateAnimation(float DeltaTime) {
         ManoIzquierdaTransform.SetLocation(PosicionSalida);
         ManoIzquierdaTransform.SetRotation(FQuat(RotacionSalida));
 
-        // Como la rotacion de la mano derecha para que apunte en la direccion de la cruceta es solo cosmetica, solo lo aplicamos si somos el player local, no lo replicamos para ahorra ancho de banda
+        // Como la rotacion de la mano derecha para que apunte en la direccion de la cruceta (y por ende el arma también) es solo cosmética, solo lo aplicamos si somos el player local, no lo replicamos para ahorrar ancho de banda
         if(DispareitorPersonaje->IsLocallyControlled()) {
             bControladoLocalmente = true;
-            FTransform ManoDerechaTransform = ArmaEquipada->ObtenerMalla()->GetSocketTransform(FName("foo"), ERelativeTransformSpace::RTS_World);
             
-            FRotator RotacionAMirar = UKismetMathLibrary::FindLookAtRotation(ManoDerechaTransform.GetLocation(), ManoDerechaTransform.GetLocation() + (ManoDerechaTransform.GetLocation() - DispareitorPersonaje->ObtenerObjetoAlcanzado()));
-            //FTransform ManoDerechaTransform = DispareitorPersonaje->GetMesh()->GetBoneTransform(DispareitorPersonaje->GetMesh()->GetBoneIndex(FName("hand_r")));  // GetSocketTransform(FName("hand_r"), ERelativeTransformSpace::RTS_World);
+            FVector ManoDerechaVector = DispareitorPersonaje->GetMesh()->GetBoneLocation(FName("hand_r"), EBoneSpaces::WorldSpace);
+            //UE_LOG(LogTemp, Warning, TEXT("hand_r: (%f, %f, %f)"), ManoDerechaVector.X, ManoDerechaVector.Y, ManoDerechaVector.Z);
+  
+            // Para que el arma apunte con la boca a ObtenerObjetoAlcanzado hay que hacer ManoDerechaVector + (ManoDerechaVector - ObtenerObjetoAlcanzado), si hacemos solo ObtenerObjetoAlcanzado apunta con la culata
+            FRotator RotacionAMirar = UKismetMathLibrary::FindLookAtRotation(ManoDerechaVector, ManoDerechaVector + (ManoDerechaVector - DispareitorPersonaje->ObtenerObjetoAlcanzado()));
             // Para evitar que cuando estemos mirando a algo lejano y luego pasemos a algo cercano el arma mire instantaneamente a ese objeto cercano, realizamos una interpolacion
             ManoDerechaRotacion = FMath::RInterpTo(ManoDerechaRotacion, RotacionAMirar, DeltaTime, 30.f);
  
             /*FTransform ArmaBocaTransform = ArmaEquipada->ObtenerMalla()->GetSocketTransform(FName("MuzzleFlash"), ERelativeTransformSpace::RTS_World);
             FVector ArmaBocaX(FRotationMatrix(ArmaBocaTransform.GetRotation().Rotator()).GetUnitAxis(EAxis::X));
             DrawDebugLine(GetWorld(), ArmaBocaTransform.GetLocation(), ArmaBocaTransform.GetLocation() + ArmaBocaX * 1000.f, FColor::Red);
-            DrawDebugLine(GetWorld(), ArmaBocaTransform.GetLocation(), DispareitorPersonaje->ObtenerObjetoAlcanzado(), FColor::Green);*/ 
+            DrawDebugLine(GetWorld(), ArmaBocaTransform.GetLocation(), DispareitorPersonaje->ObtenerObjetoAlcanzado(), FColor::Green);*/
         }
     }
 }

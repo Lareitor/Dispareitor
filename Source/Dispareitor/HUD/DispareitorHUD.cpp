@@ -9,27 +9,27 @@ void ADispareitorHUD::DrawHUD() {
         GEngine->GameViewport->GetViewportSize(PantallaTamano);
         const FVector2D PantallaCentro(PantallaTamano.X / 2.f, PantallaTamano.Y / 2.f);
 
-        float AperturaEscalada = CrucetaAperturaMaxima * HUDTexturas.CrucetaApertura;    
+        float AperturaEscalada = CrucetaAperturaMaxima * HUDCruceta.CrucetaApertura;    
 
-        if(HUDTexturas.CrucetaCentro) {
+        if(HUDCruceta.CrucetaCentro) {
             FVector2D Apertura(0.f, 0.f);
-            DibujarCruceta(HUDTexturas.CrucetaCentro, PantallaCentro, Apertura, HUDTexturas.CrucetaColor);
+            DibujarCruceta(HUDCruceta.CrucetaCentro, PantallaCentro, Apertura, HUDCruceta.CrucetaColor);
         }
-        if(HUDTexturas.CrucetaIzquierda) {
+        if(HUDCruceta.CrucetaIzquierda) {
             FVector2D Apertura(-AperturaEscalada, 0.f);
-            DibujarCruceta(HUDTexturas.CrucetaIzquierda, PantallaCentro, Apertura, HUDTexturas.CrucetaColor);
+            DibujarCruceta(HUDCruceta.CrucetaIzquierda, PantallaCentro, Apertura, HUDCruceta.CrucetaColor);
         }
-        if(HUDTexturas.CrucetaDerecha) {
+        if(HUDCruceta.CrucetaDerecha) {
             FVector2D Apertura(AperturaEscalada, 0.f);
-            DibujarCruceta(HUDTexturas.CrucetaDerecha, PantallaCentro, Apertura, HUDTexturas.CrucetaColor);
+            DibujarCruceta(HUDCruceta.CrucetaDerecha, PantallaCentro, Apertura, HUDCruceta.CrucetaColor);
         }
-        if(HUDTexturas.CrucetaArriba) {
+        if(HUDCruceta.CrucetaArriba) {
             FVector2D Apertura(0.f, -AperturaEscalada);
-            DibujarCruceta(HUDTexturas.CrucetaArriba, PantallaCentro, Apertura, HUDTexturas.CrucetaColor);
+            DibujarCruceta(HUDCruceta.CrucetaArriba, PantallaCentro, Apertura, HUDCruceta.CrucetaColor);
         }
-        if(HUDTexturas.CrucetaAbajo) {
+        if(HUDCruceta.CrucetaAbajo) {
             FVector2D Apertura(0.f, AperturaEscalada);
-            DibujarCruceta(HUDTexturas.CrucetaAbajo, PantallaCentro, Apertura, HUDTexturas.CrucetaColor);
+            DibujarCruceta(HUDCruceta.CrucetaAbajo, PantallaCentro, Apertura, HUDCruceta.CrucetaColor);
         }
     }
 }
