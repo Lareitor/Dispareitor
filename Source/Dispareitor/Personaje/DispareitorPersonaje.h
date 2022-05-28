@@ -100,6 +100,18 @@ private:
 	
 	float CalcularVelocidad();
 
+	/**
+	 * Vida
+	 */
+	UPROPERTY(EditAnywhere, Category = "Estadisticas")
+	float VidaMaxima = 100.f;
+
+	UPROPERTY(ReplicatedUsing = AlReplicarVida, VisibleAnywhere, Category = "Estadisticas")
+	float Vida = 100.f;
+
+	UFUNCTION()
+	void AlReplicarVida();
+
 public:	
 	void ActivarArmaSolapada(AArma* Arma);
 	bool EstaArmaEquipada();

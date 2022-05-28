@@ -1,4 +1,21 @@
 #include "DispareitorHUD.h"
+#include "GameFramework/PlayerController.h"
+#include "PantallaDelPersonaje.h"
+
+void ADispareitorHUD::BeginPlay() {
+    Super::BeginPlay();
+
+    AnadirPantallaDelPersonaje();
+}
+
+void ADispareitorHUD::AnadirPantallaDelPersonaje() {
+    APlayerController* ControladorDeJugador = GetOwningPlayerController();
+
+    if(ControladorDeJugador && PantallaDelPersonajeClase) {
+        PantallaDelPersonaje = CreateWidget<UPantallaDelPersonaje>(ControladorDeJugador, PantallaDelPersonajeClase);
+        PantallaDelPersonaje->AddToViewport();
+    }
+}
 
 // Llamado cada frame
 void ADispareitorHUD::DrawHUD() {
@@ -41,5 +58,6 @@ void ADispareitorHUD::DibujarCruceta(UTexture2D* Textura, FVector2D PantallaCent
 
     DrawTexture(Textura, TexturaPuntoDondeDibujar.X, TexturaPuntoDondeDibujar.Y, TexturaAnchura, TexturaAltura, 0.f, 0.f, 1.f, 1.f, CrucetaColor);
 }
+
 
 

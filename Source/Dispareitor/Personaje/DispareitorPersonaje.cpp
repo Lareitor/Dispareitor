@@ -57,6 +57,7 @@ void ADispareitorPersonaje::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 
 	// Solo se replica el ArmaSolapada en el cliente que posee ADispareitorPersonaje
 	DOREPLIFETIME_CONDITION(ADispareitorPersonaje, ArmaSolapada, COND_OwnerOnly);
+	DOREPLIFETIME(ADispareitorPersonaje, Vida);
 }
 
 void ADispareitorPersonaje::BeginPlay() {
@@ -384,9 +385,12 @@ void ADispareitorPersonaje::EsconderCamaraSiPersonajeCerca() {
 	}
 }
 
-
 float ADispareitorPersonaje::CalcularVelocidad() {
 	FVector VelocidadTemporal = GetVelocity();
     VelocidadTemporal.Z = 0.f;
     return VelocidadTemporal.Size();
+}
+
+void ADispareitorPersonaje::AlReplicarVida() {
+
 }
