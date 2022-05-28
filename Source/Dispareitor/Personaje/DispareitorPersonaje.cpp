@@ -10,6 +10,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "DispareitorInstanciaAnimacion.h"
 #include "Dispareitor/Dispareitor.h"
+#include "Dispareitor/ControladorJugador/DispareitorControladorJugador.h"
 
 ADispareitorPersonaje::ADispareitorPersonaje() {
 	PrimaryActorTick.bCanEverTick = true;
@@ -62,6 +63,11 @@ void ADispareitorPersonaje::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 
 void ADispareitorPersonaje::BeginPlay() {
 	Super::BeginPlay();	
+
+	DispareitorControladorJugador = Cast<ADispareitorControladorJugador>(Controller);
+	if(DispareitorControladorJugador) {
+		DispareitorControladorJugador->ActualizarHUDVida(Vida, VidaMaxima);
+	}
 }
 
 void ADispareitorPersonaje::Tick(float DeltaTime) {

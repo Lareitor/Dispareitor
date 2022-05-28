@@ -112,6 +112,8 @@ private:
 	UFUNCTION()
 	void AlReplicarVida();
 
+	class ADispareitorControladorJugador* DispareitorControladorJugador;
+
 public:	
 	void ActivarArmaSolapada(AArma* Arma);
 	bool EstaArmaEquipada();
