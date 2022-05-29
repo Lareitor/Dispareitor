@@ -45,11 +45,6 @@ void AProyectil::Tick(float DeltaTime) {
 }
 
 void AProyectil::CallbackAlImpactar(UPrimitiveComponent* ComponenteImpactante, AActor* ActorImpactado, UPrimitiveComponent* ComponenteImpactado, FVector ImpulsoNormal, const FHitResult& ImpactoResultado) {
-	ADispareitorPersonaje* DispareitorPersonaje = Cast<ADispareitorPersonaje>(ActorImpactado);
-	if(DispareitorPersonaje) {
-		DispareitorPersonaje->MulticastImpacto();
-	}
-
 	// Al llamar a este metodo se propaga a todos los clientes y se invoca a Destroyed, y es ahí donde realizamos el efecto de particulas y sonido
 	Destroy();
 }

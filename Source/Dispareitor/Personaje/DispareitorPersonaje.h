@@ -20,10 +20,6 @@ public:
 	virtual void PostInitializeComponents() override;
 	void EjecutarMontajeDispararArma(bool bApuntando);
 
-	// RPC Multicast. Si se invoca en el servidor, se ejecuta en el servidor + clientes, si se invoca en el cliente solo se ejecuta en ese cliente
-	UFUNCTION(NetMulticast, Unreliable) // Como no hacemos nada importante, es solo cosmetico le indicamos que sea unreliable
-	void MulticastImpacto();
-
 	virtual void OnRep_ReplicatedMovement() override;
 
 protected:
@@ -43,6 +39,10 @@ protected:
 	void DispararPulsado();
 	void DispararLiberado();
 	void EjecutarMontajeReaccionAImpacto();
+	
+	UFUNCTION()
+	void RecibirDano(AActor* ActorDanado, float Dano, const UDamageType* TipoDano, class AController* ControladorInstigador, AActor* ActorCausante);
+	void ActualizarHUDVida();
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = Camara)	
@@ -56,6 +56,7 @@ private:
 
 	// Cuando cambie esta variable en el servidor se replicará su estado automaticamente en los clientes seleccionados
 	// La replicación funciona sola en una direccion servidor -> clientes
+	// La replicacion es mas eficiente que las llamadas RPCs
 	UPROPERTY(ReplicatedUsing = AlReplicarArmaSolapada) 
 	class AArma* ArmaSolapada;
 		

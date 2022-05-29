@@ -64,9 +64,10 @@ void ADispareitorPersonaje::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 void ADispareitorPersonaje::BeginPlay() {
 	Super::BeginPlay();	
 
-	DispareitorControladorJugador = Cast<ADispareitorControladorJugador>(Controller);
-	if(DispareitorControladorJugador) {
-		DispareitorControladorJugador->ActualizarHUDVida(Vida, VidaMaxima);
+	ActualizarHUDVida();
+	if(HasAuthority()) {
+		// Enlazamos nuestro metodo de recibir daño al delegado, para que se invoque cuando ProyectilBala llame a ApplyDamage
+		OnTakeAnyDamage.AddDynamic(this, &ADispareitorPersonaje::RecibirDano);
 	}
 }
 
@@ -351,11 +352,6 @@ void ADispareitorPersonaje::EjecutarMontajeDispararArma(bool bApuntando) {
 	}
 }
 
-// Llamado por Proyectil
-void ADispareitorPersonaje::MulticastImpacto_Implementation() {
-	EjecutarMontajeReaccionAImpacto();
-}
-
 void ADispareitorPersonaje::EjecutarMontajeReaccionAImpacto() {
 	if(CombateComponente == nullptr || CombateComponente->ArmaEquipada == nullptr) {
 		return;
@@ -397,6 +393,23 @@ float ADispareitorPersonaje::CalcularVelocidad() {
     return VelocidadTemporal.Size();
 }
 
-void ADispareitorPersonaje::AlReplicarVida() {
+// LLamado al recibir daño por parte de ProyectilBala
+// Solo se ejecuta en el server
+void ADispareitorPersonaje::RecibirDano(AActor* ActorDanado, float Dano, const UDamageType* TipoDano, class AController* ControladorInstigador, AActor* ActorCausante) {
+	Vida = FMath::Clamp(Vida - Dano, 0.f, VidaMaxima);
+	ActualizarHUDVida();
+	EjecutarMontajeReaccionAImpacto();
+}
 
+// Se ejecuta en los clientes
+void ADispareitorPersonaje::AlReplicarVida() {
+	ActualizarHUDVida();
+	EjecutarMontajeReaccionAImpacto();
+}
+
+void ADispareitorPersonaje::ActualizarHUDVida() {
+	DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(Controller);
+	if(DispareitorControladorJugador) {
+		DispareitorControladorJugador->ActualizarHUDVida(Vida, VidaMaxima);
+	}
 }

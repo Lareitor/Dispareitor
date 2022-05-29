@@ -19,6 +19,9 @@ protected:
 	UFUNCTION()
 	virtual void CallbackAlImpactar(UPrimitiveComponent* ComponenteImpactante, AActor* ActorImpactado, UPrimitiveComponent* ComponenteImpactado, FVector ImpulsoNormal, const FHitResult& ImpactoResultado);
 
+	UPROPERTY(EditAnywhere)
+	float Dano = 20.f;
+
 private:
 	UPROPERTY(EditAnywhere)
 	class UBoxComponent* CajaColision;
