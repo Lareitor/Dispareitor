@@ -11,6 +11,7 @@
 #include "DispareitorInstanciaAnimacion.h"
 #include "Dispareitor/Dispareitor.h"
 #include "Dispareitor/ControladorJugador/DispareitorControladorJugador.h"
+#include "Dispareitor/ModoJuego/DispareitorModoJuego.h"
 
 ADispareitorPersonaje::ADispareitorPersonaje() {
 	PrimaryActorTick.bCanEverTick = true;
@@ -399,6 +400,15 @@ void ADispareitorPersonaje::RecibirDano(AActor* ActorDanado, float Dano, const U
 	Vida = FMath::Clamp(Vida - Dano, 0.f, VidaMaxima);
 	ActualizarHUDVida();
 	EjecutarMontajeReaccionAImpacto();
+
+	if(Vida == 0.f) {
+		ADispareitorModoJuego* DispareitorModoJuego = GetWorld()->GetAuthGameMode<ADispareitorModoJuego>();
+		if(DispareitorModoJuego) {
+			DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(Controller);
+			ADispareitorControladorJugador* AtacanteDispareitorControladorJugador = Cast<ADispareitorControladorJugador>(ControladorInstigador);
+			DispareitorModoJuego->JugadorEliminado(this, DispareitorControladorJugador, AtacanteDispareitorControladorJugador);
+		}
+	}
 }
 
 // Se ejecuta en los clientes
@@ -412,4 +422,8 @@ void ADispareitorPersonaje::ActualizarHUDVida() {
 	if(DispareitorControladorJugador) {
 		DispareitorControladorJugador->ActualizarHUDVida(Vida, VidaMaxima);
 	}
+}
+
+void ADispareitorPersonaje::Eliminado() {
+
 }
