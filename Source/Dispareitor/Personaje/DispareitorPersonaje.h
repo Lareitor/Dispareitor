@@ -19,8 +19,12 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void PostInitializeComponents() override;
 	void EjecutarMontajeDispararArma(bool bApuntando);
+	void EjecutarMontajeEliminacion();
 	virtual void OnRep_ReplicatedMovement() override;
-	void Eliminado();
+
+	// RPC Multicast. Si se invoca en el servidor, se ejecuta en el servidor + clientes, si se invoca en el cliente solo se ejecuta en ese cliente
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastEliminado();
 
 protected:
 	virtual void BeginPlay() override;
@@ -86,6 +90,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = Combate)
 	class UAnimMontage* MontajeReaccionAImpacto;
 
+	UPROPERTY(EditAnywhere, Category = Combate)
+	class UAnimMontage* MontajeEliminacion;
+
 	void EsconderCamaraSiPersonajeCerca();
 
 	UPROPERTY(EditAnywhere)
@@ -115,6 +122,8 @@ private:
 
 	class ADispareitorControladorJugador* DispareitorControladorJugador;
 
+	bool bEliminado = false;
+
 public:	
 	void ActivarArmaSolapada(AArma* Arma);
 	bool EstaArmaEquipada();
@@ -126,4 +135,5 @@ public:
 	FVector ObtenerObjetoAlcanzado() const;
 	FORCEINLINE UCameraComponent* ObtenerCamara() const { return Camara; }
 	FORCEINLINE bool DeboRotarHuesoRaiz() const { return bRotarHuesoRaiz; }
+	FORCEINLINE bool EstaEliminado() const { return bEliminado; }
 };

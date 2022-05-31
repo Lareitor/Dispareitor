@@ -366,6 +366,14 @@ void ADispareitorPersonaje::EjecutarMontajeReaccionAImpacto() {
 	}
 }
 
+// Llamado por Eliminado
+void ADispareitorPersonaje::EjecutarMontajeEliminacion() {
+	UAnimInstance* InstanciaAnimacion = GetMesh()->GetAnimInstance();
+	if(InstanciaAnimacion && MontajeEliminacion) {
+		InstanciaAnimacion->Montage_Play(MontajeEliminacion);
+	}
+}
+
 FVector ADispareitorPersonaje::ObtenerObjetoAlcanzado() const {
 	return (CombateComponente == nullptr || CombateComponente->ArmaEquipada == nullptr) ? FVector() : CombateComponente->ObjetoAlcanzado;	
 }
@@ -424,6 +432,8 @@ void ADispareitorPersonaje::ActualizarHUDVida() {
 	}
 }
 
-void ADispareitorPersonaje::Eliminado() {
-
+// Llamado por DispareitorModoJuego::JugadorEliminado
+void ADispareitorPersonaje::MulticastEliminado_Implementation() {
+	bEliminado = true;
+	EjecutarMontajeEliminacion();
 }
