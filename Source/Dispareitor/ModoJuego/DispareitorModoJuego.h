@@ -10,5 +10,5 @@ class DISPAREITOR_API ADispareitorModoJuego : public AGameMode {
 
 public:
 	virtual void JugadorEliminado(class ADispareitorPersonaje* VictimaDispareitorJugador, class ADispareitorControladorJugador* VictimaDispareitorControladorJugador, class ADispareitorControladorJugador* AtacanteDispareitorControladorJugador);	
-	
+	virtual void PeticionReaparecer(ACharacter* PersonajeEliminado, AController* ControladorEliminado);
 };

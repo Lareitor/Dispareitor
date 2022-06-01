@@ -21,6 +21,7 @@ public:
 	void EjecutarMontajeDispararArma(bool bApuntando);
 	void EjecutarMontajeEliminacion();
 	virtual void OnRep_ReplicatedMovement() override;
+	void Eliminado();
 
 	// RPC Multicast. Si se invoca en el servidor, se ejecuta en el servidor + clientes, si se invoca en el cliente solo se ejecuta en ese cliente
 	UFUNCTION(NetMulticast, Reliable)
@@ -123,6 +124,13 @@ private:
 	class ADispareitorControladorJugador* DispareitorControladorJugador;
 
 	bool bEliminado = false;
+
+	FTimerHandle TemporizadorEliminado;
+	
+	UPROPERTY(EditDefaultsOnly) // Solo editable en la clase Character?¿ para que no se pueda editar en las hijas y que puedan poner distintos retardos lo cual no sería justo
+	float EliminadoRetardo = 3.f;
+
+	void TemporizadorEliminadoFinalizado();
 
 public:	
 	void ActivarArmaSolapada(AArma* Arma);

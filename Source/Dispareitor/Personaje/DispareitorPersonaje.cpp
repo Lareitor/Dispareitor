@@ -12,9 +12,12 @@
 #include "Dispareitor/Dispareitor.h"
 #include "Dispareitor/ControladorJugador/DispareitorControladorJugador.h"
 #include "Dispareitor/ModoJuego/DispareitorModoJuego.h"
+#include "TimerManager.h"
 
 ADispareitorPersonaje::ADispareitorPersonaje() {
 	PrimaryActorTick.bCanEverTick = true;
+
+	SpawnCollisionHandlingMethod = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
 	BrazoCamara = CreateDefaultSubobject<USpringArmComponent>(TEXT("BrazoCamara"));
 	BrazoCamara->SetupAttachment(GetMesh());
@@ -432,8 +435,21 @@ void ADispareitorPersonaje::ActualizarHUDVida() {
 	}
 }
 
-// Llamado por DispareitorModoJuego::JugadorEliminado
+// Llamado por DispareitorModoJuego::JugadorEliminado 
+// Ejecutado en el server ya que DispareitorModoJuego solo existe en el server
+void ADispareitorPersonaje::Eliminado() {
+	MulticastEliminado();
+	GetWorldTimerManager().SetTimer(TemporizadorEliminado, this, &ADispareitorPersonaje::TemporizadorEliminadoFinalizado, EliminadoRetardo);
+}
+
 void ADispareitorPersonaje::MulticastEliminado_Implementation() {
 	bEliminado = true;
 	EjecutarMontajeEliminacion();
+}
+
+void ADispareitorPersonaje::TemporizadorEliminadoFinalizado() {
+	ADispareitorModoJuego* DispareitorModoJuego = GetWorld()->GetAuthGameMode<ADispareitorModoJuego>();
+	if(DispareitorModoJuego) {
+		DispareitorModoJuego->PeticionReaparecer(this, DispareitorControladorJugador);
+	}
 }
