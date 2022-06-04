@@ -54,6 +54,8 @@ ADispareitorPersonaje::ADispareitorPersonaje() {
 	GirarEnSitio = EGirarEnSitio::EGES_NoGirar;
 	NetUpdateFrequency = 66.f;
 	MinNetUpdateFrequency = 33.f;
+
+	DisolucionLineaTiempoComponente = CreateDefaultSubobject<UTimelineComponent>(TEXT("DisolucionLineaTiempoComponente"));
 }
 
 // En esta funcion es donde registramos las variables que queremos replicar
@@ -445,11 +447,34 @@ void ADispareitorPersonaje::Eliminado() {
 void ADispareitorPersonaje::MulticastEliminado_Implementation() {
 	bEliminado = true;
 	EjecutarMontajeEliminacion();
+
+	if(DisolucionInstanciaMaterial) {
+		DisolucionInstanciaMaterialDinamico = UMaterialInstanceDynamic::Create(DisolucionInstanciaMaterial, this);
+		GetMesh()->SetMaterial(0, DisolucionInstanciaMaterialDinamico);
+		DisolucionInstanciaMaterialDinamico->SetScalarParameterValue(TEXT("Disolucion"), 0.55f);
+		DisolucionInstanciaMaterialDinamico->SetScalarParameterValue(TEXT("Brillo"), 200.f);
+		DisolucionEmpezar();
+	}
 }
 
 void ADispareitorPersonaje::TemporizadorEliminadoFinalizado() {
 	ADispareitorModoJuego* DispareitorModoJuego = GetWorld()->GetAuthGameMode<ADispareitorModoJuego>();
 	if(DispareitorModoJuego) {
 		DispareitorModoJuego->PeticionReaparecer(this, DispareitorControladorJugador);
+	}
+}
+
+
+void ADispareitorPersonaje::DisolucionActualizarMaterialCallback(float DisolucionValor) {
+	if(DisolucionInstanciaMaterialDinamico) {
+		DisolucionInstanciaMaterialDinamico->SetScalarParameterValue(TEXT("Disolucion"), DisolucionValor);
+	}
+}
+
+void ADispareitorPersonaje::DisolucionEmpezar() {
+	DisolucionRutaDelegado.BindDynamic(this, &ADispareitorPersonaje::DisolucionActualizarMaterialCallback);
+	if(DisolucionLineaTiempoComponente && DisolucionCurva) {
+		DisolucionLineaTiempoComponente->AddInterpFloat(DisolucionCurva, DisolucionRutaDelegado);
+		DisolucionLineaTiempoComponente->Play();
 	}
 }

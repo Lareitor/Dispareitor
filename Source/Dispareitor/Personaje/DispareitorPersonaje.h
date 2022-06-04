@@ -4,6 +4,7 @@
 #include "GameFramework/Character.h"
 #include "Dispareitor/Tipos/GirarEnSitio.h"
 #include "Dispareitor/Interfaces/InteractuarConCrucetaInterfaz.h"
+#include "Components/TimelineComponent.h"
 #include "DispareitorPersonaje.generated.h"
 
 // Si la cruceta no se pone roja al pasar sobre un enemigo, activar manualmente el check Trace Responses a Block en la malla del personaje
@@ -110,7 +111,7 @@ private:
 	float CalcularVelocidad();
 
 	/**
-	 * Vida
+	 * Vida 
 	 */
 	UPROPERTY(EditAnywhere, Category = "Estadisticas")
 	float VidaMaxima = 100.f;
@@ -131,6 +132,29 @@ private:
 	float EliminadoRetardo = 3.f;
 
 	void TemporizadorEliminadoFinalizado();
+
+	/** 
+	 * Efecto disolucion
+	 */
+	UPROPERTY(VisibleAnywhere)
+	UTimelineComponent* DisolucionLineaTiempoComponente;
+	
+	FOnTimelineFloat DisolucionRutaDelegado;
+
+	UPROPERTY(EditAnywhere)
+	UCurveFloat* DisolucionCurva;
+
+	UFUNCTION()
+	void DisolucionActualizarMaterialCallback(float DisolucionValor);
+
+	void DisolucionEmpezar();
+
+	UPROPERTY(VisibleAnywhere, Category = Eliminacion)
+	UMaterialInstanceDynamic* DisolucionInstanciaMaterialDinamico;
+
+	// Se setea en el BP y a partir de ella creamos DisolucionInstanciaMaterialDinamico
+	UPROPERTY(EditAnywhere, Category = Eliminacion)
+	UMaterialInstance* DisolucionInstanciaMaterial;
 
 public:	
 	void ActivarArmaSolapada(AArma* Arma);
