@@ -74,6 +74,17 @@ void AArma::ActualizarEstado(EEstado EstadoAActualizar) {
 		case EEstado::EEA_Equipada:
 			MostrarLeyendaSobreArma(false);
 			Esfera->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			Malla->SetSimulatePhysics(false);
+			Malla->SetEnableGravity(false);
+			Malla->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		break;
+		case EEstado::EEA_Desequipada:
+			if(HasAuthority()) {
+				Esfera->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+			}
+			Malla->SetSimulatePhysics(true);
+			Malla->SetEnableGravity(true);
+			Malla->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		break;
 	}	
 }
@@ -81,7 +92,15 @@ void AArma::ActualizarEstado(EEstado EstadoAActualizar) {
 void AArma::AlReplicarEstado() {
 	switch(Estado) {
 		case EEstado::EEA_Equipada:
-			MostrarLeyendaSobreArma(false);			
+			MostrarLeyendaSobreArma(false);	
+			Malla->SetSimulatePhysics(false);
+			Malla->SetEnableGravity(false);
+			Malla->SetCollisionEnabled(ECollisionEnabled::NoCollision);		
+		break;
+		case EEstado::EEA_Desequipada:
+			Malla->SetSimulatePhysics(true);
+			Malla->SetEnableGravity(true);
+			Malla->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		break;
 	}
 }
@@ -106,4 +125,12 @@ void AArma::Disparar(const FVector& Objetivo) {
 			}
 		}
 	}
+}
+
+// Llamado por ADispareitorPersonaje::Eliminado
+void AArma::Soltar() {
+	ActualizarEstado(EEstado::EEA_Desequipada);
+	FDetachmentTransformRules DesvincularReglas(EDetachmentRule::KeepWorld, true);
+	Malla->DetachFromComponent(DesvincularReglas);
+	SetOwner(nullptr);
 }

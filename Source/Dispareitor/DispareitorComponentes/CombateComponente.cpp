@@ -163,10 +163,10 @@ void UCombateComponente::EquiparArma(class AArma* ArmaAEquipar) {
 	}
 
 	ArmaEquipada = ArmaAEquipar;
-	ArmaEquipada->ActualizarEstado(EEstado::EEA_Equipada);
+	ArmaEquipada->ActualizarEstado(EEstado::EEA_Equipada); // Se propaga al cliente
 	const USkeletalMeshSocket* ManoDerechaSocket = DispareitorPersonaje->GetMesh()->GetSocketByName(FName("ManoDerechaSocket"));
 	if(ManoDerechaSocket) {
-		ManoDerechaSocket->AttachActor(ArmaEquipada, DispareitorPersonaje->GetMesh());
+		ManoDerechaSocket->AttachActor(ArmaEquipada, DispareitorPersonaje->GetMesh()); // Tambien se propaga a los clientes, pero no hay garantias de cual se propaga antes. 
 	}
 	ArmaEquipada->SetOwner(DispareitorPersonaje);	
 	DispareitorPersonaje->GetCharacterMovement()->bOrientRotationToMovement = false;
@@ -175,6 +175,13 @@ void UCombateComponente::EquiparArma(class AArma* ArmaAEquipar) {
 
 void UCombateComponente::AlReplicarArmaEquipada() {
 	if(ArmaEquipada && DispareitorPersonaje) {
+		// Para garantizar que se ejecutan en orden las ejecutamos en los clientes en el orden correcto
+		ArmaEquipada->ActualizarEstado(EEstado::EEA_Equipada); 
+		const USkeletalMeshSocket* ManoDerechaSocket = DispareitorPersonaje->GetMesh()->GetSocketByName(FName("ManoDerechaSocket"));
+		if(ManoDerechaSocket) {
+			ManoDerechaSocket->AttachActor(ArmaEquipada, DispareitorPersonaje->GetMesh());  
+		}
+
 		DispareitorPersonaje->GetCharacterMovement()->bOrientRotationToMovement = false;
 		DispareitorPersonaje->bUseControllerRotationYaw = true;
 	}

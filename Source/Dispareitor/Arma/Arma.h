@@ -22,6 +22,7 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	void MostrarLeyendaSobreArma(bool bMostrarLeyendaSobreArma);
 	virtual void Disparar(const FVector& Objetivo);
+	void Soltar();
 
 	UPROPERTY(EditAnywhere, Category = Cruceta)
 	class UTexture2D* CrucetaCentro;

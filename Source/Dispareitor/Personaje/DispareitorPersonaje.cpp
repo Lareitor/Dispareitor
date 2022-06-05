@@ -440,6 +440,9 @@ void ADispareitorPersonaje::ActualizarHUDVida() {
 // Llamado por DispareitorModoJuego::JugadorEliminado 
 // Ejecutado en el server ya que DispareitorModoJuego solo existe en el server
 void ADispareitorPersonaje::Eliminado() {
+	if(CombateComponente && CombateComponente->ArmaEquipada) {
+		CombateComponente->ArmaEquipada->Soltar();
+	}
 	MulticastEliminado();
 	GetWorldTimerManager().SetTimer(TemporizadorEliminado, this, &ADispareitorPersonaje::TemporizadorEliminadoFinalizado, EliminadoRetardo);
 }
@@ -455,6 +458,15 @@ void ADispareitorPersonaje::MulticastEliminado_Implementation() {
 		DisolucionInstanciaMaterialDinamico->SetScalarParameterValue(TEXT("Brillo"), 200.f);
 		DisolucionEmpezar();
 	}
+
+	GetCharacterMovement()->DisableMovement(); // Impide movimiento
+	GetCharacterMovement()->StopMovementImmediately(); // Impide rotacion
+	if(DispareitorControladorJugador) { 
+		DisableInput(DispareitorControladorJugador); // Impide disparar
+	}
+
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void ADispareitorPersonaje::TemporizadorEliminadoFinalizado() {
