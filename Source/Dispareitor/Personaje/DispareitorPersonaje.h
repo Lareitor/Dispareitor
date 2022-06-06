@@ -27,6 +27,7 @@ public:
 	// RPC Multicast. Si se invoca en el servidor, se ejecuta en el servidor + clientes, si se invoca en el cliente solo se ejecuta en ese cliente
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastEliminado();
+	virtual void Destroyed() override;
 
 protected:
 	virtual void BeginPlay() override;
@@ -155,6 +156,19 @@ private:
 	// Se setea en el BP y a partir de ella creamos DisolucionInstanciaMaterialDinamico
 	UPROPERTY(EditAnywhere, Category = Eliminacion)
 	UMaterialInstance* DisolucionInstanciaMaterial;
+
+	/**
+	 * Robot eliminacion
+	 */
+	UPROPERTY(EditAnywhere)
+	UParticleSystem* RobotEliminacionSistemaParticulas;
+
+	// Almacena el RobotEliminacionSistemaParticulas creado
+	UPROPERTY(VisibleAnywhere)
+	UParticleSystemComponent* RobotEliminacionComponente;
+
+	UPROPERTY(EditAnywhere)
+	class USoundCue* RobotEliminacionSonido;
 
 public:	
 	void ActivarArmaSolapada(AArma* Arma);

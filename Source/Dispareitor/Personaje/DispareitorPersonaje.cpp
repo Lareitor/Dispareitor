@@ -13,6 +13,9 @@
 #include "Dispareitor/ControladorJugador/DispareitorControladorJugador.h"
 #include "Dispareitor/ModoJuego/DispareitorModoJuego.h"
 #include "TimerManager.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
+#include "Particles/ParticleSystemComponent.h"
 
 ADispareitorPersonaje::ADispareitorPersonaje() {
 	PrimaryActorTick.bCanEverTick = true;
@@ -467,6 +470,14 @@ void ADispareitorPersonaje::MulticastEliminado_Implementation() {
 
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	if(RobotEliminacionSistemaParticulas) {
+		FVector RobotEliminacionPuntoAparicion(GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z + 200.f);
+		RobotEliminacionComponente = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), RobotEliminacionSistemaParticulas, RobotEliminacionPuntoAparicion, GetActorRotation());
+	}
+	if(RobotEliminacionSonido) {
+		UGameplayStatics::SpawnSoundAtLocation(this, RobotEliminacionSonido, GetActorLocation());
+	}
 }
 
 void ADispareitorPersonaje::TemporizadorEliminadoFinalizado() {
@@ -476,6 +487,13 @@ void ADispareitorPersonaje::TemporizadorEliminadoFinalizado() {
 	}
 }
 
+void ADispareitorPersonaje::Destroyed() {
+	Super::Destroyed();
+
+	if(RobotEliminacionComponente) {
+		RobotEliminacionComponente->DestroyComponent();
+	}
+}
 
 void ADispareitorPersonaje::DisolucionActualizarMaterialCallback(float DisolucionValor) {
 	if(DisolucionInstanciaMaterialDinamico) {
