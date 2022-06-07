@@ -30,3 +30,13 @@ void ADispareitorControladorJugador::ActualizarHUDVida(float Vida, float VidaMax
         DispareitorHUD->PantallaDelPersonaje->VidaTexto->SetText(FText::FromString(VidaTexto)); 
     }
 }
+
+void ADispareitorControladorJugador::ActualizarHUDPuntuacion(float Puntuacion) {
+    DispareitorHUD = DispareitorHUD != nullptr ? DispareitorHUD : Cast<ADispareitorHUD>(GetHUD());
+
+    if(DispareitorHUD && DispareitorHUD->PantallaDelPersonaje && DispareitorHUD->PantallaDelPersonaje->PuntuacionValor) {
+        FString PuntuacionTexto = FString::Printf(TEXT("%d"), FMath::FloorToInt(Puntuacion));
+        DispareitorHUD->PantallaDelPersonaje->PuntuacionValor->SetText(FText::FromString(PuntuacionTexto));   
+    }
+}
+

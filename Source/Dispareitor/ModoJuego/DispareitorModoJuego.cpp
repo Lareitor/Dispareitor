@@ -3,9 +3,17 @@
 #include "Dispareitor/ControladorJugador/DispareitorControladorJugador.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PlayerStart.h"
+#include "Dispareitor/EstadoJugador/DispareitorEstadoJugador.h"
 
 // Llamado por ADispareitorPersonaje::RecibirDano
 void ADispareitorModoJuego::JugadorEliminado(class ADispareitorPersonaje* VictimaDispareitorJugador, class ADispareitorControladorJugador* VictimaDispareitorControladorJugador, class ADispareitorControladorJugador* AtacanteDispareitorControladorJugador) {
+    ADispareitorEstadoJugador* AtacanteEstadoJugador = AtacanteDispareitorControladorJugador ? Cast<ADispareitorEstadoJugador>(AtacanteDispareitorControladorJugador->PlayerState) : nullptr;
+    ADispareitorEstadoJugador* VictimaEstadoJugador = VictimaDispareitorControladorJugador ? Cast<ADispareitorEstadoJugador>(VictimaDispareitorControladorJugador->PlayerState) : nullptr;
+
+    if(AtacanteEstadoJugador && AtacanteEstadoJugador != VictimaEstadoJugador) {
+        AtacanteEstadoJugador->IncrementarPuntuacion(100.f);
+    }
+
     if(VictimaDispareitorJugador) {
         VictimaDispareitorJugador->Eliminado();
     }

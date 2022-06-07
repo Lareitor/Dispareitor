@@ -16,6 +16,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "Dispareitor/EstadoJugador/DispareitorEstadoJugador.h"
 
 ADispareitorPersonaje::ADispareitorPersonaje() {
 	PrimaryActorTick.bCanEverTick = true;
@@ -96,6 +97,17 @@ void ADispareitorPersonaje::Tick(float DeltaTime) {
 	}
 
 	EsconderCamaraSiPersonajeCerca();
+	SondearInicializacion();
+}
+
+void ADispareitorPersonaje::SondearInicializacion() {
+	if(DispareitorEstadoJugador == nullptr) {
+		// En los primeros frames este casting siempre devolvera null 
+		DispareitorEstadoJugador = GetPlayerState<ADispareitorEstadoJugador>();
+		if(DispareitorEstadoJugador) {
+			DispareitorEstadoJugador->IncrementarPuntuacion(0.f);	
+		}
+	}
 }
 
 // Cada vez que el personaje se mueve llama a esta funcion, asi que la podemos usar en lugar del tick para calcular el giro en los proxies simulados

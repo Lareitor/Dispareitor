@@ -29,6 +29,8 @@ public:
 	void MulticastEliminado();
 	virtual void Destroyed() override;
 
+	void SondearInicializacion();
+
 protected:
 	virtual void BeginPlay() override;
 	void MoverAdelanteAtras(float Valor);
@@ -169,6 +171,8 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	class USoundCue* RobotEliminacionSonido;
+
+	class ADispareitorEstadoJugador* DispareitorEstadoJugador;
 
 public:	
 	void ActivarArmaSolapada(AArma* Arma);

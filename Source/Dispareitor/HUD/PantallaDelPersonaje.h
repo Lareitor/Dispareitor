@@ -4,7 +4,6 @@
 #include "Blueprint/UserWidget.h"
 #include "PantallaDelPersonaje.generated.h"
 
-
 // Instanciada por DispareitorHUD
 UCLASS()
 class DISPAREITOR_API UPantallaDelPersonaje : public UUserWidget {
@@ -16,4 +15,7 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* VidaTexto;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* PuntuacionValor;
 };
