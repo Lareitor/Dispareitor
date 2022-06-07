@@ -3,11 +3,21 @@
 #include "Dispareitor/HUD/PantallaDelPersonaje.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
+#include "Dispareitor/Personaje/DispareitorPersonaje.h"
 
 void ADispareitorControladorJugador::BeginPlay() {
     Super::BeginPlay();
 
     DispareitorHUD = Cast<ADispareitorHUD>(GetHUD());
+}
+
+void ADispareitorControladorJugador::OnPossess(APawn* Peon) {
+    Super::OnPossess(Peon);
+
+    ADispareitorPersonaje* DispareitorPersonaje = Cast<ADispareitorPersonaje>(Peon);
+    if(DispareitorPersonaje) {
+        ActualizarHUDVida(DispareitorPersonaje->ObtenerVida(), DispareitorPersonaje->ObtenerVidaMaxima());
+    }
 }
 
 // Llamado por DispareitorPersonaje

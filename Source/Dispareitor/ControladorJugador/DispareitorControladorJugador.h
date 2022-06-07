@@ -11,6 +11,7 @@ class DISPAREITOR_API ADispareitorControladorJugador : public APlayerController 
 
 public:
 	void ActualizarHUDVida(float Vida, float VidaMaxima);
+	virtual void OnPossess(APawn* Peon) override;
 	
 protected:
 	virtual void BeginPlay() override;

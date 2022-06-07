@@ -182,4 +182,6 @@ public:
 	FORCEINLINE UCameraComponent* ObtenerCamara() const { return Camara; }
 	FORCEINLINE bool DeboRotarHuesoRaiz() const { return bRotarHuesoRaiz; }
 	FORCEINLINE bool EstaEliminado() const { return bEliminado; }
+	FORCEINLINE float ObtenerVida() const { return Vida; }
+	FORCEINLINE float ObtenerVidaMaxima() const { return VidaMaxima; }
 };
