@@ -44,8 +44,13 @@ protected:
 	void ActualizarHUDCruceta(float DeltaTime);
 
 private:
+	UPROPERTY()
 	class ADispareitorPersonaje* DispareitorPersonaje;
+	
+	UPROPERTY()
 	class ADispareitorControladorJugador* DispareitorControladorJugador;
+	
+	UPROPERTY()
 	class ADispareitorHUD* DispareitorHUD;
 
 	UPROPERTY(ReplicatedUsing = AlReplicarArmaEquipada)

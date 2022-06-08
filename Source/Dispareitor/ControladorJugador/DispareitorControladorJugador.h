@@ -10,13 +10,15 @@ class DISPAREITOR_API ADispareitorControladorJugador : public APlayerController 
 
 public:
 	void ActualizarHUDVida(float Vida, float VidaMaxima);
-	void ActualizarHUDPuntuacion(float Puntuacion);
+	void ActualizarHUDMuertos(float Muertos);
+	void ActualizarHUDMuertes(int32 Muertes);
 	virtual void OnPossess(APawn* Peon) override;
 	
 protected:
 	virtual void BeginPlay() override;
 
 private:
+	UPROPERTY()
 	class ADispareitorHUD* DispareitorHUD;	
 	
 };

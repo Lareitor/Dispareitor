@@ -32,6 +32,7 @@ private:
 	UPROPERTY(EditAnywhere)
 	class UParticleSystem* Traza;
 
+	UPROPERTY()
 	class UParticleSystemComponent* TrazaComponente;
 
 	UPROPERTY(EditAnywhere)

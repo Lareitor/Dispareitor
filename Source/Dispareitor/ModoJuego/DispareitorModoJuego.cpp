@@ -11,7 +11,10 @@ void ADispareitorModoJuego::JugadorEliminado(class ADispareitorPersonaje* Victim
     ADispareitorEstadoJugador* VictimaEstadoJugador = VictimaDispareitorControladorJugador ? Cast<ADispareitorEstadoJugador>(VictimaDispareitorControladorJugador->PlayerState) : nullptr;
 
     if(AtacanteEstadoJugador && AtacanteEstadoJugador != VictimaEstadoJugador) {
-        AtacanteEstadoJugador->IncrementarPuntuacion(100.f);
+        AtacanteEstadoJugador->IncrementarMuertos(1.f);
+    }
+    if(VictimaEstadoJugador) {
+        VictimaEstadoJugador->IncrementarMuertes(1);
     }
 
     if(VictimaDispareitorJugador) {

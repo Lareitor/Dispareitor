@@ -17,5 +17,9 @@ public:
 	class UTextBlock* VidaTexto;
 
 	UPROPERTY(meta = (BindWidget))
-	UTextBlock* PuntuacionValor;
+	UTextBlock* Muertos;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* Muertes;
+
 };

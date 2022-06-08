@@ -31,12 +31,22 @@ void ADispareitorControladorJugador::ActualizarHUDVida(float Vida, float VidaMax
     }
 }
 
-void ADispareitorControladorJugador::ActualizarHUDPuntuacion(float Puntuacion) {
+void ADispareitorControladorJugador::ActualizarHUDMuertos(float Muertos) {
     DispareitorHUD = DispareitorHUD != nullptr ? DispareitorHUD : Cast<ADispareitorHUD>(GetHUD());
 
-    if(DispareitorHUD && DispareitorHUD->PantallaDelPersonaje && DispareitorHUD->PantallaDelPersonaje->PuntuacionValor) {
-        FString PuntuacionTexto = FString::Printf(TEXT("%d"), FMath::FloorToInt(Puntuacion));
-        DispareitorHUD->PantallaDelPersonaje->PuntuacionValor->SetText(FText::FromString(PuntuacionTexto));   
+    if(DispareitorHUD && DispareitorHUD->PantallaDelPersonaje && DispareitorHUD->PantallaDelPersonaje->Muertos) {
+        FString MuertosTexto = FString::Printf(TEXT("%d"), FMath::FloorToInt(Muertos));
+        DispareitorHUD->PantallaDelPersonaje->Muertos->SetText(FText::FromString(MuertosTexto));   
     }
 }
+
+void ADispareitorControladorJugador::ActualizarHUDMuertes(int32 Muertes) {
+    DispareitorHUD = DispareitorHUD != nullptr ? DispareitorHUD : Cast<ADispareitorHUD>(GetHUD());
+
+    if(DispareitorHUD && DispareitorHUD->PantallaDelPersonaje && DispareitorHUD->PantallaDelPersonaje->Muertes) {
+        FString MuertesTexto = FString::Printf(TEXT("%d"), Muertes);
+        DispareitorHUD->PantallaDelPersonaje->Muertes->SetText(FText::FromString(MuertesTexto));   
+    }
+}
+
 

@@ -105,7 +105,8 @@ void ADispareitorPersonaje::SondearInicializacion() {
 		// En los primeros frames este casting siempre devolvera null 
 		DispareitorEstadoJugador = GetPlayerState<ADispareitorEstadoJugador>();
 		if(DispareitorEstadoJugador) {
-			DispareitorEstadoJugador->IncrementarPuntuacion(0.f);	
+			DispareitorEstadoJugador->IncrementarMuertos(0.f);	
+			DispareitorEstadoJugador->IncrementarMuertes(0);
 		}
 	}
 }

@@ -125,7 +125,8 @@ private:
 	UFUNCTION()
 	void AlReplicarVida();
 
-	class ADispareitorControladorJugador* DispareitorControladorJugador;
+	UPROPERTY() // Inicializa la variable a nullptr, en otro caso tendria basura y podría producir errores de codigo como crasheos. Otra forma de hacerlo seria usando directamente = nullptr;
+	class ADispareitorControladorJugador* DispareitorControladorJugador; 
 
 	bool bEliminado = false;
 
@@ -172,6 +173,7 @@ private:
 	UPROPERTY(EditAnywhere)
 	class USoundCue* RobotEliminacionSonido;
 
+	UPROPERTY()
 	class ADispareitorEstadoJugador* DispareitorEstadoJugador;
 
 public:	
