@@ -1,6 +1,8 @@
 #include "SalaEsperaModoJuego.h"
 #include "GameFramework/GameStateBase.h"
 
+// AGameMode solo existe en el servidor
+
 void ASalaEsperaModoJuego::PostLogin(APlayerController* ControladorJugador) {
     Super::PostLogin(ControladorJugador);
 

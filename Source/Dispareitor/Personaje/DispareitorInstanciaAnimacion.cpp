@@ -33,12 +33,14 @@ void UDispareitorInstanciaAnimacion::NativeUpdateAnimation(float DeltaTime) {
     ArmaEquipada = DispareitorPersonaje->ObtenerArmaEquipada();
     bAgachado = DispareitorPersonaje->bIsCrouched;
     bApuntando = DispareitorPersonaje->EstaApuntando();
+    // Se utiliza en las transacciones
     GirarEnSitio = DispareitorPersonaje->ObtenerGirarEnSitio();
     bRotarHuesoRaiz = DispareitorPersonaje->DeboRotarHuesoRaiz();
     bEliminado = DispareitorPersonaje->EstaEliminado();
 
     // GiroDesviacion para el strafing 
-    // Es una rotacion global, independiente de adonde mire el personaje. Si esta mirando al X global sera 0. Al rotar hacia la derecha se incrementa hasta 180. Luego pasa -180 y decrece hasta 0.
+    // Es una rotacion global, independiente de adonde mire el personaje. Si esta mirando al X global sera 0. Al rotar hacia la derecha se incrementa hasta 180. Luego pasa a -180 y decrece hasta 0
+    // Actualiza el BS_ArmadoCorrer
     FRotator RotacionApuntado = DispareitorPersonaje->GetBaseAimRotation();
     // MakeRotFromX toma un vector como direccion y calcula su rotacion
     FRotator RotacionMovimiento = UKismetMathLibrary::MakeRotFromX(DispareitorPersonaje->GetVelocity());
@@ -49,7 +51,8 @@ void UDispareitorInstanciaAnimacion::NativeUpdateAnimation(float DeltaTime) {
     DeltaRotacion = FMath::RInterpTo(DeltaRotacion, DeltaRotacionObjetivo, DeltaTime, 6.f);
     GiroDesviacion = DeltaRotacion.Yaw;
 
-    // Inclinacion tiene que ver entre el Giro del anterior frame y el actual
+    // Inclinacion (hacia los lados) tiene que ver entre el Giro del anterior frame y el actual
+    // Actualiza el BS_ArmadoCorrer
     PersonajeRotacionUltimoFrame = PersonajeRotacion;
     PersonajeRotacion = DispareitorPersonaje->GetActorRotation();
     const FRotator PersonajeRotacionDelta = UKismetMathLibrary::NormalizedDeltaRotator(PersonajeRotacion, PersonajeRotacionUltimoFrame);
@@ -60,6 +63,7 @@ void UDispareitorInstanciaAnimacion::NativeUpdateAnimation(float DeltaTime) {
     AOGiro = DispareitorPersonaje->ObtenerAOGiro();
     AOInclinacion = DispareitorPersonaje->ObtenerAOInclinacion();
 
+    // Se aplica en la maquina de estado ManosTransformacion
     if(bArmaEquipada && ArmaEquipada && ArmaEquipada->ObtenerMalla() && DispareitorPersonaje->GetMesh()) {
         // Obtener ManoIzquierdaTransform en espacio de mundo a partir de ManoIzquierdaSocket (arma)
         ManoIzquierdaTransform = ArmaEquipada->ObtenerMalla()->GetSocketTransform(FName("ManoIzquierdaSocket"), ERelativeTransformSpace::RTS_World);

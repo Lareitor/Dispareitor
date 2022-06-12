@@ -3,6 +3,8 @@
 #include "Dispareitor/ControladorJugador/DispareitorControladorJugador.h"
 #include "Net/UnrealNetwork.h"
 
+// APlayerState existe en el servidor y en todos los clientes
+
 void ADispareitorEstadoJugador::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {
    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
@@ -10,6 +12,7 @@ void ADispareitorEstadoJugador::GetLifetimeReplicatedProps(TArray< FLifetimeProp
 }
 
 // Este metodo solo se ejecuta en el servidor
+// Llamado por ADispareitorPersonaje::SondearInicializacion y ADispareitorModoJuego::JugadorEliminado
 void ADispareitorEstadoJugador::IncrementarMuertos(float MuertosIncremento) {
    SetScore(GetScore() + MuertosIncremento); // Score es una variable heredada de APlayerState que se replica 
    DispareitorPersonaje = DispareitorPersonaje == nullptr ? Cast<ADispareitorPersonaje>(GetPawn()) : DispareitorPersonaje;
@@ -33,6 +36,7 @@ void ADispareitorEstadoJugador::OnRep_Score() {
    }
 }
 
+// Llamado por ADispareitorPersonaje::SondearInicializacion y ADispareitorModoJuego::JugadorEliminado
 void ADispareitorEstadoJugador::IncrementarMuertes(int32 MuertesIncremento) {
    Muertes += MuertesIncremento;
    DispareitorPersonaje = DispareitorPersonaje == nullptr ? Cast<ADispareitorPersonaje>(GetPawn()) : DispareitorPersonaje;

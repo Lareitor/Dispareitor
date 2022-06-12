@@ -86,6 +86,7 @@ private:
 	float AOInclinacion;
 	FRotator ArmadoRotacionInicial;
 
+	// Indica el sentido en el que debemos realizar el giro cuando estamos parados y con arma. Se utiliza en las transacciones de la maquina de estados
 	EGirarEnSitio GirarEnSitio;
 	void CalcularGirarEnSitio(float DeltaTime);
 
@@ -103,6 +104,7 @@ private:
 	UPROPERTY(EditAnywhere)
 	float CamaraLimiteCerca = 200.f;
 
+	// Al rotar el hueso raiz giramos la cintura sin mover las piernas
 	bool bRotarHuesoRaiz;
 	// Para los proxies simulados
 	float GiroUmbral = 0.5f;

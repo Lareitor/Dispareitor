@@ -156,7 +156,7 @@ void UCombateComponente::InterpolarFOV(float DeltaTime) {
 	}
 }
 
-// Llamado por DispareitorPersonaje cuando se pulsa la tecla de equipar
+// Llamado por ADispareitorPersonaje::Equipar 
 void UCombateComponente::EquiparArma(class AArma* ArmaAEquipar) {
 	if(DispareitorPersonaje == nullptr || ArmaAEquipar == nullptr) {
 		return;
@@ -166,7 +166,7 @@ void UCombateComponente::EquiparArma(class AArma* ArmaAEquipar) {
 	ArmaEquipada->ActualizarEstado(EEstado::EEA_Equipada); // Se propaga al cliente
 	const USkeletalMeshSocket* ManoDerechaSocket = DispareitorPersonaje->GetMesh()->GetSocketByName(FName("ManoDerechaSocket"));
 	if(ManoDerechaSocket) {
-		ManoDerechaSocket->AttachActor(ArmaEquipada, DispareitorPersonaje->GetMesh()); // Tambien se propaga a los clientes, pero no hay garantias de cual se propaga antes. 
+		ManoDerechaSocket->AttachActor(ArmaEquipada, DispareitorPersonaje->GetMesh()); // Tambien se propaga a los clientes, pero no hay garantias de cual se propaga antes 
 	}
 	ArmaEquipada->SetOwner(DispareitorPersonaje);	
 	DispareitorPersonaje->GetCharacterMovement()->bOrientRotationToMovement = false;

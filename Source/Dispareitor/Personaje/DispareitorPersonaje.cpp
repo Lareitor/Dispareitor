@@ -18,6 +18,8 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "Dispareitor/EstadoJugador/DispareitorEstadoJugador.h"
 
+// TODO Hacer el respawn lo mas lejos de los jugadores  
+
 ADispareitorPersonaje::ADispareitorPersonaje() {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -102,7 +104,7 @@ void ADispareitorPersonaje::Tick(float DeltaTime) {
 
 void ADispareitorPersonaje::SondearInicializacion() {
 	if(DispareitorEstadoJugador == nullptr) {
-		// En los primeros frames este casting siempre devolvera null 
+		// En los primeros frames este casting siempre devolverá null 
 		DispareitorEstadoJugador = GetPlayerState<ADispareitorEstadoJugador>();
 		if(DispareitorEstadoJugador) {
 			DispareitorEstadoJugador->IncrementarMuertos(0.f);	
@@ -226,7 +228,7 @@ void ADispareitorPersonaje::ServidorEquipar_Implementation() {
 	}
 }
 
-// Para el servidor
+// En el servidor (Para el caso en el que el jugador sea ademas el servidor)
 // Sabemos que esta funcion solo es llamada en el servidor 
 // Llamada por Arma al solapar y desolapar el arma
 void ADispareitorPersonaje::ActivarArmaSolapada(AArma* Arma) {
@@ -236,16 +238,17 @@ void ADispareitorPersonaje::ActivarArmaSolapada(AArma* Arma) {
 		}
 	}
 
-	ArmaSolapada = Arma;	
+	ArmaSolapada = Arma;
+
 	if(IsLocallyControlled()) { // y ademas somos el jugador que está hospedando el juego
-		if(ArmaSolapada) {
+		if(ArmaSolapada) { 
 			ArmaSolapada->MostrarLeyendaSobreArma(true);
 		}
 	}
 }
 
-// Para los clientes
-// Se llama automaticamente en el cliente cuando la variable es replicada por el servidor. Nunca se llama en el servidor
+// En los clientes (Para el caso en el que el jugador no sea el servidor)
+// Se llama automaticamente en el cliente (hemos especificado arriba que ArmaSolapada solo replique su estado en el cliente que posee ADispareitorPersonaje) cuando la variable es replicada por el servidor. Nunca se llama en el servidor
 // Acepta 0 ó 1 argumento. Si le pasamos argumento tiene que ser del tipo de la variable replicada, y se rellenará con el valor anterior replicado o null si no lo tuviera
 void ADispareitorPersonaje::AlReplicarArmaSolapada(AArma* ArmaReplicadaAnterior) {
 	if(ArmaSolapada) {
@@ -314,7 +317,7 @@ void ADispareitorPersonaje::CalcularGirarEnSitio(float DeltaTime) {
 // Llamad por Tick y CalcularGiroEInclinacionParadoYArmado
 void ADispareitorPersonaje::CalcularInclinacion() {
 	AOInclinacion = GetBaseAimRotation().Pitch;
-	// Debido a la compresion que realiza UE a la hora de enviar estos valores por la red,  transforma los valores negativos en positivos, por los que cuando estamos mirando hacia abajo en el cliente 
+	// Debido a la compresion que realiza UE a la hora de enviar estos valores por la red, transforma los valores negativos en positivos, por los que cuando estamos mirando hacia abajo en el cliente 
 	// (inclinacion negativa) en el server volverá a mirar hacia arriba
 	// Para solucionarlo utilizamos esta solucion  
 	if(AOInclinacion > 90.f && !IsLocallyControlled()) { // estamos en el server
@@ -374,6 +377,7 @@ void ADispareitorPersonaje::EjecutarMontajeDispararArma(bool bApuntando) {
 	}
 }
 
+// Llamado por RecibirDano y AlReplicarVida
 void ADispareitorPersonaje::EjecutarMontajeReaccionAImpacto() {
 	if(CombateComponente == nullptr || CombateComponente->ArmaEquipada == nullptr) {
 		return;
@@ -491,26 +495,8 @@ void ADispareitorPersonaje::MulticastEliminado_Implementation() {
 	if(RobotEliminacionSonido) {
 		UGameplayStatics::SpawnSoundAtLocation(this, RobotEliminacionSonido, GetActorLocation());
 	}
-}
-
-void ADispareitorPersonaje::TemporizadorEliminadoFinalizado() {
-	ADispareitorModoJuego* DispareitorModoJuego = GetWorld()->GetAuthGameMode<ADispareitorModoJuego>();
-	if(DispareitorModoJuego) {
-		DispareitorModoJuego->PeticionReaparecer(this, DispareitorControladorJugador);
-	}
-}
-
-void ADispareitorPersonaje::Destroyed() {
-	Super::Destroyed();
-
-	if(RobotEliminacionComponente) {
-		RobotEliminacionComponente->DestroyComponent();
-	}
-}
-
-void ADispareitorPersonaje::DisolucionActualizarMaterialCallback(float DisolucionValor) {
-	if(DisolucionInstanciaMaterialDinamico) {
-		DisolucionInstanciaMaterialDinamico->SetScalarParameterValue(TEXT("Disolucion"), DisolucionValor);
+	if(HUDSobreLaCabeza) {
+		HUDSobreLaCabeza->SetVisibility(false);
 	}
 }
 
@@ -521,3 +507,26 @@ void ADispareitorPersonaje::DisolucionEmpezar() {
 		DisolucionLineaTiempoComponente->Play();
 	}
 }
+
+void ADispareitorPersonaje::DisolucionActualizarMaterialCallback(float DisolucionValor) {
+	if(DisolucionInstanciaMaterialDinamico) {
+		DisolucionInstanciaMaterialDinamico->SetScalarParameterValue(TEXT("Disolucion"), DisolucionValor);
+	}
+}
+
+void ADispareitorPersonaje::TemporizadorEliminadoFinalizado() {
+	ADispareitorModoJuego* DispareitorModoJuego = GetWorld()->GetAuthGameMode<ADispareitorModoJuego>();
+	if(DispareitorModoJuego) {
+		DispareitorModoJuego->PeticionReaparecer(this, DispareitorControladorJugador);
+	}
+}
+
+// Llamado por ADispareitorModoJuego::PeticionReaparecer
+void ADispareitorPersonaje::Destroyed() {
+	Super::Destroyed();
+
+	if(RobotEliminacionComponente) {
+		RobotEliminacionComponente->DestroyComponent();
+	}
+}
+

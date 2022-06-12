@@ -67,6 +67,7 @@ void AArma::CallbackEsferaSolapadaFin(UPrimitiveComponent* ComponenteSolapado, A
 	}
 }
 
+// Llamado por Soltar, UCombateComponente::EquiparArma, UCombateComponente::AlReplicarArmaEquipada
 void AArma::ActualizarEstado(EEstado EstadoAActualizar) {
 	Estado = EstadoAActualizar;
 
@@ -111,6 +112,7 @@ void AArma::MostrarLeyendaSobreArma(bool bMostrarLeyendaSobreArma) {
 	}
 }
 
+// Llamado por UCombateComponente::MulticastDisparar_Implementation y por sus clases hijas
 void AArma::Disparar(const FVector& Objetivo) {
 	if(AnimacionDisparar) {
 		Malla->PlayAnimation(AnimacionDisparar, false);

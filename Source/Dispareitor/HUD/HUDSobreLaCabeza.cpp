@@ -3,16 +3,12 @@
 #include "Components/TextBlock.h"
 #include "GameFramework/PlayerState.h"
 
+// El BP_HUDSobreLaCabeza (que hereda de este) esta incluido en el BP_DispareitorPersonaje y se inicia en el nodo BeginPlay
+
 void UHUDSobreLaCabeza::OnLevelRemovedFromWorld(ULevel *Nivel, UWorld* Mundo) {
     RemoveFromParent();
     Super::OnLevelRemovedFromWorld(Nivel, Mundo);
 }	
-
-void UHUDSobreLaCabeza::ActualizarTextoSobreCabeza(FString texto) {
-    if(TextoSobreCabeza) {
-        TextoSobreCabeza->SetText(FText::FromString(texto));
-    }
-}
 
 void UHUDSobreLaCabeza::MostrarJugadorRolRed(APawn* Peon) {
     ENetRole RolLocal = Peon->GetLocalRole();
@@ -33,7 +29,7 @@ void UHUDSobreLaCabeza::MostrarJugadorRolRed(APawn* Peon) {
             break;            
     }  
 
-     ADispareitorPersonaje* DispareitorPersonaje = Cast<ADispareitorPersonaje>(Peon);
+    ADispareitorPersonaje* DispareitorPersonaje = Cast<ADispareitorPersonaje>(Peon);
     APlayerState* EstadoJugador = DispareitorPersonaje->GetPlayerState();
     if(EstadoJugador) {
         Rol = EstadoJugador->GetPlayerName();
@@ -42,4 +38,20 @@ void UHUDSobreLaCabeza::MostrarJugadorRolRed(APawn* Peon) {
     FString RolLocalS = FString::Printf(TEXT("Rol local: %s"), *Rol);
     
     ActualizarTextoSobreCabeza(Rol);
+}
+
+// Se invoca en el nodo BP_DispareitorPersonaje::BeginPlay
+void UHUDSobreLaCabeza::MostrarJugadorNombre(APawn* Peon) {
+    ADispareitorPersonaje* DispareitorPersonaje = Cast<ADispareitorPersonaje>(Peon);
+    if(!DispareitorPersonaje->IsLocallyControlled()) {
+        FString Nombre = Peon->GetName();
+        ActualizarTextoSobreCabeza(Nombre);
+    }
+}
+
+
+void UHUDSobreLaCabeza::ActualizarTextoSobreCabeza(FString texto) {
+    if(TextoSobreCabeza) {
+        TextoSobreCabeza->SetText(FText::FromString(texto));
+    }
 }

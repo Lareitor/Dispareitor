@@ -5,12 +5,15 @@
 #include "Components/TextBlock.h"
 #include "Dispareitor/Personaje/DispareitorPersonaje.h"
 
+// APlayerController solo existe en el servidor y en el cliente propietario. Permite el acceso al HUD: vida, muertos, muertes, municion...
+
 void ADispareitorControladorJugador::BeginPlay() {
     Super::BeginPlay();
 
     DispareitorHUD = Cast<ADispareitorHUD>(GetHUD());
 }
 
+// ¿Llamado de forma indirecta por ADispareitorModoJuego::PeticionReaparecer?
 void ADispareitorControladorJugador::OnPossess(APawn* Peon) {
     Super::OnPossess(Peon);
 
@@ -20,7 +23,7 @@ void ADispareitorControladorJugador::OnPossess(APawn* Peon) {
     }
 }
 
-// Llamado por DispareitorPersonaje
+// Llamado por OnPossess y ADispareitorPersonaje::ActualizarHUDVida 
 void ADispareitorControladorJugador::ActualizarHUDVida(float Vida, float VidaMaxima) {
     DispareitorHUD = DispareitorHUD != nullptr ? DispareitorHUD : Cast<ADispareitorHUD>(GetHUD());
 
@@ -31,6 +34,7 @@ void ADispareitorControladorJugador::ActualizarHUDVida(float Vida, float VidaMax
     }
 }
 
+// Llamado por ADispareitorEstadoJugador::IncrementarMuertos
 void ADispareitorControladorJugador::ActualizarHUDMuertos(float Muertos) {
     DispareitorHUD = DispareitorHUD != nullptr ? DispareitorHUD : Cast<ADispareitorHUD>(GetHUD());
 
@@ -40,6 +44,7 @@ void ADispareitorControladorJugador::ActualizarHUDMuertos(float Muertos) {
     }
 }
 
+// Llamado por ADispareitorEstadoJugador::IncrementarMuertes
 void ADispareitorControladorJugador::ActualizarHUDMuertes(int32 Muertes) {
     DispareitorHUD = DispareitorHUD != nullptr ? DispareitorHUD : Cast<ADispareitorHUD>(GetHUD());
 

@@ -17,6 +17,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void MostrarJugadorRolRed(APawn* Peon);
 
+	UFUNCTION(BlueprintCallable)
+	void MostrarJugadorNombre(APawn* Peon);
+
 protected:
 	virtual void OnLevelRemovedFromWorld(ULevel *Nivel, UWorld* Mundo) override;	
 };

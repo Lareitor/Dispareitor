@@ -2,6 +2,8 @@
 #include "Engine/SkeletalMeshSocket.h"
 #include "Proyectil.h"
 
+// Hereda de AArma
+
 void AArmaProyectil::Disparar(const FVector& Objetivo) {
     Super::Disparar(Objetivo);
 

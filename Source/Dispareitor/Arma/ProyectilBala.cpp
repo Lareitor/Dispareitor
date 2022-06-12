@@ -2,6 +2,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Character.h"
 
+// Hereda de AProyectil
+
 void AProyectilBala::CallbackAlImpactar(UPrimitiveComponent* ComponenteImpactante, AActor* ActorImpactado, UPrimitiveComponent* ComponenteImpactado, FVector ImpulsoNormal, const FHitResult& ImpactoResultado) {
     ACharacter* PersonajePropietario = Cast<ACharacter>(GetOwner());
     if(PersonajePropietario) {
