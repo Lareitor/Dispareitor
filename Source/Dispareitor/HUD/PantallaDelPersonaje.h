@@ -22,4 +22,6 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* Muertes;
 
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* MunicionArma;
 };

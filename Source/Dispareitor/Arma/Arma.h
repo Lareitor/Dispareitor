@@ -20,6 +20,8 @@ public:
 	AArma();
 	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void OnRep_Owner() override;
+	void ActualizarHUDMunicion();
 	void MostrarLeyendaSobreArma(bool bMostrarLeyendaSobreArma);
 	virtual void Disparar(const FVector& Objetivo);
 	void Soltar();
@@ -81,6 +83,24 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class ACasquillo> Casquillo;
+
+	UPROPERTY(EditAnywhere, ReplicatedUsing = AlReplicarMunicion)
+	int32 Municion;
+
+	UFUNCTION()
+	void AlReplicarMunicion();
+
+	void GastarMunicion();
+
+	UPROPERTY(EditAnywhere)
+	int32 CargadorCapacidad;
+
+	UPROPERTY()
+	class ADispareitorPersonaje* DispareitorPersonaje;
+
+	UPROPERTY()
+	class ADispareitorControladorJugador* DispareitorControladorJugador;
+	
 
 public:		
 	void ActualizarEstado(EEstado EstadoAActualizar);

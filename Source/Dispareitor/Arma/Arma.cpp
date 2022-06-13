@@ -7,6 +7,7 @@
 #include "Components/SkeletalMeshComponent.h" 
 #include "Casquillo.h"
 #include "Engine/SkeletalMeshSocket.h"
+#include "Dispareitor/ControladorJugador/DispareitorControladorJugador.h"
 
 AArma::AArma() {
 	PrimaryActorTick.bCanEverTick = false;
@@ -50,20 +51,21 @@ void AArma::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimePro
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AArma, Estado);
+	DOREPLIFETIME(AArma, Municion);
 }
 
 
 void AArma::CallbackEsferaSolapadaInicio(UPrimitiveComponent* ComponenteSolapado, AActor* OtroActor, UPrimitiveComponent* OtroComponente, int32 OtroIndice, bool bFromSweep, const FHitResult& SweepResult) { 
-	ADispareitorPersonaje* DispareitorPersonaje = Cast<ADispareitorPersonaje>(OtroActor);
-	if(DispareitorPersonaje) {
-		DispareitorPersonaje->ActivarArmaSolapada(this);
+	ADispareitorPersonaje* DispareitorPersonajeEntraEnEsfera = Cast<ADispareitorPersonaje>(OtroActor);
+	if(DispareitorPersonajeEntraEnEsfera) {
+		DispareitorPersonajeEntraEnEsfera->ActivarArmaSolapada(this);
 	}
 }
 
 void AArma::CallbackEsferaSolapadaFin(UPrimitiveComponent* ComponenteSolapado, AActor* OtroActor, UPrimitiveComponent* OtroComponente, int32 OtroIndice) {
-	ADispareitorPersonaje* DispareitorPersonaje = Cast<ADispareitorPersonaje>(OtroActor);
-	if(DispareitorPersonaje) {
-		DispareitorPersonaje->ActivarArmaSolapada(nullptr);
+	ADispareitorPersonaje* DispareitorPersonajeSaleEsfera = Cast<ADispareitorPersonaje>(OtroActor);
+	if(DispareitorPersonajeSaleEsfera) {
+		DispareitorPersonajeSaleEsfera->ActivarArmaSolapada(nullptr);
 	}
 }
 
@@ -127,6 +129,8 @@ void AArma::Disparar(const FVector& Objetivo) {
 			}
 		}
 	}
+
+	GastarMunicion();
 }
 
 // Llamado por ADispareitorPersonaje::Eliminado
@@ -135,4 +139,36 @@ void AArma::Soltar() {
 	FDetachmentTransformRules DesvincularReglas(EDetachmentRule::KeepWorld, true);
 	Malla->DetachFromComponent(DesvincularReglas);
 	SetOwner(nullptr);
+	DispareitorPersonaje = nullptr;
+	DispareitorControladorJugador = nullptr;
+}
+
+// Llamado por Disparar
+void AArma::GastarMunicion() {
+	--Municion;
+	ActualizarHUDMunicion();
+}
+
+void AArma::AlReplicarMunicion() {
+	ActualizarHUDMunicion();
+}
+
+void AArma::OnRep_Owner() {
+	Super::OnRep_Owner();
+	if(Owner == nullptr) {
+		DispareitorPersonaje = nullptr;
+		DispareitorControladorJugador = nullptr;
+	} else {
+		ActualizarHUDMunicion();
+	}
+}
+
+void AArma::ActualizarHUDMunicion() {
+	DispareitorPersonaje = DispareitorPersonaje != nullptr ? DispareitorPersonaje : Cast<ADispareitorPersonaje>(GetOwner());
+	if(DispareitorPersonaje) {
+		DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller);
+		if(DispareitorControladorJugador) {
+			DispareitorControladorJugador->ActualizarHUDMunicionArma(Municion);
+		}
+	}
 }

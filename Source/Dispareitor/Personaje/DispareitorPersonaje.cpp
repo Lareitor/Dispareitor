@@ -498,6 +498,9 @@ void ADispareitorPersonaje::MulticastEliminado_Implementation() {
 	if(HUDSobreLaCabeza) {
 		HUDSobreLaCabeza->SetVisibility(false);
 	}
+	if(DispareitorControladorJugador) {
+		DispareitorControladorJugador->ActualizarHUDMunicionArma(0);
+	}
 }
 
 void ADispareitorPersonaje::DisolucionEmpezar() {

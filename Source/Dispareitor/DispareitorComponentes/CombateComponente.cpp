@@ -162,6 +162,10 @@ void UCombateComponente::EquiparArma(class AArma* ArmaAEquipar) {
 		return;
 	}
 
+	if(ArmaEquipada) {
+		ArmaEquipada->Soltar();
+	}
+
 	ArmaEquipada = ArmaAEquipar;
 	ArmaEquipada->ActualizarEstado(EEstado::EEA_Equipada); // Se propaga al cliente
 	const USkeletalMeshSocket* ManoDerechaSocket = DispareitorPersonaje->GetMesh()->GetSocketByName(FName("ManoDerechaSocket"));
@@ -169,6 +173,7 @@ void UCombateComponente::EquiparArma(class AArma* ArmaAEquipar) {
 		ManoDerechaSocket->AttachActor(ArmaEquipada, DispareitorPersonaje->GetMesh()); // Tambien se propaga a los clientes, pero no hay garantias de cual se propaga antes 
 	}
 	ArmaEquipada->SetOwner(DispareitorPersonaje);	
+	ArmaEquipada->ActualizarHUDMunicion();
 	DispareitorPersonaje->GetCharacterMovement()->bOrientRotationToMovement = false;
 	DispareitorPersonaje->bUseControllerRotationYaw = true;
 }
