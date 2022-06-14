@@ -94,6 +94,8 @@ private:
 	void Disparar();
 	void EmpezarDisparoTemporizador();
 	void TerminadoDisparoTemporizador();
+
+	bool PuedoDisparar();
 	
 public:		
 	

@@ -108,5 +108,5 @@ public:
 	FORCEINLINE USkeletalMeshComponent* ObtenerMalla() const { return Malla; }
 	FORCEINLINE float ObtenerZoomFOV() const { return ZoomFOV; }
 	FORCEINLINE float ObtenerVelocidadInterpolacion() const { return ZoomVelocidadInterpolacion; }
-
+	bool EstaSinMunicion();
 };

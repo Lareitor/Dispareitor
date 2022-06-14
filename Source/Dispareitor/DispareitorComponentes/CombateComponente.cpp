@@ -220,7 +220,7 @@ void UCombateComponente::DispararPresionado(bool bPresionado) {
 }
 
 void UCombateComponente::Disparar() {
-	if(bPuedoDisparar) {
+	if(PuedoDisparar()) {
 		bPuedoDisparar = false;
 
 		// Si estamos en el server se ejecutar en el server y si estamos en un cliente se ejectura en el server
@@ -264,4 +264,8 @@ void UCombateComponente::TerminadoDisparoTemporizador() {
 	if(bDispararPresionado && ArmaEquipada->bAutomatica) {
 		Disparar();
 	}
+}
+
+bool UCombateComponente::PuedoDisparar() {
+	return ArmaEquipada != nullptr && !ArmaEquipada->EstaSinMunicion() && bPuedoDisparar;
 }

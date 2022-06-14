@@ -145,7 +145,7 @@ void AArma::Soltar() {
 
 // Llamado por Disparar
 void AArma::GastarMunicion() {
-	--Municion;
+	Municion = FMath::Clamp(Municion -1, 0, CargadorCapacidad);
 	ActualizarHUDMunicion();
 }
 
@@ -171,4 +171,8 @@ void AArma::ActualizarHUDMunicion() {
 			DispareitorControladorJugador->ActualizarHUDMunicionArma(Municion);
 		}
 	}
+}
+
+bool AArma::EstaSinMunicion() {
+	return Municion <= 0;
 }
