@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Dispareitor/HUD/DispareitorHUD.h"
+#include "Dispareitor/Tipos/TiposArma.h"
 #include "CombateComponente.generated.h"
 
 #define RAYO_LONGITUD 80000.f;
@@ -96,6 +97,16 @@ private:
 	void TerminadoDisparoTemporizador();
 
 	bool PuedoDisparar();
+
+	// Municion del personaje para el arma actualmente equipada
+	UPROPERTY(ReplicatedUsing = AlReplicarMunicionPersonaje)
+	int32 MunicionPersonaje;
+
+	UFUNCTION()
+	void AlReplicarMunicionPersonaje();
+
+	// TMap no puede replicarse
+	TMap<ETipoArma, int32> MunicionPersonajeMapa;
 	
 public:		
 	

@@ -36,6 +36,7 @@ void UCombateComponente::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 
 	DOREPLIFETIME(UCombateComponente, ArmaEquipada);
 	DOREPLIFETIME(UCombateComponente, bApuntando);
+	DOREPLIFETIME_CONDITION(UCombateComponente, MunicionPersonaje, COND_OwnerOnly);
 }
 
 void UCombateComponente::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) {
@@ -268,4 +269,8 @@ void UCombateComponente::TerminadoDisparoTemporizador() {
 
 bool UCombateComponente::PuedoDisparar() {
 	return ArmaEquipada != nullptr && !ArmaEquipada->EstaSinMunicion() && bPuedoDisparar;
+}
+
+void UCombateComponente::AlReplicarMunicionPersonaje() {
+
 }

@@ -12,7 +12,8 @@ public:
 	void ActualizarHUDVida(float Vida, float VidaMaxima);
 	void ActualizarHUDMuertos(float Muertos);
 	void ActualizarHUDMuertes(int32 Muertes);
-	void ActualizarHUDMunicionArma(int32 Municion);
+	void ActualizarHUDMunicionArma(int32 MunicionArma);
+	void ActualizarHUDMunicionPersonaje(int32 MunicionPersonaje);
 	virtual void OnPossess(APawn* Peon) override;
 	
 protected:

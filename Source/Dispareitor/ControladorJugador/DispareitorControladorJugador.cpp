@@ -63,4 +63,14 @@ void ADispareitorControladorJugador::ActualizarHUDMunicionArma(int32 MunicionArm
     }
 }
 
+void ADispareitorControladorJugador::ActualizarHUDMunicionPersonaje(int32 MunicionPersonaje) {
+    DispareitorHUD = DispareitorHUD != nullptr ? DispareitorHUD : Cast<ADispareitorHUD>(GetHUD());
+
+    if(DispareitorHUD && DispareitorHUD->PantallaDelPersonaje && DispareitorHUD->PantallaDelPersonaje->MunicionPersonaje) {
+        FString MunicionPersonajeTexto = FString::Printf(TEXT("%d"), MunicionPersonaje);
+        DispareitorHUD->PantallaDelPersonaje->MunicionPersonaje->SetText(FText::FromString(MunicionPersonajeTexto));   
+    }
+}
+
+
 

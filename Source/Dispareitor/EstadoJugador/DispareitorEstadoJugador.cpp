@@ -4,6 +4,7 @@
 #include "Net/UnrealNetwork.h"
 
 // APlayerState existe en el servidor y en todos los clientes
+// Podriamos haber almacenado aqui la municion del jugador, pero dado que se replica menos rapido que el propio jugador se opta por hacerlo en CombateComponente (que pertenece al jugador) 
 
 void ADispareitorEstadoJugador::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {
    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
