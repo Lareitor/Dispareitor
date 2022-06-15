@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Dispareitor/Tipos/TiposArma.h"
 #include "Arma.generated.h"
 
 UENUM(BlueprintType)
@@ -100,6 +101,9 @@ private:
 
 	UPROPERTY()
 	class ADispareitorControladorJugador* DispareitorControladorJugador;
+
+	UPROPERTY(EditAnywhere)
+	ETipoArma TipoArma;
 	
 
 public:		
@@ -109,4 +113,5 @@ public:
 	FORCEINLINE float ObtenerZoomFOV() const { return ZoomFOV; }
 	FORCEINLINE float ObtenerVelocidadInterpolacion() const { return ZoomVelocidadInterpolacion; }
 	bool EstaSinMunicion();
+	FORCEINLINE ETipoArma TipoArmaObtener() const { return TipoArma; } 
 };

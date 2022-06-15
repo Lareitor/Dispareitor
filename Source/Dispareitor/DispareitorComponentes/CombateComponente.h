@@ -99,14 +99,19 @@ private:
 	bool PuedoDisparar();
 
 	// Municion del personaje para el arma actualmente equipada
-	UPROPERTY(ReplicatedUsing = AlReplicarMunicionPersonaje)
+	UPROPERTY(ReplicatedUsing = MunicionPersonajeAlReplicar)
 	int32 MunicionPersonaje;
 
 	UFUNCTION()
-	void AlReplicarMunicionPersonaje();
+	void MunicionPersonajeAlReplicar();
 
 	// TMap no puede replicarse
 	TMap<ETipoArma, int32> MunicionPersonajeMapa;
+
+	UPROPERTY(EditAnywhere)
+	int32 MunicionPersonajeInicialRifleAsalto = 30;
+
+	void MunicionPersonajeInicializar();
 	
 public:		
 	

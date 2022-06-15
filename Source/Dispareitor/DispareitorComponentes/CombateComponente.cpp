@@ -29,6 +29,10 @@ void UCombateComponente::BeginPlay() {
 			ActualFOV = PorDefectoFOV;
 		}
 	}
+
+	if(DispareitorPersonaje->HasAuthority()) {
+		MunicionPersonajeInicializar();
+	}
 }
 
 void UCombateComponente::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const {
@@ -158,6 +162,7 @@ void UCombateComponente::InterpolarFOV(float DeltaTime) {
 }
 
 // Llamado por ADispareitorPersonaje::Equipar 
+// Solo ejecutado en el servidor
 void UCombateComponente::EquiparArma(class AArma* ArmaAEquipar) {
 	if(DispareitorPersonaje == nullptr || ArmaAEquipar == nullptr) {
 		return;
@@ -175,6 +180,16 @@ void UCombateComponente::EquiparArma(class AArma* ArmaAEquipar) {
 	}
 	ArmaEquipada->SetOwner(DispareitorPersonaje);	
 	ArmaEquipada->ActualizarHUDMunicion();
+
+	if(MunicionPersonajeMapa.Contains(ArmaEquipada->TipoArmaObtener())) {
+		MunicionPersonaje = MunicionPersonajeMapa[ArmaEquipada->TipoArmaObtener()];
+	}
+
+	DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller);
+	if(DispareitorControladorJugador) {
+		DispareitorControladorJugador->ActualizarHUDMunicionPersonaje(MunicionPersonaje);
+	}
+
 	DispareitorPersonaje->GetCharacterMovement()->bOrientRotationToMovement = false;
 	DispareitorPersonaje->bUseControllerRotationYaw = true;
 }
@@ -271,6 +286,15 @@ bool UCombateComponente::PuedoDisparar() {
 	return ArmaEquipada != nullptr && !ArmaEquipada->EstaSinMunicion() && bPuedoDisparar;
 }
 
-void UCombateComponente::AlReplicarMunicionPersonaje() {
-
+void UCombateComponente::MunicionPersonajeAlReplicar() {
+	DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller);
+	if(DispareitorControladorJugador) {
+		DispareitorControladorJugador->ActualizarHUDMunicionPersonaje(MunicionPersonaje);
+	}
 }
+
+// Llamado en BeginPlay
+void UCombateComponente::MunicionPersonajeInicializar() {
+	MunicionPersonajeMapa.Emplace(ETipoArma::ETA_RifleAsalto, MunicionPersonajeInicialRifleAsalto);
+}
+
