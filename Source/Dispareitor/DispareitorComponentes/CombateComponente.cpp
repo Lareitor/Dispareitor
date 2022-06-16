@@ -208,6 +208,23 @@ void UCombateComponente::AlReplicarArmaEquipada() {
 	}
 }
 
+// Llamado por ADispareitorPersonaje::Recargar
+// Puede ser llamado tanto por un cliente como en un servidor
+void UCombateComponente::Recargar() {
+	// Si lo ejecutamos desde el cliente podemos chequear si tiene municion para evitar llamadas innecesarias al servidor
+	if(MunicionPersonaje > 0 ) {
+		RecargarServidor();
+	}
+}
+
+void UCombateComponente::RecargarServidor_Implementation() {
+	if(DispareitorPersonaje == nullptr) {
+		return;
+	}
+
+	DispareitorPersonaje->EjecutarMontajeRecargar();
+}
+
 // Llamado por DispareitorPersonaje cuando se pulsa o libera el boton de apuntar
 void UCombateComponente::ActualizarApuntando(bool Apuntando) {
 	// Aunque esta funcion es posible que la llamemos desde el cliente, por cuestiones cosmeticas podemos hacerlo ahora

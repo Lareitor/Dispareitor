@@ -20,6 +20,7 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void PostInitializeComponents() override;
 	void EjecutarMontajeDispararArma(bool bApuntando);
+	void EjecutarMontajeRecargar();
 	void EjecutarMontajeEliminacion();
 	virtual void OnRep_ReplicatedMovement() override;
 	void Eliminado();
@@ -37,16 +38,17 @@ protected:
 	void MoverIzquierdaDerecha(float Valor);
 	void Girar(float Valor);
 	void MirarArribaAbajo(float Valor);
-	void Equipar();
+	virtual void Jump() override;
 	void Agachar();
+	void Equipar();
 	void ApuntarPulsado();
 	void ApuntarLiberado();
+	void DispararPulsado();
+	void DispararLiberado();
+	void Recargar();
 	void CalcularGiroEInclinacionParadoYArmado(float DeltaTime);
 	void CalcularInclinacion();
 	void ProxiesSimuladosGiro();
-	virtual void Jump() override;
-	void DispararPulsado();
-	void DispararLiberado();
 	void EjecutarMontajeReaccionAImpacto();
 	
 	UFUNCTION()
@@ -92,6 +94,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = Combate)
 	class UAnimMontage* MontajeDispararArma;
+
+	UPROPERTY(EditAnywhere, Category = Combate)
+	class UAnimMontage* MontajeRecargar;
 
 	UPROPERTY(EditAnywhere, Category = Combate)
 	class UAnimMontage* MontajeReaccionAImpacto;

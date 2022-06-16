@@ -20,6 +20,7 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	void EquiparArma(class AArma* ArmaAEquipar);
+	void Recargar();
 
 protected:	
 	virtual void BeginPlay() override;
@@ -35,6 +36,9 @@ protected:
 
 	UFUNCTION(Server, Reliable)
 	void ServidorDisparar(const FVector_NetQuantize& Objetivo);
+
+	UFUNCTION(Server, Reliable)
+	void RecargarServidor();
 
 	// RPC Multicast. Si se invoca en el servidor, se ejecuta en el servidor + clientes, si se invoca en el cliente solo se ejecuta en ese cliente
 	UFUNCTION(NetMulticast, Reliable)

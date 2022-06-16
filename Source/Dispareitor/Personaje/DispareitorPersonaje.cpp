@@ -17,6 +17,7 @@
 #include "Sound/SoundCue.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Dispareitor/EstadoJugador/DispareitorEstadoJugador.h"
+#include "Dispareitor/Tipos/TiposArma.h"
 
 // TODO Hacer el respawn lo mas lejos de los jugadores  
 
@@ -132,6 +133,7 @@ void ADispareitorPersonaje::SetupPlayerInputComponent(UInputComponent* PlayerInp
 	PlayerInputComponent->BindAction("Apuntar", IE_Released, this, &ADispareitorPersonaje::ApuntarLiberado);
 	PlayerInputComponent->BindAction("Disparar", IE_Pressed, this, &ADispareitorPersonaje::DispararPulsado);
 	PlayerInputComponent->BindAction("Disparar", IE_Released, this, &ADispareitorPersonaje::DispararLiberado);
+	PlayerInputComponent->BindAction("Recargar", IE_Pressed, this, &ADispareitorPersonaje::Recargar);
 
 
 	PlayerInputComponent->BindAxis("MoverAdelanteAtras", this, &ADispareitorPersonaje::MoverAdelanteAtras);
@@ -208,6 +210,12 @@ void ADispareitorPersonaje::DispararPulsado() {
 void ADispareitorPersonaje::DispararLiberado() {
 	if(CombateComponente) {
 		CombateComponente->DispararPresionado(false);
+	}
+}
+
+void ADispareitorPersonaje::Recargar() {
+	if(CombateComponente) {
+		CombateComponente->Recargar();
 	}
 }
 
@@ -376,6 +384,26 @@ void ADispareitorPersonaje::EjecutarMontajeDispararArma(bool bApuntando) {
 		InstanciaAnimacion->Montage_JumpToSection(NombreSeccion);
 	}
 }
+
+// Llamado por UCombateComponente::RecargarServidor_Implementation
+void ADispareitorPersonaje::EjecutarMontajeRecargar() {
+	if(CombateComponente == nullptr || CombateComponente->ArmaEquipada == nullptr) {
+		return;
+	}
+
+	UAnimInstance* InstanciaAnimacion = GetMesh()->GetAnimInstance();
+	if(InstanciaAnimacion && MontajeRecargar) {
+		InstanciaAnimacion->Montage_Play(MontajeRecargar);
+		FName NombreSeccion;
+		switch(CombateComponente->ArmaEquipada->TipoArmaObtener()) {
+			case ETipoArma::ETA_RifleAsalto:
+			NombreSeccion = FName("RifleAsalto");	
+			break;
+		}
+		InstanciaAnimacion->Montage_JumpToSection(NombreSeccion);
+	}
+}
+
 
 // Llamado por RecibirDano y AlReplicarVida
 void ADispareitorPersonaje::EjecutarMontajeReaccionAImpacto() {
