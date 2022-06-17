@@ -4,6 +4,7 @@
 #include "Components/ActorComponent.h"
 #include "Dispareitor/HUD/DispareitorHUD.h"
 #include "Dispareitor/Tipos/TiposArma.h"
+#include "Dispareitor/Tipos/EstadosCombate.h"
 #include "CombateComponente.generated.h"
 
 #define RAYO_LONGITUD 80000.f;
@@ -21,6 +22,9 @@ public:
 
 	void EquiparArma(class AArma* ArmaAEquipar);
 	void Recargar();
+
+	UFUNCTION(BluePrintCallable)
+	void RecargarFinalizado();
 
 protected:	
 	virtual void BeginPlay() override;
@@ -47,6 +51,8 @@ protected:
 	void CalcularRayoDesdeCruceta(FHitResult& RayoResultado);
 
 	void ActualizarHUDCruceta(float DeltaTime);
+
+	void RecargarManejador();
 
 private:
 	UPROPERTY()
@@ -116,6 +122,12 @@ private:
 	int32 MunicionPersonajeInicialRifleAsalto = 30;
 
 	void MunicionPersonajeInicializar();
+
+	UPROPERTY(ReplicatedUsing = EstadoCombateAlReplicar)
+	EEstadosCombate EstadoCombate = EEstadosCombate::EEC_Desocupado;
+
+	UFUNCTION()
+	void EstadoCombateAlReplicar();
 	
 public:		
 	

@@ -561,3 +561,7 @@ void ADispareitorPersonaje::Destroyed() {
 	}
 }
 
+EEstadosCombate ADispareitorPersonaje::EstadoCombateObtener() const {
+	return CombateComponente == nullptr ? EEstadosCombate::EEC_Maximo : CombateComponente->EstadoCombate;
+}
+

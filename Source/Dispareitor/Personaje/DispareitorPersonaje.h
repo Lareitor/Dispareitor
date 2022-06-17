@@ -5,6 +5,7 @@
 #include "Dispareitor/Tipos/GirarEnSitio.h"
 #include "Dispareitor/Interfaces/InteractuarConCrucetaInterfaz.h"
 #include "Components/TimelineComponent.h"
+#include "Dispareitor/Tipos/EstadosCombate.h"
 #include "DispareitorPersonaje.generated.h"
 
 // Si la cruceta no se pone roja al pasar sobre un enemigo, activar manualmente el check Trace Responses a Block en la malla del personaje
@@ -74,7 +75,7 @@ private:
 	UFUNCTION()
 	void AlReplicarArmaSolapada(AArma* ArmaReplicadaAnterior);
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UCombateComponente* CombateComponente;
 
 	// Hace esta funcion de tipo RPC, para llamarla desde los clientes pero que se ejecuten en el servidor
@@ -197,4 +198,5 @@ public:
 	FORCEINLINE bool EstaEliminado() const { return bEliminado; }
 	FORCEINLINE float ObtenerVida() const { return Vida; }
 	FORCEINLINE float ObtenerVidaMaxima() const { return VidaMaxima; }
+	EEstadosCombate EstadoCombateObtener() const;
 };

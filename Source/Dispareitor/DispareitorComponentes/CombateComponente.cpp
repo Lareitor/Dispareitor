@@ -41,6 +41,7 @@ void UCombateComponente::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	DOREPLIFETIME(UCombateComponente, ArmaEquipada);
 	DOREPLIFETIME(UCombateComponente, bApuntando);
 	DOREPLIFETIME_CONDITION(UCombateComponente, MunicionPersonaje, COND_OwnerOnly);
+	DOREPLIFETIME(UCombateComponente, EstadoCombate);
 }
 
 void UCombateComponente::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) {
@@ -212,7 +213,7 @@ void UCombateComponente::AlReplicarArmaEquipada() {
 // Puede ser llamado tanto por un cliente como en un servidor
 void UCombateComponente::Recargar() {
 	// Si lo ejecutamos desde el cliente podemos chequear si tiene municion para evitar llamadas innecesarias al servidor
-	if(MunicionPersonaje > 0 ) {
+	if(MunicionPersonaje > 0 && EstadoCombate != EEstadosCombate::EEC_Recargando) {
 		RecargarServidor();
 	}
 }
@@ -221,7 +222,30 @@ void UCombateComponente::RecargarServidor_Implementation() {
 	if(DispareitorPersonaje == nullptr) {
 		return;
 	}
+	EstadoCombate = EEstadosCombate::EEC_Recargando;
+	RecargarManejador();
+}
 
+void UCombateComponente::RecargarFinalizado() {
+	if(DispareitorPersonaje == nullptr) {
+		return;
+	}
+
+	if(DispareitorPersonaje->HasAuthority()) {
+		EstadoCombate = EEstadosCombate::EEC_Desocupado;
+	}
+}
+
+
+void UCombateComponente::EstadoCombateAlReplicar() {
+	switch(EstadoCombate) {
+		case EEstadosCombate::EEC_Recargando:
+			RecargarManejador();
+			break;
+	}
+}
+
+void UCombateComponente::RecargarManejador() {
 	DispareitorPersonaje->EjecutarMontajeRecargar();
 }
 

@@ -6,6 +6,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Dispareitor/Arma/Arma.h"
+#include "Dispareitor/Tipos/EstadosCombate.h"
 
 void UDispareitorInstanciaAnimacion::NativeInitializeAnimation() {
     Super::NativeInitializeAnimation();
@@ -92,4 +93,6 @@ void UDispareitorInstanciaAnimacion::NativeUpdateAnimation(float DeltaTime) {
             DrawDebugLine(GetWorld(), ArmaBocaTransform.GetLocation(), DispareitorPersonaje->ObtenerObjetoAlcanzado(), FColor::Green);*/
         }
     }
+
+    bUsarFABRIK = DispareitorPersonaje->EstadoCombateObtener() != EEstadosCombate::EEC_Recargando;
 }
