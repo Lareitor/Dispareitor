@@ -234,14 +234,22 @@ void UCombateComponente::RecargarFinalizado() {
 	if(DispareitorPersonaje->HasAuthority()) {
 		EstadoCombate = EEstadosCombate::EEC_Desocupado;
 	}
-}
 
+	if(bDispararPresionado) {
+		Disparar();
+	}
+}
 
 void UCombateComponente::EstadoCombateAlReplicar() {
 	switch(EstadoCombate) {
 		case EEstadosCombate::EEC_Recargando:
 			RecargarManejador();
 			break;
+		case EEstadosCombate::EEC_Desocupado:
+			if(bDispararPresionado) {
+				Disparar();
+			}
+			break;	
 	}
 }
 
@@ -298,7 +306,7 @@ void UCombateComponente::ServidorDisparar_Implementation(const FVector_NetQuanti
 
 // Esta función se ejecutará en el servidor + clientes
 void UCombateComponente::MulticastDisparar_Implementation(const FVector_NetQuantize& Objetivo) {
-	if(DispareitorPersonaje && ArmaEquipada) {
+	if(DispareitorPersonaje && ArmaEquipada && EstadoCombate == EEstadosCombate::EEC_Desocupado) {
 		DispareitorPersonaje->EjecutarMontajeDispararArma(bApuntando);
 		ArmaEquipada->Disparar(Objetivo);
 	}
@@ -324,7 +332,7 @@ void UCombateComponente::TerminadoDisparoTemporizador() {
 }
 
 bool UCombateComponente::PuedoDisparar() {
-	return ArmaEquipada != nullptr && !ArmaEquipada->EstaSinMunicion() && bPuedoDisparar;
+	return ArmaEquipada != nullptr && !ArmaEquipada->EstaSinMunicion() && bPuedoDisparar && EstadoCombate == EEstadosCombate::EEC_Desocupado;
 }
 
 void UCombateComponente::MunicionPersonajeAlReplicar() {
