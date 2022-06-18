@@ -54,6 +54,8 @@ protected:
 
 	void RecargarManejador();
 
+	int32 RecargarCantidad();
+
 private:
 	UPROPERTY()
 	class ADispareitorPersonaje* DispareitorPersonaje;
@@ -128,6 +130,8 @@ private:
 
 	UFUNCTION()
 	void EstadoCombateAlReplicar();
+
+	void MunicionActualizarValores();
 	
 public:		
 	

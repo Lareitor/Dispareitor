@@ -176,3 +176,9 @@ void AArma::ActualizarHUDMunicion() {
 bool AArma::EstaSinMunicion() {
 	return Municion <= 0;
 }
+
+// Llamado por UCombateComponente::RecargarServidor_Implementation
+void AArma::MunicionModificar(int32 Cantidad) {
+	Municion = FMath::Clamp(Municion + Cantidad, 0, CargadorCapacidad);
+	ActualizarHUDMunicion();
+}

@@ -219,9 +219,6 @@ void UCombateComponente::Recargar() {
 }
 
 void UCombateComponente::RecargarServidor_Implementation() {
-	if(DispareitorPersonaje == nullptr) {
-		return;
-	}
 	EstadoCombate = EEstadosCombate::EEC_Recargando;
 	RecargarManejador();
 }
@@ -233,12 +230,42 @@ void UCombateComponente::RecargarFinalizado() {
 
 	if(DispareitorPersonaje->HasAuthority()) {
 		EstadoCombate = EEstadosCombate::EEC_Desocupado;
+		MunicionActualizarValores();
 	}
 
 	if(bDispararPresionado) {
 		Disparar();
 	}
 }
+
+void UCombateComponente::MunicionActualizarValores() {
+	if(DispareitorPersonaje == nullptr || ArmaEquipada == nullptr || !MunicionPersonajeMapa.Contains(ArmaEquipada->TipoArmaObtener())) {
+		return;
+	}
+
+	int32 RecargarCantidadValor = RecargarCantidad();
+	MunicionPersonajeMapa[ArmaEquipada->TipoArmaObtener()] -= RecargarCantidadValor;
+	MunicionPersonaje = MunicionPersonajeMapa[ArmaEquipada->TipoArmaObtener()];
+	ArmaEquipada->MunicionModificar(RecargarCantidadValor);
+
+	DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller);
+	if(DispareitorControladorJugador) {
+		DispareitorControladorJugador->ActualizarHUDMunicionPersonaje(MunicionPersonaje);
+	}
+}
+
+
+int32 UCombateComponente::RecargarCantidad() {
+	if(ArmaEquipada == nullptr || !MunicionPersonajeMapa.Contains(ArmaEquipada->TipoArmaObtener())) {
+		return 0;
+	}
+
+	int32 CargadorEspacio = ArmaEquipada->CargadorCapacidadObtener() - ArmaEquipada->MunicionObtener();
+	int32 MunicionPersonajeTemporal = MunicionPersonajeMapa[ArmaEquipada->TipoArmaObtener()];
+	int32 Minimo = FMath::Min(CargadorEspacio, MunicionPersonajeTemporal);
+	return FMath::Clamp(CargadorEspacio, 0, Minimo);
+}
+
 
 void UCombateComponente::EstadoCombateAlReplicar() {
 	switch(EstadoCombate) {
@@ -254,7 +281,9 @@ void UCombateComponente::EstadoCombateAlReplicar() {
 }
 
 void UCombateComponente::RecargarManejador() {
-	DispareitorPersonaje->EjecutarMontajeRecargar();
+	if(DispareitorPersonaje) {
+		DispareitorPersonaje->EjecutarMontajeRecargar();
+	}
 }
 
 // Llamado por DispareitorPersonaje cuando se pulsa o libera el boton de apuntar

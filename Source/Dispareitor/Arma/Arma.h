@@ -26,6 +26,7 @@ public:
 	void MostrarLeyendaSobreArma(bool bMostrarLeyendaSobreArma);
 	virtual void Disparar(const FVector& Objetivo);
 	void Soltar();
+	void MunicionModificar(int32 Cantidad);
 
 	UPROPERTY(EditAnywhere, Category = Cruceta)
 	class UTexture2D* CrucetaCentro;
@@ -114,4 +115,6 @@ public:
 	FORCEINLINE float ObtenerVelocidadInterpolacion() const { return ZoomVelocidadInterpolacion; }
 	bool EstaSinMunicion();
 	FORCEINLINE ETipoArma TipoArmaObtener() const { return TipoArma; } 
+	FORCEINLINE int32 MunicionObtener() const { return Municion; }
+	FORCEINLINE int32 CargadorCapacidadObtener() const { return CargadorCapacidad; }
 };
