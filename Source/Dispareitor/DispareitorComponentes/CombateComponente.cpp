@@ -9,6 +9,7 @@
 #include "Dispareitor/ControladorJugador/DispareitorControladorJugador.h"
 #include "Camera/CameraComponent.h"
 #include "TimerManager.h"
+#include "Sound/SoundCue.h"
 
 UCombateComponente::UCombateComponente() {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -191,6 +192,8 @@ void UCombateComponente::EquiparArma(class AArma* ArmaAEquipar) {
 		DispareitorControladorJugador->ActualizarHUDMunicionPersonaje(MunicionPersonaje);
 	}
 
+	EquiparSonido();
+
 	DispareitorPersonaje->GetCharacterMovement()->bOrientRotationToMovement = false;
 	DispareitorPersonaje->bUseControllerRotationYaw = true;
 }
@@ -206,6 +209,8 @@ void UCombateComponente::AlReplicarArmaEquipada() {
 
 		DispareitorPersonaje->GetCharacterMovement()->bOrientRotationToMovement = false;
 		DispareitorPersonaje->bUseControllerRotationYaw = true;
+
+		EquiparSonido();
 	}
 }
 
@@ -376,3 +381,8 @@ void UCombateComponente::MunicionPersonajeInicializar() {
 	MunicionPersonajeMapa.Emplace(ETipoArma::ETA_RifleAsalto, MunicionPersonajeInicialRifleAsalto);
 }
 
+void UCombateComponente::EquiparSonido() {
+	if(ArmaEquipada->EquiparSonido) {
+		UGameplayStatics::PlaySoundAtLocation(this, ArmaEquipada->EquiparSonido, DispareitorPersonaje->GetActorLocation());
+	}
+}

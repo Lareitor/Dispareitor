@@ -72,6 +72,13 @@ private:
 	UPROPERTY(BlueprintReadOnly, Category = Movimiento, meta = (AllowPrivateAccess = "true"))
 	bool bEliminado;
 
+	// Para la mano izquierda que usa FABRIK
 	UPROPERTY(BlueprintReadOnly, Category = Movimiento, meta = (AllowPrivateAccess = "true"))
 	bool bUsarFABRIK;
+
+	UPROPERTY(BlueprintReadOnly, Category = Movimiento, meta = (AllowPrivateAccess = "true"))
+	bool bTransformarManoDerecha;
+
+	UPROPERTY(BlueprintReadOnly, Category = Movimiento, meta = (AllowPrivateAccess = "true"))
+	bool bUsarAO;
 };

@@ -132,6 +132,8 @@ private:
 	void EstadoCombateAlReplicar();
 
 	void MunicionActualizarValores();
+
+	void EquiparSonido();
 	
 public:		
 	
