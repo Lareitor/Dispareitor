@@ -27,4 +27,7 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* MunicionPersonaje;
+	
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* Tiempo;
 };

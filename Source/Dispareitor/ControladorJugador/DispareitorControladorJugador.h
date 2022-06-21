@@ -14,13 +14,18 @@ public:
 	void ActualizarHUDMuertes(int32 Muertes);
 	void ActualizarHUDMunicionArma(int32 MunicionArma);
 	void ActualizarHUDMunicionPersonaje(int32 MunicionPersonaje);
+	void ActualizarHUDTiempo(float Tiempo);
 	virtual void OnPossess(APawn* Peon) override;
+	virtual void Tick(float DeltaTime) override;
 	
 protected:
 	virtual void BeginPlay() override;
+	void ActivarHUDTiempo();
 
 private:
 	UPROPERTY()
 	class ADispareitorHUD* DispareitorHUD;	
-	
+
+	float TiempoPartida = 120.f;
+	uint32 SegundosRestantes = 0;
 };

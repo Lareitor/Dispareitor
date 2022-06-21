@@ -13,6 +13,11 @@ void ADispareitorControladorJugador::BeginPlay() {
     DispareitorHUD = Cast<ADispareitorHUD>(GetHUD());
 }
 
+void ADispareitorControladorJugador::Tick(float DeltaTime) {
+    Super::Tick(DeltaTime);
+    ActivarHUDTiempo();
+}
+
 // ¿Llamado de forma indirecta por ADispareitorModoJuego::PeticionReaparecer?
 void ADispareitorControladorJugador::OnPossess(APawn* Peon) {
     Super::OnPossess(Peon);
@@ -72,5 +77,22 @@ void ADispareitorControladorJugador::ActualizarHUDMunicionPersonaje(int32 Munici
     }
 }
 
+void ADispareitorControladorJugador::ActualizarHUDTiempo(float Tiempo) {
+    DispareitorHUD = DispareitorHUD != nullptr ? DispareitorHUD : Cast<ADispareitorHUD>(GetHUD());
 
+    if(DispareitorHUD && DispareitorHUD->PantallaDelPersonaje && DispareitorHUD->PantallaDelPersonaje->Tiempo) {
+        int32 Minutos = FMath::FloorToInt(Tiempo / 60.f);
+        int32 Segundos = Tiempo - Minutos * 60;
+        FString TiempoTexto = FString::Printf(TEXT("%02d:%02d"), Minutos, Segundos);
+        DispareitorHUD->PantallaDelPersonaje->Tiempo->SetText(FText::FromString(TiempoTexto));   
+    }
+}
+
+void ADispareitorControladorJugador::ActivarHUDTiempo() {
+    uint32 SegundosRestantesTemporal = FMath::CeilToInt(TiempoPartida - GetWorld()->GetTimeSeconds());
+    if(SegundosRestantesTemporal != SegundosRestantes) {
+        ActualizarHUDTiempo(TiempoPartida - GetWorld()->GetTimeSeconds());
+    }
+    SegundosRestantes = SegundosRestantesTemporal;
+}
 
