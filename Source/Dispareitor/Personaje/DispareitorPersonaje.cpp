@@ -397,8 +397,8 @@ void ADispareitorPersonaje::EjecutarMontajeRecargar() {
 		FName NombreSeccion;
 		switch(CombateComponente->ArmaEquipada->TipoArmaObtener()) {
 			case ETipoArma::ETA_RifleAsalto:
-			NombreSeccion = FName("RifleAsalto");	
-			break;
+				NombreSeccion = FName("RifleAsalto");	
+				break;
 		}
 		InstanciaAnimacion->Montage_JumpToSection(NombreSeccion);
 	}

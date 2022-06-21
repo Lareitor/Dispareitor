@@ -163,6 +163,11 @@ void UCombateComponente::InterpolarFOV(float DeltaTime) {
 	}
 }
 
+// Llamado en BeginPlay
+void UCombateComponente::MunicionPersonajeInicializar() {
+	MunicionPersonajeMapa.Emplace(ETipoArma::ETA_RifleAsalto, MunicionPersonajeInicialRifleAsalto);
+}
+
 // Llamado por ADispareitorPersonaje::Equipar 
 // Solo ejecutado en el servidor
 void UCombateComponente::EquiparArma(class AArma* ArmaAEquipar) {
@@ -215,8 +220,13 @@ void UCombateComponente::AlReplicarArmaEquipada() {
 }
 
 // Llamado por ADispareitorPersonaje::Recargar
-// Puede ser llamado tanto por un cliente como en un servidor
+// Puede ser llamado tanto en un cliente como en un servidor
 void UCombateComponente::Recargar() {
+
+	if(ArmaEquipada == nullptr || ArmaEquipada->MunicionObtener() == ArmaEquipada->CargadorCapacidadObtener()) {
+		return;
+	}
+
 	// Si lo ejecutamos desde el cliente podemos chequear si tiene municion para evitar llamadas innecesarias al servidor
 	if(MunicionPersonaje > 0 && EstadoCombate != EEstadosCombate::EEC_Recargando) {
 		RecargarServidor();
@@ -228,6 +238,14 @@ void UCombateComponente::RecargarServidor_Implementation() {
 	RecargarManejador();
 }
 
+// Llamado por RecargarServidor_Implementation (para el servidor) y EstadoCombateAlReplicar (para los clientes)
+void UCombateComponente::RecargarManejador() {
+	if(DispareitorPersonaje) {
+		DispareitorPersonaje->EjecutarMontajeRecargar();
+	}
+}
+
+// Llamado por BP_DispareitorInstanciaAnimacion al ejecutar una notificacion en Montaje_Recargar
 void UCombateComponente::RecargarFinalizado() {
 	if(DispareitorPersonaje == nullptr) {
 		return;
@@ -251,8 +269,16 @@ void UCombateComponente::MunicionActualizarValores() {
 	int32 RecargarCantidadValor = RecargarCantidad();
 	MunicionPersonajeMapa[ArmaEquipada->TipoArmaObtener()] -= RecargarCantidadValor;
 	MunicionPersonaje = MunicionPersonajeMapa[ArmaEquipada->TipoArmaObtener()];
-	ArmaEquipada->MunicionModificar(RecargarCantidadValor);
+	ArmaEquipada->MunicionAniadir(RecargarCantidadValor);
 
+	DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller);
+	if(DispareitorControladorJugador) {
+		DispareitorControladorJugador->ActualizarHUDMunicionPersonaje(MunicionPersonaje);
+	}
+}
+
+
+void UCombateComponente::MunicionPersonajeAlReplicar() {
 	DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller);
 	if(DispareitorControladorJugador) {
 		DispareitorControladorJugador->ActualizarHUDMunicionPersonaje(MunicionPersonaje);
@@ -282,12 +308,6 @@ void UCombateComponente::EstadoCombateAlReplicar() {
 				Disparar();
 			}
 			break;	
-	}
-}
-
-void UCombateComponente::RecargarManejador() {
-	if(DispareitorPersonaje) {
-		DispareitorPersonaje->EjecutarMontajeRecargar();
 	}
 }
 
@@ -367,18 +387,6 @@ void UCombateComponente::TerminadoDisparoTemporizador() {
 
 bool UCombateComponente::PuedoDisparar() {
 	return ArmaEquipada != nullptr && !ArmaEquipada->EstaSinMunicion() && bPuedoDisparar && EstadoCombate == EEstadosCombate::EEC_Desocupado;
-}
-
-void UCombateComponente::MunicionPersonajeAlReplicar() {
-	DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller);
-	if(DispareitorControladorJugador) {
-		DispareitorControladorJugador->ActualizarHUDMunicionPersonaje(MunicionPersonaje);
-	}
-}
-
-// Llamado en BeginPlay
-void UCombateComponente::MunicionPersonajeInicializar() {
-	MunicionPersonajeMapa.Emplace(ETipoArma::ETA_RifleAsalto, MunicionPersonajeInicialRifleAsalto);
 }
 
 void UCombateComponente::EquiparSonido() {

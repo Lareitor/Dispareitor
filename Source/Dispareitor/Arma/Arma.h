@@ -26,7 +26,7 @@ public:
 	void MostrarLeyendaSobreArma(bool bMostrarLeyendaSobreArma);
 	virtual void Disparar(const FVector& Objetivo);
 	void Soltar();
-	void MunicionModificar(int32 Cantidad);
+	void MunicionAniadir(int32 Cantidad);
 
 	UPROPERTY(EditAnywhere, Category = Cruceta)
 	class UTexture2D* CrucetaCentro;
