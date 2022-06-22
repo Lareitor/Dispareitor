@@ -16,6 +16,7 @@ void ADispareitorControladorJugador::BeginPlay() {
 void ADispareitorControladorJugador::Tick(float DeltaTime) {
     Super::Tick(DeltaTime);
     ActivarHUDTiempo();
+    TiempoSincronizacionComprobar(DeltaTime);
 }
 
 // ¿Llamado de forma indirecta por ADispareitorModoJuego::PeticionReaparecer?
@@ -89,10 +90,43 @@ void ADispareitorControladorJugador::ActualizarHUDTiempo(float Tiempo) {
 }
 
 void ADispareitorControladorJugador::ActivarHUDTiempo() {
-    uint32 SegundosRestantesTemporal = FMath::CeilToInt(TiempoPartida - GetWorld()->GetTimeSeconds());
+    uint32 SegundosRestantesTemporal = FMath::CeilToInt(TiempoPartida - TiempoServidorObtener());
     if(SegundosRestantesTemporal != SegundosRestantes) {
-        ActualizarHUDTiempo(TiempoPartida - GetWorld()->GetTimeSeconds());
+        ActualizarHUDTiempo(TiempoPartida - TiempoServidorObtener());
     }
     SegundosRestantes = SegundosRestantesTemporal;
 }
 
+// Peticion tiempo (ejecutada en servidor) cliente -> servidor 
+void ADispareitorControladorJugador::TiempoServidorPeticion_Implementation(float TiempoClientePeticion) {
+    float TiempoServidorAlRecibirPeticion = GetWorld()->GetTimeSeconds();
+    TiempoServidorDevolucion(TiempoClientePeticion, TiempoServidorAlRecibirPeticion);
+}
+
+// Respuesta tiempo (ejecutada en cliente) servidor -> cliente
+void ADispareitorControladorJugador::TiempoServidorDevolucion_Implementation(float TiempoClientePeticion, float TiempoServidorAlRecibirPeticion) {
+    // RoundTripTime
+    float RTT = GetWorld()->GetTimeSeconds() - TiempoClientePeticion;
+    float TiempoServidorActual = TiempoServidorAlRecibirPeticion +(0.5f * RTT);
+    TiempoServidorClienteDelta = TiempoServidorActual - GetWorld()->GetTimeSeconds();
+}
+
+float ADispareitorControladorJugador::TiempoServidorObtener() {
+    return HasAuthority() ? GetWorld()->GetTimeSeconds() : GetWorld()->GetTimeSeconds() + TiempoServidorClienteDelta;
+}
+
+// El momento mas temprando en el que podemos sincronizar con el servidor
+void ADispareitorControladorJugador::ReceivedPlayer() {
+    Super::ReceivedPlayer();
+    if(IsLocalController()) {
+        TiempoServidorPeticion(GetWorld()->GetTimeSeconds());
+    }
+}
+
+void ADispareitorControladorJugador::TiempoSincronizacionComprobar(float DeltaTime) {
+    TiempoSincronizacionPasado += DeltaTime;
+    if(IsLocalController() && TiempoSincronizacionPasado > TiempoSincronizacionFrecuencia) {
+        TiempoServidorPeticion(GetWorld()->GetTimeSeconds());
+        TiempoSincronizacionPasado = 0.f;
+    }
+}

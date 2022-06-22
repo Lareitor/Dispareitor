@@ -17,10 +17,29 @@ public:
 	void ActualizarHUDTiempo(float Tiempo);
 	virtual void OnPossess(APawn* Peon) override;
 	virtual void Tick(float DeltaTime) override;
+
+	virtual float TiempoServidorObtener();
+	virtual void ReceivedPlayer() override;
 	
 protected:
 	virtual void BeginPlay() override;
 	void ActivarHUDTiempo();
+
+	// Sincronizacion tiempos entre cliente y servidor
+
+	UFUNCTION(Server, Reliable)
+	void TiempoServidorPeticion(float TiempoClientePeticion);
+
+	UFUNCTION(Client, Reliable)
+	void TiempoServidorDevolucion(float TiempoClientePeticion, float TiempoServidorAlRecibirPeticion);
+
+	float TiempoServidorClienteDelta = 0.f; 
+
+	UPROPERTY(EditAnywhere, Category = Tiempo)
+	float TiempoSincronizacionFrecuencia = 5.f;
+
+	float TiempoSincronizacionPasado = 0.f;
+	void TiempoSincronizacionComprobar(float DeltaTime);
 
 private:
 	UPROPERTY()
