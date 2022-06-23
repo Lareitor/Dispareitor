@@ -7,6 +7,31 @@
 
 // AGameMode solo existe en el servidor
 
+ADispareitorModoJuego::ADispareitorModoJuego() {
+    // Le indicamos que queremos permanecer en el estado WaitingToStart
+    // En este estado no tenemos mallas de los personajes y pueden volar libremente por el nivel
+    // Activarlo tambien en BP_DispareitorModoJuego
+    bDelayedStart = true;
+}
+
+void ADispareitorModoJuego::BeginPlay() {
+    Super::BeginPlay();
+
+    TiempoInicioNivel = GetWorld()->GetTimeSeconds();
+}
+
+void ADispareitorModoJuego::Tick(float DeltaTime) {
+    Super::Tick(DeltaTime);
+
+    if(MatchState == MatchState::WaitingToStart) {
+        TiempoCalentamientoRestante = TiempoCalentamiento - GetWorld()->GetTimeSeconds() + TiempoInicioNivel;
+        if(TiempoCalentamientoRestante <= 0.f) {
+            // Pasamos del estado WaitingToStart a InProgress donde los jugadores aparecen ya con las mallas
+            StartMatch();
+        }
+    }
+}
+
 // Llamado por ADispareitorPersonaje::RecibirDano
 void ADispareitorModoJuego::JugadorEliminado(class ADispareitorPersonaje* VictimaDispareitorJugador, class ADispareitorControladorJugador* VictimaDispareitorControladorJugador, class ADispareitorControladorJugador* AtacanteDispareitorControladorJugador) {
     ADispareitorEstadoJugador* AtacanteEstadoJugador = AtacanteDispareitorControladorJugador ? Cast<ADispareitorEstadoJugador>(AtacanteDispareitorControladorJugador->PlayerState) : nullptr;
