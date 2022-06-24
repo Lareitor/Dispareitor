@@ -32,6 +32,17 @@ void ADispareitorModoJuego::Tick(float DeltaTime) {
     }
 }
 
+void ADispareitorModoJuego::OnMatchStateSet() {
+    Super::OnMatchStateSet();
+
+    for(FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It) {
+        ADispareitorControladorJugador* DispareitorControladorJugador = Cast<ADispareitorControladorJugador>(*It);
+        if(DispareitorControladorJugador) {
+            DispareitorControladorJugador->PartidaEstadoActualizar(MatchState);
+        }
+    }
+}
+
 // Llamado por ADispareitorPersonaje::RecibirDano
 void ADispareitorModoJuego::JugadorEliminado(class ADispareitorPersonaje* VictimaDispareitorJugador, class ADispareitorControladorJugador* VictimaDispareitorControladorJugador, class ADispareitorControladorJugador* AtacanteDispareitorControladorJugador) {
     ADispareitorEstadoJugador* AtacanteEstadoJugador = AtacanteDispareitorControladorJugador ? Cast<ADispareitorEstadoJugador>(AtacanteDispareitorControladorJugador->PlayerState) : nullptr;

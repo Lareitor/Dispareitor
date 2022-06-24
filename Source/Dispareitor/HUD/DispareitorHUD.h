@@ -27,13 +27,14 @@ public:
     // A partir de PantallaDelPersonajeClase creamos el objeto PantallaDelPersonaje
 	UPROPERTY(EditAnywhere, Category = Estadisticas)
 	TSubclassOf<class UUserWidget> PantallaDelPersonajeClase;
+	void AnadirPantallaDelPersonaje();	
 
+	UPROPERTY()
 	class UPantallaDelPersonaje* PantallaDelPersonaje;
 
 protected:
 	virtual void BeginPlay() override;
-	void AnadirPantallaDelPersonaje();	
-
+	
 private:
 	FHUDCruceta HUDCruceta;
 	void DibujarCruceta(UTexture2D* Textura, FVector2D PantallaCentro, FVector2D Apertura, FLinearColor CrucetaColor);

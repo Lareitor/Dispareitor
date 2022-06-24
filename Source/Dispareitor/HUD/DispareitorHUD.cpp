@@ -4,8 +4,6 @@
 
 void ADispareitorHUD::BeginPlay() {
     Super::BeginPlay();
-
-    AnadirPantallaDelPersonaje();
 }
 
 void ADispareitorHUD::AnadirPantallaDelPersonaje() {

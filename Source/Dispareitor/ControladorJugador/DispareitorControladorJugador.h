@@ -17,13 +17,16 @@ public:
 	void ActualizarHUDTiempo(float Tiempo);
 	virtual void OnPossess(APawn* Peon) override;
 	virtual void Tick(float DeltaTime) override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	virtual float TiempoServidorObtener();
 	virtual void ReceivedPlayer() override;
+	void PartidaEstadoActualizar(FName Estado);
 	
 protected:
 	virtual void BeginPlay() override;
 	void ActivarHUDTiempo();
+	void SondearInicio();
 
 	// Sincronizacion tiempos entre cliente y servidor
 
@@ -41,10 +44,27 @@ protected:
 	float TiempoSincronizacionPasado = 0.f;
 	void TiempoSincronizacionComprobar(float DeltaTime);
 
+
 private:
 	UPROPERTY()
 	class ADispareitorHUD* DispareitorHUD;	
 
-	float TiempoPartida = 120.f;
+	float PartidaTiempo = 120.f;
 	uint32 SegundosRestantes = 0;
+
+	UPROPERTY(ReplicatedUsing = PartidaEstadoAlReplicar)
+	FName PartidaEstado;
+
+	UFUNCTION()
+	void PartidaEstadoAlReplicar();
+
+	UPROPERTY()
+	class UPantallaDelPersonaje* PantallaDelPersonaje;
+	bool bPantallaDelPersonajeInicializada = false;
+
+	// Variables cache usadas durante el proceso de Sondeo
+	float HUDVida;
+	float HUDVidaMaxima;
+	float HUDMuertos;
+	int32 HUDMuertes; 
 };
