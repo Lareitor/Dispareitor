@@ -2,6 +2,7 @@
 #include "../Personaje/DispareitorPersonaje.h"
 #include "Components/TextBlock.h"
 #include "GameFramework/PlayerState.h"
+#include "Dispareitor/EstadoJugador/DispareitorEstadoJugador.h"
 
 // El BP_HUDSobreLaCabeza (que hereda de este) esta incluido en el BP_DispareitorPersonaje y se inicia en el nodo BeginPlay
 
@@ -42,16 +43,22 @@ void UHUDSobreLaCabeza::MostrarJugadorRolRed(APawn* Peon) {
 
 // Se invoca en el nodo BP_DispareitorPersonaje::BeginPlay
 void UHUDSobreLaCabeza::MostrarJugadorNombre(APawn* Peon) {
-    ADispareitorPersonaje* DispareitorPersonaje = Cast<ADispareitorPersonaje>(Peon);
-    if(!DispareitorPersonaje->IsLocallyControlled()) {
-        FString Nombre = Peon->GetName();
-        ActualizarTextoSobreCabeza(Nombre);
-    }
+    if(!bActualizadoTextoSobreLaCabeza) {
+         ADispareitorPersonaje* DispareitorPersonaje = Cast<ADispareitorPersonaje>(Peon);
+    //if(!DispareitorPersonaje->IsLocallyControlled()) {
+        ADispareitorEstadoJugador* DispareitorEstadoJugador = Cast<ADispareitorEstadoJugador>(Peon->GetPlayerState());
+        if(DispareitorEstadoJugador) {
+            FString Nombre = DispareitorEstadoJugador->GetPlayerName();
+            UE_LOG(LogTemp, Warning, TEXT("Nombre: %s"), *Nombre);
+            ActualizarTextoSobreCabeza(Nombre);
+        }
+    //}
+    }  
 }
-
 
 void UHUDSobreLaCabeza::ActualizarTextoSobreCabeza(FString texto) {
     if(TextoSobreCabeza) {
         TextoSobreCabeza->SetText(FText::FromString(texto));
+        bActualizadoTextoSobreLaCabeza = true;
     }
 }

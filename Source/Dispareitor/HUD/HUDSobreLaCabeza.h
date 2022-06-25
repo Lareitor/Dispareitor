@@ -22,4 +22,7 @@ public:
 
 protected:
 	virtual void OnLevelRemovedFromWorld(ULevel *Nivel, UWorld* Mundo) override;	
+
+private:
+	bool bActualizadoTextoSobreLaCabeza = false;	
 };

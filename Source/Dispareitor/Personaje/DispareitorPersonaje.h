@@ -66,6 +66,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UWidgetComponent* HUDSobreLaCabeza;
 
+	UPROPERTY()
+	class UHUDSobreLaCabeza* HUDSobreLaCabezaReal;
+
 	// Cuando cambie esta variable en el servidor se replicará su estado automaticamente en los clientes seleccionados
 	// La replicación funciona sola en una direccion servidor -> clientes
 	// La replicacion es mas eficiente que las llamadas RPCs

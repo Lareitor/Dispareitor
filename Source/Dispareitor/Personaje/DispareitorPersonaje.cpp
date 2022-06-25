@@ -18,6 +18,7 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "Dispareitor/EstadoJugador/DispareitorEstadoJugador.h"
 #include "Dispareitor/Tipos/TiposArma.h"
+#include "Dispareitor/HUD/HUDSobreLaCabeza.h"
 
 // TODO Hacer el respawn lo mas lejos de los jugadores  
 
@@ -111,6 +112,11 @@ void ADispareitorPersonaje::SondearInicializacion() {
 			DispareitorEstadoJugador->IncrementarMuertos(0.f);	
 			DispareitorEstadoJugador->IncrementarMuertes(0);
 		}
+	}
+
+	if(HUDSobreLaCabeza) {
+		HUDSobreLaCabezaReal = HUDSobreLaCabezaReal != nullptr ? HUDSobreLaCabezaReal : Cast<UHUDSobreLaCabeza>(HUDSobreLaCabeza->GetUserWidgetObject());
+		HUDSobreLaCabezaReal->MostrarJugadorNombre(this);
 	}
 }
 
