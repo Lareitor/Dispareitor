@@ -1,6 +1,7 @@
 #include "DispareitorHUD.h"
 #include "GameFramework/PlayerController.h"
 #include "PantallaDelPersonaje.h"
+#include "AnunciosWidget.h"
 
 void ADispareitorHUD::BeginPlay() {
     Super::BeginPlay();
@@ -14,6 +15,16 @@ void ADispareitorHUD::AnadirPantallaDelPersonaje() {
         PantallaDelPersonaje->AddToViewport();
     }
 }
+
+void ADispareitorHUD::AnadirAnunciosWidget() {
+    APlayerController* ControladorDeJugador = GetOwningPlayerController();
+
+    if(ControladorDeJugador && AnunciosWidgetClase) {
+        AnunciosWidget = CreateWidget<UAnunciosWidget>(ControladorDeJugador, AnunciosWidgetClase);
+        AnunciosWidget->AddToViewport();
+    }
+}
+
 
 // Llamado cada frame
 void ADispareitorHUD::DrawHUD() {

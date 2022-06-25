@@ -22,6 +22,8 @@ public:
 	virtual float TiempoServidorObtener();
 	virtual void ReceivedPlayer() override;
 	void PartidaEstadoActualizar(FName Estado);
+
+	void PartidaEstadoManejador();
 	
 protected:
 	virtual void BeginPlay() override;

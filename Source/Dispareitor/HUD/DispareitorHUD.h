@@ -27,10 +27,19 @@ public:
     // A partir de PantallaDelPersonajeClase creamos el objeto PantallaDelPersonaje
 	UPROPERTY(EditAnywhere, Category = Estadisticas)
 	TSubclassOf<class UUserWidget> PantallaDelPersonajeClase;
-	void AnadirPantallaDelPersonaje();	
 
 	UPROPERTY()
 	class UPantallaDelPersonaje* PantallaDelPersonaje;
+
+	void AnadirPantallaDelPersonaje();	
+
+	UPROPERTY(EditAnywhere, Category = Anuncios)
+	TSubclassOf<class UUserWidget> AnunciosWidgetClase;
+
+	UPROPERTY()
+	class UAnunciosWidget* AnunciosWidget;
+
+	void AnadirAnunciosWidget();
 
 protected:
 	virtual void BeginPlay() override;

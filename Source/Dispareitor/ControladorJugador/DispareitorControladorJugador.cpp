@@ -1,6 +1,7 @@
 #include "DispareitorControladorJugador.h"
 #include "Dispareitor/HUD/DispareitorHUD.h"
 #include "Dispareitor/HUD/PantallaDelPersonaje.h"
+#include "Dispareitor/HUD/AnunciosWidget.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 #include "Dispareitor/Personaje/DispareitorPersonaje.h"
@@ -13,6 +14,10 @@ void ADispareitorControladorJugador::BeginPlay() {
     Super::BeginPlay();
 
     DispareitorHUD = Cast<ADispareitorHUD>(GetHUD());
+
+    if(DispareitorHUD) {
+        DispareitorHUD->AnadirAnunciosWidget();
+    }
 }
 
 void ADispareitorControladorJugador::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const {
@@ -167,20 +172,22 @@ void ADispareitorControladorJugador::TiempoSincronizacionComprobar(float DeltaTi
 
 void ADispareitorControladorJugador::PartidaEstadoActualizar(FName Estado) {
     PartidaEstado = Estado;
-
-    if(PartidaEstado == MatchState::InProgress) {
-        DispareitorHUD = DispareitorHUD != nullptr ? DispareitorHUD : Cast<ADispareitorHUD>(GetHUD());
-        if(DispareitorHUD) {
-            DispareitorHUD->AnadirPantallaDelPersonaje();
-        }
-    }
+    PartidaEstadoManejador();
 }
 
 void ADispareitorControladorJugador::PartidaEstadoAlReplicar() {
-     if(PartidaEstado == MatchState::InProgress) {
-        DispareitorHUD = DispareitorHUD != nullptr ? DispareitorHUD : Cast<ADispareitorHUD>(GetHUD());
-        if(DispareitorHUD) {
+    PartidaEstadoManejador();
+}
+
+void ADispareitorControladorJugador::PartidaEstadoManejador() {
+    DispareitorHUD = DispareitorHUD != nullptr ? DispareitorHUD : Cast<ADispareitorHUD>(GetHUD());
+    if(DispareitorHUD) {
+        if(PartidaEstado == MatchState::InProgress) {
             DispareitorHUD->AnadirPantallaDelPersonaje();
+            if(DispareitorHUD->AnunciosWidget) {
+                DispareitorHUD->AnunciosWidget->SetVisibility(ESlateVisibility::Hidden);
+            }
         }
     }
 }
+
