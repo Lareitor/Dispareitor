@@ -4,6 +4,10 @@
 #include "GameFramework/GameMode.h"
 #include "DispareitorModoJuego.generated.h"
 
+namespace MatchState {
+	extern DISPAREITOR_API const FName Enfriamiento; 
+}
+
 UCLASS()
 class DISPAREITOR_API ADispareitorModoJuego : public AGameMode {
 	GENERATED_BODY()
@@ -20,6 +24,9 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	float PartidaTiempo = 120.f;
 
+	UPROPERTY(EditDefaultsOnly)
+	float EnfriamientoTiempo = 10.f;
+
 	float InicioNivelTiempo = 0.f;
 
 protected:
@@ -27,5 +34,5 @@ protected:
 	virtual void OnMatchStateSet() override;
 
 private:
-	float CalentamientoTiempoRestante = 0.f;
+	float CuentaAtrasTiempo = 0.f;
 };

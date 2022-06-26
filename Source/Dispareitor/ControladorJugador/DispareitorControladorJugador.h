@@ -25,6 +25,7 @@ public:
 	void PartidaEstadoActualizar(FName Estado);
 
 	void PartidaEstadoManejador();
+	void EnfriamientoManejador();
 	
 protected:
 	virtual void BeginPlay() override;

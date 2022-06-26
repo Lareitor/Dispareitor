@@ -207,6 +207,11 @@ void ADispareitorControladorJugador::PartidaEstadoManejador() {
             if(DispareitorHUD->AnunciosWidget) {
                 DispareitorHUD->AnunciosWidget->SetVisibility(ESlateVisibility::Hidden);
             }
+        } else if(PartidaEstado == MatchState::Enfriamiento) {
+            DispareitorHUD->PantallaDelPersonaje->RemoveFromParent();
+            if(DispareitorHUD->AnunciosWidget) {
+                DispareitorHUD->AnunciosWidget->SetVisibility(ESlateVisibility::Visible);
+            }
         }
     }
 }

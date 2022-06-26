@@ -7,6 +7,10 @@
 
 // AGameMode solo existe en el servidor
 
+namespace MatchState {
+	const FName Enfriamiento = FName("Enfriamiento"); // Se ha acabado la partida, mostrar ganador y tiempo de enfriamiento (para empezar una nueva)
+}
+
 ADispareitorModoJuego::ADispareitorModoJuego() {
     // Le indicamos que queremos permanecer en el estado WaitingToStart
     // En este estado no tenemos mallas de los personajes y pueden volar libremente por el nivel
@@ -24,10 +28,15 @@ void ADispareitorModoJuego::Tick(float DeltaTime) {
     Super::Tick(DeltaTime);
 
     if(MatchState == MatchState::WaitingToStart) {
-        CalentamientoTiempoRestante = CalentamientoTiempo - GetWorld()->GetTimeSeconds() + InicioNivelTiempo;
-        if(CalentamientoTiempoRestante <= 0.f) {
+        CuentaAtrasTiempo = CalentamientoTiempo - GetWorld()->GetTimeSeconds() + InicioNivelTiempo;
+        if(CuentaAtrasTiempo <= 0.f) {
             // Pasamos del estado WaitingToStart a InProgress donde los jugadores aparecen ya con las mallas
             StartMatch();
+        }
+    } else if(MatchState == MatchState::InProgress) {
+        CuentaAtrasTiempo = CalentamientoTiempo + PartidaTiempo - GetWorld()->GetTimeSeconds() + InicioNivelTiempo;
+        if(CuentaAtrasTiempo <= 0.f) {
+            SetMatchState(MatchState::Enfriamiento);
         }
     }
 }
