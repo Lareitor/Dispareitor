@@ -20,7 +20,7 @@ void ADispareitorEstadoJugador::IncrementarMuertos(float MuertosIncremento) {
    if(DispareitorPersonaje) {
       DispareitorControladorJugador = DispareitorControladorJugador == nullptr ? Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller) : DispareitorControladorJugador;
       if(DispareitorControladorJugador) {
-         DispareitorControladorJugador->ActualizarHUDMuertos(GetScore());
+         DispareitorControladorJugador->HUDMuertosActualizar(GetScore());
       }
    }
 }
@@ -32,7 +32,7 @@ void ADispareitorEstadoJugador::OnRep_Score() {
    if(DispareitorPersonaje) {
       DispareitorControladorJugador = DispareitorControladorJugador == nullptr ? Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller) : DispareitorControladorJugador;
       if(DispareitorControladorJugador) {
-         DispareitorControladorJugador->ActualizarHUDMuertos(GetScore());
+         DispareitorControladorJugador->HUDMuertosActualizar(GetScore());
       }
    }
 }
@@ -44,7 +44,7 @@ void ADispareitorEstadoJugador::IncrementarMuertes(int32 MuertesIncremento) {
    if(DispareitorPersonaje) {
       DispareitorControladorJugador = DispareitorControladorJugador == nullptr ? Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller) : DispareitorControladorJugador;
       if(DispareitorControladorJugador) {
-         DispareitorControladorJugador->ActualizarHUDMuertes(Muertes);
+         DispareitorControladorJugador->HUDMuertesActualizar(Muertes);
       }
    }
 }
@@ -54,7 +54,7 @@ void ADispareitorEstadoJugador::AlReplicarMuertes() {
    if(DispareitorPersonaje) {
       DispareitorControladorJugador = DispareitorControladorJugador == nullptr ? Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller) : DispareitorControladorJugador;
       if(DispareitorControladorJugador) {
-         DispareitorControladorJugador->ActualizarHUDMuertes(Muertes);
+         DispareitorControladorJugador->HUDMuertesActualizar(Muertes);
       }
    }
 }

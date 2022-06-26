@@ -194,7 +194,7 @@ void UCombateComponente::EquiparArma(class AArma* ArmaAEquipar) {
 
 	DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller);
 	if(DispareitorControladorJugador) {
-		DispareitorControladorJugador->ActualizarHUDMunicionPersonaje(MunicionPersonaje);
+		DispareitorControladorJugador->HUDPersonajeMunicionActualizar(MunicionPersonaje);
 	}
 
 	EquiparSonido();
@@ -273,7 +273,7 @@ void UCombateComponente::MunicionActualizarValores() {
 
 	DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller);
 	if(DispareitorControladorJugador) {
-		DispareitorControladorJugador->ActualizarHUDMunicionPersonaje(MunicionPersonaje);
+		DispareitorControladorJugador->HUDPersonajeMunicionActualizar(MunicionPersonaje);
 	}
 }
 
@@ -281,7 +281,7 @@ void UCombateComponente::MunicionActualizarValores() {
 void UCombateComponente::MunicionPersonajeAlReplicar() {
 	DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller);
 	if(DispareitorControladorJugador) {
-		DispareitorControladorJugador->ActualizarHUDMunicionPersonaje(MunicionPersonaje);
+		DispareitorControladorJugador->HUDPersonajeMunicionActualizar(MunicionPersonaje);
 	}
 }
 

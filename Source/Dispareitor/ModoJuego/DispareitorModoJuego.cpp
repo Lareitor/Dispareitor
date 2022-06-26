@@ -17,15 +17,15 @@ ADispareitorModoJuego::ADispareitorModoJuego() {
 void ADispareitorModoJuego::BeginPlay() {
     Super::BeginPlay();
 
-    TiempoInicioNivel = GetWorld()->GetTimeSeconds();
+    InicioNivelTiempo = GetWorld()->GetTimeSeconds();
 }
 
 void ADispareitorModoJuego::Tick(float DeltaTime) {
     Super::Tick(DeltaTime);
 
     if(MatchState == MatchState::WaitingToStart) {
-        TiempoCalentamientoRestante = TiempoCalentamiento - GetWorld()->GetTimeSeconds() + TiempoInicioNivel;
-        if(TiempoCalentamientoRestante <= 0.f) {
+        CalentamientoTiempoRestante = CalentamientoTiempo - GetWorld()->GetTimeSeconds() + InicioNivelTiempo;
+        if(CalentamientoTiempoRestante <= 0.f) {
             // Pasamos del estado WaitingToStart a InProgress donde los jugadores aparecen ya con las mallas
             StartMatch();
         }

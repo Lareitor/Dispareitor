@@ -168,7 +168,7 @@ void AArma::ActualizarHUDMunicion() {
 	if(DispareitorPersonaje) {
 		DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller);
 		if(DispareitorControladorJugador) {
-			DispareitorControladorJugador->ActualizarHUDMunicionArma(Municion);
+			DispareitorControladorJugador->HUDArmaMunicionActualizar(Municion);
 		}
 	}
 }

@@ -9,17 +9,18 @@ class DISPAREITOR_API ADispareitorControladorJugador : public APlayerController 
 	GENERATED_BODY()
 
 public:
-	void ActualizarHUDVida(float Vida, float VidaMaxima);
-	void ActualizarHUDMuertos(float Muertos);
-	void ActualizarHUDMuertes(int32 Muertes);
-	void ActualizarHUDMunicionArma(int32 MunicionArma);
-	void ActualizarHUDMunicionPersonaje(int32 MunicionPersonaje);
-	void ActualizarHUDTiempo(float Tiempo);
+	void HUDVidaActualizar(float Vida, float VidaMaxima);
+	void HUDMuertosActualizar(float Muertos);
+	void HUDMuertesActualizar(int32 Muertes);
+	void HUDArmaMunicionActualizar(int32 ArmaMunicion);
+	void HUDPersonajeMunicionActualizar(int32 PersonajeMunicion);
+	void HUDPartidaTiempoActualizar(float _PartidaTiempo);
+	void HUDCalentamientoTiempoActualizar(float _CalentamientoTiempo);
 	virtual void OnPossess(APawn* Peon) override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	virtual float TiempoServidorObtener();
+	virtual float ServidorTiempoObtener();
 	virtual void ReceivedPlayer() override;
 	void PartidaEstadoActualizar(FName Estado);
 
@@ -33,10 +34,10 @@ protected:
 	// Sincronizacion tiempos entre cliente y servidor
 
 	UFUNCTION(Server, Reliable)
-	void TiempoServidorPeticion(float TiempoClientePeticion);
+	void TiempoServidorPeticion_EnServidor(float TiempoClientePeticion);
 
 	UFUNCTION(Client, Reliable)
-	void TiempoServidorDevolucion(float TiempoClientePeticion, float TiempoServidorAlRecibirPeticion);
+	void TiempoServidorDevolucion_EnCliente(float TiempoClientePeticion, float TiempoServidorAlRecibirPeticion);
 
 	float TiempoServidorClienteDelta = 0.f; 
 
@@ -46,19 +47,26 @@ protected:
 	float TiempoSincronizacionPasado = 0.f;
 	void TiempoSincronizacionComprobar(float DeltaTime);
 
+	UFUNCTION(Server, Reliable)
+	void PartidaEstadoComprobar_EnServidor();
+
+	UFUNCTION(Client, Reliable)
+	void PartidaEstadoComprobar_EnCliente(FName _PartidaEstado, float _CalentamientoTiempo, float _PartidaTiempo, float _InicioNivelTiempo);
 
 private:
 	UPROPERTY()
 	class ADispareitorHUD* DispareitorHUD;	
 
-	float PartidaTiempo = 120.f;
+	float InicioNivelTiempo = 0.f;
+	float PartidaTiempo = 0.f;
+	float CalentamientoTiempo = 0.f;
 	uint32 SegundosRestantes = 0;
 
-	UPROPERTY(ReplicatedUsing = PartidaEstadoAlReplicar)
+	UPROPERTY(ReplicatedUsing = PartidaEstado_AlReplicar)
 	FName PartidaEstado;
 
 	UFUNCTION()
-	void PartidaEstadoAlReplicar();
+	void PartidaEstado_AlReplicar();
 
 	UPROPERTY()
 	class UPantallaDelPersonaje* PantallaDelPersonaje;

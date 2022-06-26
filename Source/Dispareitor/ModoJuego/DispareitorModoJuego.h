@@ -15,14 +15,17 @@ public:
 	virtual void PeticionReaparecer(ACharacter* PersonajeEliminado, AController* ControladorEliminado);
 
 	UPROPERTY(EditDefaultsOnly)
-	float TiempoCalentamiento = 10.f;
+	float CalentamientoTiempo = 10.f;
 
-	float TiempoInicioNivel = 0.f;
+	UPROPERTY(EditDefaultsOnly)
+	float PartidaTiempo = 120.f;
+
+	float InicioNivelTiempo = 0.f;
 
 protected:
 	virtual void BeginPlay() override;	
 	virtual void OnMatchStateSet() override;
 
 private:
-	float TiempoCalentamientoRestante = 0.f;
+	float CalentamientoTiempoRestante = 0.f;
 };

@@ -10,12 +10,12 @@ class DISPAREITOR_API UAnunciosWidget : public UUserWidget {
 
 public:	
 	UPROPERTY(meta = (BindWidget))
-	class UTextBlock* TiempoCalentamiento;
+	class UTextBlock* CalentamientoTiempo;
 
 	UPROPERTY(meta = (BindWidget))
-	UTextBlock* TextoComienzoPartida;
+	UTextBlock* PartidaComienza;
 
 	UPROPERTY(meta = (BindWidget))
-	UTextBlock* TextoExplorar;	
+	UTextBlock* Explorar;	
 	
 };

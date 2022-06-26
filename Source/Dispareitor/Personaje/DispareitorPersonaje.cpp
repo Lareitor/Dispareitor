@@ -487,7 +487,7 @@ void ADispareitorPersonaje::AlReplicarVida() {
 void ADispareitorPersonaje::ActualizarHUDVida() {
 	DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(Controller);
 	if(DispareitorControladorJugador) {
-		DispareitorControladorJugador->ActualizarHUDVida(Vida, VidaMaxima);
+		DispareitorControladorJugador->HUDVidaActualizar(Vida, VidaMaxima);
 	}
 }
 
@@ -533,7 +533,7 @@ void ADispareitorPersonaje::MulticastEliminado_Implementation() {
 		HUDSobreLaCabeza->SetVisibility(false);
 	}
 	if(DispareitorControladorJugador) {
-		DispareitorControladorJugador->ActualizarHUDMunicionArma(0);
+		DispareitorControladorJugador->HUDArmaMunicionActualizar(0);
 	}
 }
 
