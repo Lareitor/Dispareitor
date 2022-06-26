@@ -35,4 +35,7 @@ protected:
 
 private:
 	float CuentaAtrasTiempo = 0.f;
+
+public:
+	FORCEINLINE float CuentaAtrasTiempoObtener() const { return CuentaAtrasTiempo; }	
 };

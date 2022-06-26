@@ -14,8 +14,8 @@ public:
 	void HUDMuertesActualizar(int32 Muertes);
 	void HUDArmaMunicionActualizar(int32 ArmaMunicion);
 	void HUDPersonajeMunicionActualizar(int32 PersonajeMunicion);
-	void HUDPartidaTiempoActualizar(float _PartidaTiempo);
-	void HUDCalentamientoTiempoActualizar(float _CalentamientoTiempo);
+	void HUDPartidaTiempoActualizar(float CuentaAtrasTiempo);
+	void HUDAnunciosTiempoActualizar(float CuentaAtrasTiempo);
 	virtual void OnPossess(APawn* Peon) override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -29,7 +29,7 @@ public:
 	
 protected:
 	virtual void BeginPlay() override;
-	void ActivarHUDTiempo();
+	void HUDTiempoActivar();
 	void SondearInicio();
 
 	// Sincronizacion tiempos entre cliente y servidor
@@ -52,15 +52,19 @@ protected:
 	void PartidaEstadoComprobar_EnServidor();
 
 	UFUNCTION(Client, Reliable)
-	void PartidaEstadoComprobar_EnCliente(FName _PartidaEstado, float _CalentamientoTiempo, float _PartidaTiempo, float _InicioNivelTiempo);
+	void PartidaEstadoComprobar_EnCliente(FName _PartidaEstado, float _CalentamientoTiempo, float _PartidaTiempo, float _EnfriamientoTiempo, float _InicioNivelTiempo);
 
 private:
 	UPROPERTY()
 	class ADispareitorHUD* DispareitorHUD;	
 
+	UPROPERTY()
+	class ADispareitorModoJuego* DispareitorModoJuego;
+
 	float InicioNivelTiempo = 0.f;
 	float PartidaTiempo = 0.f;
 	float CalentamientoTiempo = 0.f;
+	float EnfriamientoTiempo = 0.f; 
 	uint32 SegundosRestantes = 0;
 
 	UPROPERTY(ReplicatedUsing = PartidaEstado_AlReplicar)

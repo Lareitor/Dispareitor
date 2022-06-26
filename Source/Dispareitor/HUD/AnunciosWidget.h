@@ -16,6 +16,6 @@ public:
 	UTextBlock* PartidaComienza;
 
 	UPROPERTY(meta = (BindWidget))
-	UTextBlock* Explorar;	
+	UTextBlock* Informacion;	
 	
 };
