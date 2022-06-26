@@ -245,10 +245,6 @@ void ADispareitorControladorJugador::PartidaEstadoComprobar_EnServidor_Implement
         InicioNivelTiempo = DispareitorModoJuego->InicioNivelTiempo;
         PartidaEstado = DispareitorModoJuego->GetMatchState();
         PartidaEstadoComprobar_EnCliente(PartidaEstado, CalentamientoTiempo, PartidaTiempo, EnfriamientoTiempo, InicioNivelTiempo);
-        
-        if(DispareitorHUD && PartidaEstado == MatchState::WaitingToStart) {
-            DispareitorHUD->AnadirAnunciosWidget();
-        }
     }
 }
 
