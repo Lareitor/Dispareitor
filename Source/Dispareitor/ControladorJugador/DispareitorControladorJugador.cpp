@@ -8,6 +8,7 @@
 #include "Net/UnrealNetwork.h"
 #include "Dispareitor/ModoJuego/DispareitorModoJuego.h"
 #include "Kismet/GameplayStatics.h"
+#include "Dispareitor/DispareitorComponentes/CombateComponente.h"
 
 // APlayerController solo existe en el servidor y en el cliente propietario. Permite el acceso al HUD: vida, muertos, muertes, municion...
 
@@ -232,6 +233,12 @@ void ADispareitorControladorJugador::PartidaEstadoManejador() {
                 DispareitorHUD->AnunciosWidget->PartidaComienza->SetText(FText::FromString(PartidaComienzaTexto));
                 DispareitorHUD->AnunciosWidget->Informacion->SetText(FText());
             }
+        }
+    } else if(PartidaEstado == MatchState::Enfriamiento) {
+        ADispareitorPersonaje* DispareitorPersonaje = Cast<ADispareitorPersonaje>(GetPawn());
+        if(DispareitorPersonaje && DispareitorPersonaje->CombateComponenteObtener()) {
+            DispareitorPersonaje->bSoloGirarCamara = true;
+            DispareitorPersonaje->CombateComponenteObtener()->DispararPresionado(false);
         }
     }
 }

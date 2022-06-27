@@ -95,6 +95,6 @@ void UDispareitorInstanciaAnimacion::NativeUpdateAnimation(float DeltaTime) {
     }
 
     bUsarFABRIK = DispareitorPersonaje->EstadoCombateObtener() != EEstadosCombate::EEC_Recargando;
-    bTransformarManoDerecha = DispareitorPersonaje->EstadoCombateObtener() != EEstadosCombate::EEC_Recargando;
-    bUsarAO = DispareitorPersonaje->EstadoCombateObtener() != EEstadosCombate::EEC_Recargando;
+    bTransformarManoDerecha = DispareitorPersonaje->EstadoCombateObtener() != EEstadosCombate::EEC_Recargando && !DispareitorPersonaje->bSoloGirarCamaraObtener();
+    bUsarAO = DispareitorPersonaje->EstadoCombateObtener() != EEstadosCombate::EEC_Recargando && !DispareitorPersonaje->bSoloGirarCamaraObtener();
 }

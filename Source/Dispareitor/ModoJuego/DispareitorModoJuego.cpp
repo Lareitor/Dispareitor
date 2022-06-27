@@ -38,6 +38,11 @@ void ADispareitorModoJuego::Tick(float DeltaTime) {
         if(CuentaAtrasTiempo <= 0.f) {
             SetMatchState(MatchState::Enfriamiento);
         }
+    } else if(MatchState == MatchState::Enfriamiento) {
+        CuentaAtrasTiempo = CalentamientoTiempo + PartidaTiempo + EnfriamientoTiempo - GetWorld()->GetTimeSeconds() + InicioNivelTiempo;
+        if(CuentaAtrasTiempo <= 0.f) {
+            RestartGame();
+        }
     }
 }
 

@@ -33,6 +33,9 @@ public:
 
 	void SondearInicializacion();
 
+	UPROPERTY(Replicated)
+	bool bSoloGirarCamara = false;
+
 protected:
 	virtual void BeginPlay() override;
 	void MoverAdelanteAtras(float Valor);
@@ -55,6 +58,8 @@ protected:
 	UFUNCTION()
 	void RecibirDano(AActor* ActorDanado, float Dano, const UDamageType* TipoDano, class AController* ControladorInstigador, AActor* ActorCausante);
 	void ActualizarHUDVida();
+
+	void RotarEnSitio(float DeltaTime);
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = Camara)	
@@ -202,4 +207,6 @@ public:
 	FORCEINLINE float ObtenerVida() const { return Vida; }
 	FORCEINLINE float ObtenerVidaMaxima() const { return VidaMaxima; }
 	EEstadosCombate EstadoCombateObtener() const;
+	FORCEINLINE UCombateComponente* CombateComponenteObtener() const { return CombateComponente; }
+	FORCEINLINE bool bSoloGirarCamaraObtener() const { return bSoloGirarCamara; }
 };

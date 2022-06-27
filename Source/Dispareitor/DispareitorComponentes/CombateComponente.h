@@ -25,6 +25,8 @@ public:
 
 	UFUNCTION(BluePrintCallable)
 	void RecargarFinalizado();
+	
+	void DispararPresionado(bool bPresionado);
 
 protected:	
 	virtual void BeginPlay() override;
@@ -34,9 +36,7 @@ protected:
 	void ServidorActualizarApuntando(bool Apuntando);
 
 	UFUNCTION()
-	void AlReplicarArmaEquipada();
-
-	void DispararPresionado(bool bPresionado);
+	void AlReplicarArmaEquipada();	
 
 	UFUNCTION(Server, Reliable)
 	void ServidorDisparar(const FVector_NetQuantize& Objetivo);

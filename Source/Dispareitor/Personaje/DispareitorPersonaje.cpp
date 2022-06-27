@@ -73,6 +73,7 @@ void ADispareitorPersonaje::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 	// Solo se replica el ArmaSolapada en el cliente que posee ADispareitorPersonaje
 	DOREPLIFETIME_CONDITION(ADispareitorPersonaje, ArmaSolapada, COND_OwnerOnly);
 	DOREPLIFETIME(ADispareitorPersonaje, Vida);
+	DOREPLIFETIME(ADispareitorPersonaje, bSoloGirarCamara);
 }
 
 void ADispareitorPersonaje::BeginPlay() {
@@ -88,6 +89,18 @@ void ADispareitorPersonaje::BeginPlay() {
 void ADispareitorPersonaje::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 
+	RotarEnSitio(DeltaTime);
+	EsconderCamaraSiPersonajeCerca();
+	SondearInicializacion();
+}
+
+void ADispareitorPersonaje::RotarEnSitio(float DeltaTime) {
+	if(bSoloGirarCamara) {
+		bUseControllerRotationYaw = false;
+		GirarEnSitio = EGirarEnSitio::EGES_NoGirar;	
+		return;
+	}
+
 	// ROLE_SimulatedProxy = 1, ROLE_AutonomousProxy = 2, ROLE_Authority = 3
 	// Solo lo ejecutamos para las instancias que tiene control local o están en el server
 	if(GetLocalRole() > ENetRole::ROLE_SimulatedProxy && IsLocallyControlled()) {
@@ -99,10 +112,8 @@ void ADispareitorPersonaje::Tick(float DeltaTime) {
 		}
 		CalcularInclinacion();
 	}
-
-	EsconderCamaraSiPersonajeCerca();
-	SondearInicializacion();
 }
+
 
 void ADispareitorPersonaje::SondearInicializacion() {
 	if(DispareitorEstadoJugador == nullptr) {
@@ -156,6 +167,10 @@ void ADispareitorPersonaje::PostInitializeComponents() {
 }
 
 void ADispareitorPersonaje::MoverAdelanteAtras(float Valor) {
+	if(bSoloGirarCamara) {
+		return;
+	}
+
 	if(Controller != nullptr && Valor != 0.f) {
 		const FRotator RotacionGiro(0.f, Controller->GetControlRotation().Yaw, 0.f);
 		const FVector DireccionAdelanteDeRotacionGiro(FRotationMatrix(RotacionGiro).GetUnitAxis(EAxis::X));
@@ -164,6 +179,10 @@ void ADispareitorPersonaje::MoverAdelanteAtras(float Valor) {
 }
 
 void ADispareitorPersonaje::MoverIzquierdaDerecha(float Valor) {
+	if(bSoloGirarCamara) {
+		return;
+	}
+
 	if(Controller != nullptr && Valor != 0.f) {
 		const FRotator RotacionGiro(0.f, Controller->GetControlRotation().Yaw, 0.f);
 		const FVector DireccionLateralDeRotacionGiro(FRotationMatrix(RotacionGiro).GetUnitAxis(EAxis::Y));
@@ -180,6 +199,10 @@ void ADispareitorPersonaje::MirarArribaAbajo(float Valor) {
 }
 
 void ADispareitorPersonaje::Agachar() {
+	if(bSoloGirarCamara) {
+		return;
+	}
+
 	if(bIsCrouched) {
 		UnCrouch();
 	} else {
@@ -188,6 +211,10 @@ void ADispareitorPersonaje::Agachar() {
 }
 
 void ADispareitorPersonaje::Jump() {
+	if(bSoloGirarCamara) {
+		return;
+	}
+
 	if(bIsCrouched) {
 		UnCrouch();
 	} else {
@@ -196,36 +223,60 @@ void ADispareitorPersonaje::Jump() {
 }
 
 void ADispareitorPersonaje::ApuntarPulsado() {
+	if(bSoloGirarCamara) {
+		return;
+	}
+
 	if(CombateComponente) {
 		CombateComponente->ActualizarApuntando(true);
 	}
 }
 
 void ADispareitorPersonaje::ApuntarLiberado() {
+	if(bSoloGirarCamara) {
+		return;
+	}
+
 	if(CombateComponente) {
 		CombateComponente->ActualizarApuntando(false);
 	}
 }
 
 void ADispareitorPersonaje::DispararPulsado() {
+	if(bSoloGirarCamara) {
+		return;
+	}
+
 	if(CombateComponente) {
 		CombateComponente->DispararPresionado(true);
 	}
 }
 
 void ADispareitorPersonaje::DispararLiberado() {
+	if(bSoloGirarCamara) {
+		return;
+	}
+
 	if(CombateComponente) {
 		CombateComponente->DispararPresionado(false);
 	}
 }
 
 void ADispareitorPersonaje::Recargar() {
+	if(bSoloGirarCamara) {
+		return;
+	}
+
 	if(CombateComponente) {
 		CombateComponente->Recargar();
 	}
 }
 
 void ADispareitorPersonaje::Equipar() {
+	if(bSoloGirarCamara) {
+		return;
+	}
+
 	if(CombateComponente) {
 		if(HasAuthority()) { // Estamos en el servidor
 			CombateComponente->EquiparArma(ArmaSolapada);
@@ -515,10 +566,7 @@ void ADispareitorPersonaje::MulticastEliminado_Implementation() {
 
 	GetCharacterMovement()->DisableMovement(); // Impide movimiento
 	GetCharacterMovement()->StopMovementImmediately(); // Impide rotacion
-	if(DispareitorControladorJugador) { 
-		DisableInput(DispareitorControladorJugador); // Impide disparar
-	}
-
+	bSoloGirarCamara = true;
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
@@ -564,6 +612,9 @@ void ADispareitorPersonaje::Destroyed() {
 
 	if(RobotEliminacionComponente) {
 		RobotEliminacionComponente->DestroyComponent();
+	}
+	if(CombateComponente && CombateComponente->ArmaEquipada) {
+		CombateComponente->ArmaEquipada->Destroy();
 	}
 }
 
