@@ -567,6 +567,9 @@ void ADispareitorPersonaje::MulticastEliminado_Implementation() {
 	GetCharacterMovement()->DisableMovement(); // Impide movimiento
 	GetCharacterMovement()->StopMovementImmediately(); // Impide rotacion
 	bSoloGirarCamara = true;
+	if(CombateComponente) {
+		CombateComponente->DispararPresionado(false);
+	}
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
@@ -613,7 +616,9 @@ void ADispareitorPersonaje::Destroyed() {
 	if(RobotEliminacionComponente) {
 		RobotEliminacionComponente->DestroyComponent();
 	}
-	if(CombateComponente && CombateComponente->ArmaEquipada) {
+
+	ADispareitorModoJuego* DispareitorModoJuego = Cast<ADispareitorModoJuego>(UGameplayStatics::GetGameMode(this));
+	if(CombateComponente && CombateComponente->ArmaEquipada && DispareitorModoJuego && DispareitorModoJuego->GetMatchState() != MatchState::InProgress) {
 		CombateComponente->ArmaEquipada->Destroy();
 	}
 }

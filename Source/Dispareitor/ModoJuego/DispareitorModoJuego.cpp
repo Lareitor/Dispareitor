@@ -4,6 +4,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PlayerStart.h"
 #include "Dispareitor/EstadoJugador/DispareitorEstadoJugador.h"
+#include "Dispareitor/EstadoJuego/DispareitorEstadoJuego.h"
 
 // AGameMode solo existe en el servidor
 
@@ -62,8 +63,11 @@ void ADispareitorModoJuego::JugadorEliminado(class ADispareitorPersonaje* Victim
     ADispareitorEstadoJugador* AtacanteEstadoJugador = AtacanteDispareitorControladorJugador ? Cast<ADispareitorEstadoJugador>(AtacanteDispareitorControladorJugador->PlayerState) : nullptr;
     ADispareitorEstadoJugador* VictimaEstadoJugador = VictimaDispareitorControladorJugador ? Cast<ADispareitorEstadoJugador>(VictimaDispareitorControladorJugador->PlayerState) : nullptr;
 
-    if(AtacanteEstadoJugador && AtacanteEstadoJugador != VictimaEstadoJugador) {
+    ADispareitorEstadoJuego* DispareitorEstadoJuego = GetGameState<ADispareitorEstadoJuego>();
+
+    if(AtacanteEstadoJugador && AtacanteEstadoJugador != VictimaEstadoJugador && DispareitorEstadoJuego) {
         AtacanteEstadoJugador->IncrementarMuertos(1.f);
+        DispareitorEstadoJuego->EstadoJugadoresPuntuacionMasAltaActualizar(AtacanteEstadoJugador);
     }
     if(VictimaEstadoJugador) {
         VictimaEstadoJugador->IncrementarMuertes(1);

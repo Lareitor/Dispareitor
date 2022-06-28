@@ -9,6 +9,9 @@
 #include "Dispareitor/ModoJuego/DispareitorModoJuego.h"
 #include "Kismet/GameplayStatics.h"
 #include "Dispareitor/DispareitorComponentes/CombateComponente.h"
+#include "Dispareitor/EstadoJuego/DispareitorEstadoJuego.h"
+#include "Dispareitor/EstadoJugador/DispareitorEstadoJugador.h"
+
 
 // APlayerController solo existe en el servidor y en el cliente propietario. Permite el acceso al HUD: vida, muertos, muertes, municion...
 
@@ -229,9 +232,32 @@ void ADispareitorControladorJugador::PartidaEstadoManejador() {
             DispareitorHUD->PantallaDelPersonaje->RemoveFromParent();
             if(DispareitorHUD->AnunciosWidget && DispareitorHUD->AnunciosWidget->PartidaComienza && DispareitorHUD->AnunciosWidget->Informacion) {
                 DispareitorHUD->AnunciosWidget->SetVisibility(ESlateVisibility::Visible);
+                
                 FString PartidaComienzaTexto("Nueva partida comienza en:");
                 DispareitorHUD->AnunciosWidget->PartidaComienza->SetText(FText::FromString(PartidaComienzaTexto));
-                DispareitorHUD->AnunciosWidget->Informacion->SetText(FText());
+                
+                ADispareitorEstadoJuego* DispareitorEstadoJuego = Cast<ADispareitorEstadoJuego>(UGameplayStatics::GetGameState(this));
+                ADispareitorEstadoJugador* DispareitorEstadoJugador = GetPlayerState<ADispareitorEstadoJugador>();
+                if(DispareitorEstadoJuego && DispareitorEstadoJugador) {
+                    TArray<ADispareitorEstadoJugador*> EstadoJugadoresPuntuacionMasAlta = DispareitorEstadoJuego->EstadoJugadoresPuntuacionMasAlta;
+                    FString JugadoresPuntuacionMasAltaTexto;
+                    if(EstadoJugadoresPuntuacionMasAlta.Num() == 0) {
+                        JugadoresPuntuacionMasAltaTexto = FString("No hay ganador. Sois todos unos losers!"); 
+                    } else if(EstadoJugadoresPuntuacionMasAlta.Num() == 1) {
+                        if(EstadoJugadoresPuntuacionMasAlta[0] == DispareitorEstadoJugador) {
+                            JugadoresPuntuacionMasAltaTexto = FString("Eres el ganador. El puto amo de Dispareitor!");
+                        } else {
+                            JugadoresPuntuacionMasAltaTexto = FString::Printf(TEXT("Apunta bien su nombre para la siguiente... Os ha barrido de la partida: %s"), *EstadoJugadoresPuntuacionMasAlta[0]->GetPlayerName());
+                        }
+                    } else if(EstadoJugadoresPuntuacionMasAlta.Num() > 1) {
+                        JugadoresPuntuacionMasAltaTexto = FString("Han quedado empatados en el 'namber guan':\n");
+                        for(auto EstadoJugador : EstadoJugadoresPuntuacionMasAlta) {
+                            JugadoresPuntuacionMasAltaTexto.Append(FString::Printf(TEXT("%s\n"), *EstadoJugador->GetPlayerName()));    
+                        }
+                    }
+
+                    DispareitorHUD->AnunciosWidget->Informacion->SetText(FText::FromString(JugadoresPuntuacionMasAltaTexto));
+                }
             }
         }
     } else if(PartidaEstado == MatchState::Enfriamiento) {
