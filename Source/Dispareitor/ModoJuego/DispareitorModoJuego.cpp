@@ -47,6 +47,7 @@ void ADispareitorModoJuego::Tick(float DeltaTime) {
     }
 }
 
+// Llamado cada vez que se cambia de estado
 void ADispareitorModoJuego::OnMatchStateSet() {
     Super::OnMatchStateSet();
 
@@ -86,7 +87,7 @@ void ADispareitorModoJuego::PeticionReaparecer(ACharacter* PersonajeEliminado, A
     }    
 
     if(ControladorEliminado) {
-        TArray<AActor*> IniciosDeJugador;
+        TArray<AActor*> IniciosDeJugador; 
         UGameplayStatics::GetAllActorsOfClass(this, APlayerStart::StaticClass(), IniciosDeJugador);
         int32 IndiceIniciosDeJugadorElegido = FMath::RandRange(0, IniciosDeJugador.Num() - 1);
         

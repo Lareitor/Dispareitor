@@ -2,6 +2,8 @@
 #include "Net/UnrealNetwork.h"
 #include "Dispareitor/EstadoJugador/DispareitorEstadoJugador.h"
 
+// AGameState existe en el servidor y en los clientes 
+
 void ADispareitorEstadoJuego::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 

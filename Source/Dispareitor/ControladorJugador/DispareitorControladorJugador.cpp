@@ -211,6 +211,7 @@ void ADispareitorControladorJugador::TiempoSincronizacionComprobar(float DeltaTi
     }
 }
 
+// Llamado por ADispareitorModoJuego::OnMatchStateSet
 void ADispareitorControladorJugador::PartidaEstadoActualizar(FName Estado) {
     PartidaEstado = Estado;
     PartidaEstadoManejador();
@@ -247,7 +248,7 @@ void ADispareitorControladorJugador::PartidaEstadoManejador() {
                         if(EstadoJugadoresPuntuacionMasAlta[0] == DispareitorEstadoJugador) {
                             JugadoresPuntuacionMasAltaTexto = FString("Eres el ganador. El puto amo de Dispareitor!");
                         } else {
-                            JugadoresPuntuacionMasAltaTexto = FString::Printf(TEXT("Apunta bien su nombre para la siguiente... Os ha barrido de la partida: %s"), *EstadoJugadoresPuntuacionMasAlta[0]->GetPlayerName());
+                            JugadoresPuntuacionMasAltaTexto = FString::Printf(TEXT("Apunta bien su nombre para la siguiente...\n Os ha barrido de la partida: %s"), *EstadoJugadoresPuntuacionMasAlta[0]->GetPlayerName());
                         }
                     } else if(EstadoJugadoresPuntuacionMasAlta.Num() > 1) {
                         JugadoresPuntuacionMasAltaTexto = FString("Han quedado empatados en el 'namber guan':\n");
@@ -260,7 +261,9 @@ void ADispareitorControladorJugador::PartidaEstadoManejador() {
                 }
             }
         }
-    } else if(PartidaEstado == MatchState::Enfriamiento) {
+    } 
+    
+    if(PartidaEstado == MatchState::Enfriamiento) {
         ADispareitorPersonaje* DispareitorPersonaje = Cast<ADispareitorPersonaje>(GetPawn());
         if(DispareitorPersonaje && DispareitorPersonaje->CombateComponenteObtener()) {
             DispareitorPersonaje->bSoloGirarCamara = true;
