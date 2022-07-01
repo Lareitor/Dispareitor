@@ -134,6 +134,8 @@ private:
 	void MunicionActualizarValores();
 
 	void EquiparSonido();
+
+	bool ArmaSinMunicionPeroPuedoRecargar();
 	
 public:		
 	

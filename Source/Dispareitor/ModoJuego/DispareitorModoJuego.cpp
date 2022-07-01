@@ -5,6 +5,8 @@
 #include "GameFramework/PlayerStart.h"
 #include "Dispareitor/EstadoJugador/DispareitorEstadoJugador.h"
 #include "Dispareitor/EstadoJuego/DispareitorEstadoJuego.h"
+#include "Math/NumericLimits.h"
+
 
 // AGameMode solo existe en el servidor
 
@@ -86,11 +88,36 @@ void ADispareitorModoJuego::PeticionReaparecer(ACharacter* PersonajeEliminado, A
         PersonajeEliminado->Destroy(); // Destruye al caracter pero el controlador sobrevive asi como otras clases como player state
     }    
 
+    // Reaparecer lo mas alejado de los enemigos
     if(ControladorEliminado) {
         TArray<AActor*> IniciosDeJugador; 
         UGameplayStatics::GetAllActorsOfClass(this, APlayerStart::StaticClass(), IniciosDeJugador);
-        int32 IndiceIniciosDeJugadorElegido = FMath::RandRange(0, IniciosDeJugador.Num() - 1);
-        
-        RestartPlayerAtPlayerStart(ControladorEliminado, IniciosDeJugador[IndiceIniciosDeJugadorElegido]);
+
+        AActor* InicioDeJugadorMasLejano = nullptr; 
+        float DistanciaMasLejana = 0.f;
+        for(AActor* InicioDeJugador : IniciosDeJugador) {
+            float InicioDeJugadorDistanciaMasCercanaAJugador = MAX_flt; 
+            for(FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It) {
+                ADispareitorControladorJugador* DispareitorControladorJugador = Cast<ADispareitorControladorJugador>(*It);
+                if(DispareitorControladorJugador != ControladorEliminado) {
+                    ADispareitorPersonaje* DispareitorPersonaje = Cast<ADispareitorPersonaje>(DispareitorControladorJugador->GetPawn());
+                    float DistanciaEntreInicioDeJugadorYPersonaje = InicioDeJugador->GetDistanceTo(DispareitorPersonaje);
+                    if(DistanciaEntreInicioDeJugadorYPersonaje < InicioDeJugadorDistanciaMasCercanaAJugador) {
+                        InicioDeJugadorDistanciaMasCercanaAJugador = DistanciaEntreInicioDeJugadorYPersonaje;
+                    }
+                }
+            }
+
+            if(InicioDeJugadorDistanciaMasCercanaAJugador > DistanciaMasLejana) {
+                DistanciaMasLejana = InicioDeJugadorDistanciaMasCercanaAJugador;
+                InicioDeJugadorMasLejano = InicioDeJugador;
+            }
+        }
+        if(InicioDeJugadorMasLejano) {
+            RestartPlayerAtPlayerStart(ControladorEliminado, InicioDeJugadorMasLejano);
+        } else {
+            int32 IndiceIniciosDeJugadorElegido = FMath::RandRange(0, IniciosDeJugador.Num() - 1);
+            RestartPlayerAtPlayerStart(ControladorEliminado, IniciosDeJugador[IndiceIniciosDeJugadorElegido]);
+        }
     }
 }

@@ -350,6 +350,8 @@ void UCombateComponente::Disparar() {
 		}
 
 		EmpezarDisparoTemporizador();
+	} else if (ArmaSinMunicionPeroPuedoRecargar()) { // Recargar automaticamente cuando se queda sin municion en el arma mientras estamos disparando
+		Recargar();
 	}
 }
 
@@ -387,6 +389,10 @@ void UCombateComponente::TerminadoDisparoTemporizador() {
 
 bool UCombateComponente::PuedoDisparar() {
 	return ArmaEquipada != nullptr && !ArmaEquipada->EstaSinMunicion() && bPuedoDisparar && EstadoCombate == EEstadosCombate::EEC_Desocupado;
+}
+
+bool UCombateComponente::ArmaSinMunicionPeroPuedoRecargar() {
+	return ArmaEquipada != nullptr && ArmaEquipada->MunicionObtener() == 0 && MunicionPersonaje > 0;
 }
 
 void UCombateComponente::EquiparSonido() {
