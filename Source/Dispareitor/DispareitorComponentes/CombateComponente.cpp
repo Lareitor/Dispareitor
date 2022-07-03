@@ -166,6 +166,8 @@ void UCombateComponente::InterpolarFOV(float DeltaTime) {
 // Llamado en BeginPlay
 void UCombateComponente::MunicionPersonajeInicializar() {
 	MunicionPersonajeMapa.Emplace(ETipoArma::ETA_RifleAsalto, MunicionPersonajeInicialRifleAsalto);
+	MunicionPersonajeMapa.Emplace(ETipoArma::ETA_LanzaCohetes, MunicionPersonajeInicialLanzaCohetes);
+
 }
 
 // Llamado por ADispareitorPersonaje::Equipar 

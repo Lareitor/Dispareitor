@@ -225,7 +225,9 @@ void ADispareitorControladorJugador::PartidaEstadoManejador() {
     DispareitorHUD = DispareitorHUD != nullptr ? DispareitorHUD : Cast<ADispareitorHUD>(GetHUD());
     if(DispareitorHUD) {
         if(PartidaEstado == MatchState::InProgress) {
-            DispareitorHUD->AnadirPantallaDelPersonaje();
+            if(DispareitorHUD->PantallaDelPersonaje == nullptr) {
+                DispareitorHUD->AnadirPantallaDelPersonaje();
+            }
             if(DispareitorHUD->AnunciosWidget) {
                 DispareitorHUD->AnunciosWidget->SetVisibility(ESlateVisibility::Hidden);
             }
