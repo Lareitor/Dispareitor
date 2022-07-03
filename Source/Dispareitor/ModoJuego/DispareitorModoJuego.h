@@ -36,6 +36,8 @@ protected:
 private:
 	float CuentaAtrasTiempo = 0.f;
 
+	void ArmasSituar();
+
 public:
 	FORCEINLINE float CuentaAtrasTiempoObtener() const { return CuentaAtrasTiempo; }	
 };

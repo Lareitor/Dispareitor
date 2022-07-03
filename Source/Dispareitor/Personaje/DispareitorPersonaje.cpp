@@ -20,8 +20,6 @@
 #include "Dispareitor/Tipos/TiposArma.h"
 #include "Dispareitor/HUD/HUDSobreLaCabeza.h"
 
-// TODO Hacer el respawn lo mas lejos de los jugadores  
-
 ADispareitorPersonaje::ADispareitorPersonaje() {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -512,7 +510,7 @@ float ADispareitorPersonaje::CalcularVelocidad() {
     return VelocidadTemporal.Size();
 }
 
-// LLamado al recibir daño por parte de ProyectilBala
+// LLamado al recibir daño por parte de AProyectilBala::CallbackAlImpactar y ALimitesJuego::CallbackMallaSolapadoInicio
 // Solo se ejecuta en el server
 void ADispareitorPersonaje::RecibirDano(AActor* ActorDanado, float Dano, const UDamageType* TipoDano, class AController* ControladorInstigador, AActor* ActorCausante) {
 	Vida = FMath::Clamp(Vida - Dano, 0.f, VidaMaxima);

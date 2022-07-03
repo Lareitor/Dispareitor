@@ -12,7 +12,6 @@ void AProyectilBala::CallbackAlImpactar(UPrimitiveComponent* ComponenteImpactant
              UGameplayStatics::ApplyDamage(ActorImpactado, Dano, ControladorPropietario, this, UDamageType::StaticClass());
         }
     }
-   
     
     // Lo llamamos al final porque el Super invoca a Destroy y por tanto no se ejecutaría el codigo que pongamos a continuación de esta linea
     Super::CallbackAlImpactar(ComponenteImpactante, ActorImpactado, ComponenteImpactado, ImpulsoNormal, ImpactoResultado);    

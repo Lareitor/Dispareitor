@@ -6,6 +6,7 @@
 #include "Dispareitor/EstadoJugador/DispareitorEstadoJugador.h"
 #include "Dispareitor/EstadoJuego/DispareitorEstadoJuego.h"
 #include "Math/NumericLimits.h"
+#include "Dispareitor/Arma/Arma.h"
 
 
 // AGameMode solo existe en el servidor
@@ -18,11 +19,13 @@ ADispareitorModoJuego::ADispareitorModoJuego() {
     // Le indicamos que queremos permanecer en el estado WaitingToStart
     // En este estado no tenemos mallas de los personajes y pueden volar libremente por el nivel
     // Activarlo tambien en BP_DispareitorModoJuego
-    bDelayedStart = true;
+    bDelayedStart = true;    
 }
 
 void ADispareitorModoJuego::BeginPlay() {
     Super::BeginPlay();
+
+    ArmasSituar();
 
     InicioNivelTiempo = GetWorld()->GetTimeSeconds();
 }
@@ -119,5 +122,19 @@ void ADispareitorModoJuego::PeticionReaparecer(ACharacter* PersonajeEliminado, A
             int32 IndiceIniciosDeJugadorElegido = FMath::RandRange(0, IniciosDeJugador.Num() - 1);
             RestartPlayerAtPlayerStart(ControladorEliminado, IniciosDeJugador[IndiceIniciosDeJugadorElegido]);
         }
+    }
+}
+
+//LLamado por BeginPlay
+void ADispareitorModoJuego::ArmasSituar() {
+	TArray<AActor*> ArmasPuntosReaparicion; 
+    UGameplayStatics::GetAllActorsWithTag(this, "PuntoReaparicionArma", ArmasPuntosReaparicion);
+
+    TArray<AActor*> Armas; 
+    UGameplayStatics::GetAllActorsOfClass(this, AArma::StaticClass(), Armas);
+
+    int32 ArmasPuntosReaparicionIndice = 0;
+    for(AActor* Arma : Armas) {
+        Arma->SetActorLocation(ArmasPuntosReaparicion[ArmasPuntosReaparicionIndice++]->GetActorLocation());
     }
 }

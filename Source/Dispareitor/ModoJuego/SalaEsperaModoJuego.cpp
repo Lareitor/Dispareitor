@@ -8,9 +8,9 @@ void ASalaEsperaModoJuego::PostLogin(APlayerController* ControladorJugador) {
 
     int32 NumeroDeJugadores = GameState.Get()->PlayerArray.Num();
 
-    if (GEngine) {
-		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, FString(TEXT("Numero de jugadores: " + NumeroDeJugadores)));
-	}
+    //if (GEngine) {
+	//	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, FString(TEXT("Numero de jugadores: " + NumeroDeJugadores)));
+	//}
 
     if(NumeroDeJugadores == 3) {
         UWorld* Mundo = GetWorld();
