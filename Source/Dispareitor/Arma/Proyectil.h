@@ -22,24 +22,24 @@ protected:
 	UPROPERTY(EditAnywhere)
 	float Dano = 20.f;
 
-private:
+	UPROPERTY(EditAnywhere)
+	class UParticleSystem* ImpactoParticulas;
+
+	UPROPERTY(EditAnywhere)
+	class USoundCue* ImpactoSonido;
+
 	UPROPERTY(EditAnywhere)
 	class UBoxComponent* CajaColision;
 
+private:
 	UPROPERTY(VisibleAnywhere)
 	class UProjectileMovementComponent* ProyectilMovimientoComponente;
 
 	UPROPERTY(EditAnywhere)
-	class UParticleSystem* Traza;
+	UParticleSystem* Traza;
 
 	UPROPERTY()
 	class UParticleSystemComponent* TrazaComponente;
-
-	UPROPERTY(EditAnywhere)
-	UParticleSystem* ImpactoParticulas;
-
-	UPROPERTY(EditAnywhere)
-	class USoundCue* ImpactoSonido;
 
 public:	
 	
