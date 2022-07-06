@@ -5,12 +5,17 @@
 #include "Sound/SoundCue.h"
 #include "Components/BoxComponent.h"
 #include "Components/AudioComponent.h"
+#include "CoheteMovimientoComponente.h"
 
 
 AProyectilCohete::AProyectilCohete() {
     Malla = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Malla"));
     Malla->SetupAttachment(RootComponent);
     Malla->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+    CoheteMovimientoComponente = CreateDefaultSubobject<UCoheteMovimientoComponente>(TEXT("CoheteMovimientoComponente"));
+    CoheteMovimientoComponente->bRotationFollowsVelocity = true;
+    CoheteMovimientoComponente->SetIsReplicated(true);
 }
 
 void AProyectilCohete::BeginPlay() {
@@ -32,6 +37,10 @@ void AProyectilCohete::BeginPlay() {
 }
 
 void AProyectilCohete::CallbackAlImpactar(UPrimitiveComponent* ComponenteImpactante, AActor* ActorImpactado, UPrimitiveComponent* ComponenteImpactado, FVector ImpulsoNormal, const FHitResult& ImpactoResultado) {
+    if(ActorImpactado == GetOwner()) { // Se ha creado UCoheteMovimientoComponente para gestionar esta casuistica
+        return;
+    }
+   
     APawn* PeonQueDispara = GetInstigator();  
     if(PeonQueDispara && HasAuthority()) {
         AController* ControladorDeQuienDispara = PeonQueDispara->GetController();

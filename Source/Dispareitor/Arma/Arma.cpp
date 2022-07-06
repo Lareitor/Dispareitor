@@ -12,6 +12,7 @@
 AArma::AArma() {
 	PrimaryActorTick.bCanEverTick = false;
 	bReplicates = true; // Para que nuestra arma tenga autoridad solo en el server
+	SetReplicateMovement(true);
 
 	Malla = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Malla"));
 	SetRootComponent(Malla);	

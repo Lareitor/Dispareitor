@@ -1,6 +1,5 @@
 #include "Proyectil.h"
 #include "Components/BoxComponent.h"
-#include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Particles/ParticleSystem.h"
@@ -22,9 +21,6 @@ AProyectil::AProyectil() {
 	CajaColision->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
 	// Ya que tanto la capsula como la malla del personaje estan en el canal Pawn, y queremos ajustar los disparos a la malla, lo que hacemos es crear un canal especifico para la malla y colisionar con él
 	CajaColision->SetCollisionResponseToChannel(ECC_MallaDelEsqueleto, ECollisionResponse::ECR_Block);
-
-	ProyectilMovimientoComponente = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProyectilMovimientoComponente"));
-	ProyectilMovimientoComponente->bRotationFollowsVelocity = true;
 }
 
 void AProyectil::BeginPlay() {

@@ -32,6 +32,9 @@ protected:
 	UPROPERTY(EditAnywhere)
 	USoundAttenuation* SonidoMientraVuelaAtenuacion;
 
+	UPROPERTY(VisibleAnywhere)
+	class UCoheteMovimientoComponente* CoheteMovimientoComponente;
+
 private:
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* Malla;

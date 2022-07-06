@@ -7,6 +7,8 @@
 UCLASS()
 class DISPAREITOR_API AProyectilBala : public AProyectil {
 	GENERATED_BODY()
+public:
+	AProyectilBala();
 
 protected:
 	virtual void CallbackAlImpactar(UPrimitiveComponent* ComponenteImpactante, AActor* ActorImpactado, UPrimitiveComponent* ComponenteImpactado, FVector ImpulsoNormal, const FHitResult& ImpactoResultado) override;
