@@ -457,6 +457,9 @@ void ADispareitorPersonaje::EjecutarMontajeRecargar() {
 			case ETipoArma::ETA_LanzaCohetes:
 				NombreSeccion = FName("RifleAsalto");	
 				break;	
+			case ETipoArma::ETA_Pistola:
+				NombreSeccion = FName("RifleAsalto");	
+				break;	
 		}
 		InstanciaAnimacion->Montage_JumpToSection(NombreSeccion);
 	}
