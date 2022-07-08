@@ -17,4 +17,7 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	class UParticleSystem* ImpactoParticulas;
+
+	UPROPERTY(EditAnywhere)
+	UParticleSystem* HumoTrazaPS;
 };
