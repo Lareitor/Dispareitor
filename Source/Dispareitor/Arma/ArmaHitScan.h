@@ -20,4 +20,13 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	UParticleSystem* HumoTrazaPS;
+
+	UPROPERTY(EditAnywhere)
+	UParticleSystem* PuntaArmaFlash;
+
+	UPROPERTY(EditAnywhere)
+	USoundCue* DisparoSonido;
+
+	UPROPERTY(EditAnywhere)
+	USoundCue* ImpactoSonido;
 };

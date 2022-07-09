@@ -4,6 +4,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "Sound/SoundCue.h"
 
 void AArmaHitScan::Disparar(const FVector& Objetivo) {
     Super::Disparar(Objetivo);
@@ -34,6 +35,9 @@ void AArmaHitScan::Disparar(const FVector& Objetivo) {
                 if(ImpactoParticulas) {
                     UGameplayStatics::SpawnEmitterAtLocation(Mundo, ImpactoParticulas, ImpactoResultado.ImpactPoint, ImpactoResultado.ImpactNormal.Rotation());
                 }
+                if(ImpactoSonido) {
+                    UGameplayStatics::PlaySoundAtLocation(this, ImpactoSonido, ImpactoResultado.ImpactPoint);
+                }
             }
             if(HumoTrazaPS) {
                 UParticleSystemComponent* HumoTrazaPSC = UGameplayStatics::SpawnEmitterAtLocation(Mundo, HumoTrazaPS, PuntaArmaSocketTransform);
@@ -41,6 +45,12 @@ void AArmaHitScan::Disparar(const FVector& Objetivo) {
                     HumoTrazaPSC->SetVectorParameter(FName("Target"), HumoTrazaFinal);
                 }
             }
+        }
+        if(PuntaArmaFlash) {
+            UGameplayStatics::SpawnEmitterAtLocation(Mundo, PuntaArmaFlash, PuntaArmaSocketTransform);
+        }
+        if(DisparoSonido) {
+            UGameplayStatics::PlaySoundAtLocation(this, DisparoSonido, GetActorLocation());
         }
     }
 }
