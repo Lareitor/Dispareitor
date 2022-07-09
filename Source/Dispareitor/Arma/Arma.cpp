@@ -81,6 +81,11 @@ void AArma::ActualizarEstado(EEstado EstadoAActualizar) {
 			Malla->SetSimulatePhysics(false);
 			Malla->SetEnableGravity(false);
 			Malla->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			if(TipoArma == ETipoArma::ETA_Subfusil) { //Para permitir las fisicas en la correa
+				Malla->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+				Malla->SetEnableGravity(true);
+				Malla->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+			}
 		break;
 		case EEstado::EEA_Desequipada:
 			if(HasAuthority()) {
@@ -89,6 +94,9 @@ void AArma::ActualizarEstado(EEstado EstadoAActualizar) {
 			Malla->SetSimulatePhysics(true);
 			Malla->SetEnableGravity(true);
 			Malla->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+			Malla->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
+			Malla->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+			Malla->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 		break;
 	}	
 }
@@ -99,12 +107,20 @@ void AArma::AlReplicarEstado() {
 			MostrarLeyendaSobreArma(false);	
 			Malla->SetSimulatePhysics(false);
 			Malla->SetEnableGravity(false);
-			Malla->SetCollisionEnabled(ECollisionEnabled::NoCollision);		
+			Malla->SetCollisionEnabled(ECollisionEnabled::NoCollision);	
+			if(TipoArma == ETipoArma::ETA_Subfusil) { //Para permitir las fisicas en la correa
+				Malla->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+				Malla->SetEnableGravity(true);
+				Malla->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+			}	
 		break;
 		case EEstado::EEA_Desequipada:
 			Malla->SetSimulatePhysics(true);
 			Malla->SetEnableGravity(true);
 			Malla->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+			Malla->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
+			Malla->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+			Malla->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 		break;
 	}
 }
