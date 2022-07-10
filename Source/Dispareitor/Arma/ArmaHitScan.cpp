@@ -3,8 +3,11 @@
 #include "Dispareitor/Personaje/DispareitorPersonaje.h"
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystemComponent.h"
-#include "Particles/ParticleSystemComponent.h"
 #include "Sound/SoundCue.h"
+#include "DrawDebugHelpers.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Dispareitor/Tipos/TiposArma.h"
+
 
 void AArmaHitScan::Disparar(const FVector& Objetivo) {
     Super::Disparar(Objetivo);
@@ -53,6 +56,22 @@ void AArmaHitScan::Disparar(const FVector& Objetivo) {
             UGameplayStatics::PlaySoundAtLocation(this, DisparoSonido, GetActorLocation());
         }
     }
+}
+
+FVector AArmaHitScan::PuntoFinalConDispersionCalcular(const FVector& PuntoInicial, const FVector& Objetivo) {
+    FVector AObjetivoNormalizado = (Objetivo - PuntoInicial).GetSafeNormal();    
+    FVector EsferaCentro = PuntoInicial + AObjetivoNormalizado * EsferaDistancia;
+    FVector VectorAleatorio = UKismetMathLibrary::RandomUnitVector() * FMath::FRandRange(0.f, EsferaRadio);
+    FVector LocalizacionFinal = EsferaCentro + VectorAleatorio;
+    FVector ALocalizacionFinal = LocalizacionFinal - PuntoInicial;
+
+    DrawDebugSphere(GetWorld(), EsferaCentro, EsferaRadio, 12, FColor::Red, true);
+    DrawDebugSphere(GetWorld(), LocalizacionFinal, 4.f, 12, FColor::Orange, true);
+    DrawDebugLine(GetWorld(), PuntoInicial, PuntoInicial + ALocalizacionFinal * RAYO_LONGITUD / ALocalizacionFinal.Size(), FColor::Cyan, true);
+
+
+
+    return FVector(PuntoInicial + ALocalizacionFinal * RAYO_LONGITUD / ALocalizacionFinal.Size()); // Lo dividimos para no producir un overflow
 }
 
 

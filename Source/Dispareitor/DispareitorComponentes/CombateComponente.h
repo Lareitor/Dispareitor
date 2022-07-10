@@ -7,8 +7,6 @@
 #include "Dispareitor/Tipos/EstadosCombate.h"
 #include "CombateComponente.generated.h"
 
-#define RAYO_LONGITUD 80000.f;
-
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class DISPAREITOR_API UCombateComponente : public UActorComponent {
 	GENERATED_BODY()
@@ -131,6 +129,9 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	int32 MunicionPersonajeInicialSubfusil = 0;
+	
+	UPROPERTY(EditAnywhere)
+	int32 MunicionPersonajeInicialEscopeta = 0;
 
 	void MunicionPersonajeInicializar();
 

@@ -169,6 +169,7 @@ void UCombateComponente::MunicionPersonajeInicializar() {
 	MunicionPersonajeMapa.Emplace(ETipoArma::ETA_LanzaCohetes, MunicionPersonajeInicialLanzaCohetes);
 	MunicionPersonajeMapa.Emplace(ETipoArma::ETA_Pistola, MunicionPersonajeInicialPistola);
 	MunicionPersonajeMapa.Emplace(ETipoArma::ETA_Subfusil, MunicionPersonajeInicialSubfusil);
+	MunicionPersonajeMapa.Emplace(ETipoArma::ETA_Escopeta, MunicionPersonajeInicialEscopeta);
 }
 
 // Llamado por ADispareitorPersonaje::Equipar 

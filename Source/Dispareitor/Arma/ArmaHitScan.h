@@ -10,6 +10,9 @@ class DISPAREITOR_API AArmaHitScan : public AArma {
 
 public:
 	virtual void Disparar(const FVector& Objetivo) override;
+
+protected:
+	FVector PuntoFinalConDispersionCalcular(const FVector& PuntoInicial, const FVector& Objetivo);	
 	
 private:
 	UPROPERTY(EditAnywhere)
@@ -29,4 +32,13 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	USoundCue* ImpactoSonido;
+
+	UPROPERTY(EditAnywhere, Category = "Dispersion")
+	float EsferaDistancia = 800.f;
+
+	UPROPERTY(EditAnywhere, Category = "Dispersion")
+	float EsferaRadio = 75.f;
+
+	UPROPERTY(EditAnywhere, Category = "Dispersion")
+	bool bDispersionUsar = false;
 };
