@@ -22,40 +22,47 @@ void AArmaHitScan::Disparar(const FVector& Objetivo) {
     if(PuntaArmaSocket) {
         FTransform PuntaArmaSocketTransform = PuntaArmaSocket->GetSocketTransform(ObtenerMalla());
         FVector Inicio = PuntaArmaSocketTransform.GetLocation();
-        FVector Fin = Inicio + (Objetivo - Inicio) * 1.25f; // Lo incrementamos un poco para pasar el objetivo y garantizar un hit
-    
-        FHitResult ImpactoResultado;
-        UWorld* Mundo = GetWorld();
-        if(Mundo) {
-            Mundo->LineTraceSingleByChannel(ImpactoResultado, Inicio, Fin, ECollisionChannel::ECC_Visibility);
-            FVector HumoTrazaFinal = Fin;
-            if(ImpactoResultado.bBlockingHit) {
-                HumoTrazaFinal = ImpactoResultado.ImpactPoint;
-                ADispareitorPersonaje* DispareitorPersonajeImpactado = Cast<ADispareitorPersonaje>(ImpactoResultado.GetActor());
-                if(DispareitorPersonajeImpactado && HasAuthority() && InstigadorControlador) {
-                    UGameplayStatics::ApplyDamage(DispareitorPersonajeImpactado, Danio, InstigadorControlador, this, UDamageType::StaticClass());
-                }
-                if(ImpactoParticulas) {
-                    UGameplayStatics::SpawnEmitterAtLocation(Mundo, ImpactoParticulas, ImpactoResultado.ImpactPoint, ImpactoResultado.ImpactNormal.Rotation());
-                }
-                if(ImpactoSonido) {
-                    UGameplayStatics::PlaySoundAtLocation(this, ImpactoSonido, ImpactoResultado.ImpactPoint);
-                }
-            }
-            if(HumoTrazaPS) {
-                UParticleSystemComponent* HumoTrazaPSC = UGameplayStatics::SpawnEmitterAtLocation(Mundo, HumoTrazaPS, PuntaArmaSocketTransform);
-                if(HumoTrazaPSC) {
-                    HumoTrazaPSC->SetVectorParameter(FName("Target"), HumoTrazaFinal);
-                }
-            }
+        FHitResult ImpactoResultado = ImpactoCalcular(Inicio, Objetivo);
+
+        ADispareitorPersonaje* DispareitorPersonajeImpactado = Cast<ADispareitorPersonaje>(ImpactoResultado.GetActor());
+        if(DispareitorPersonajeImpactado && HasAuthority() && InstigadorControlador) {
+            UGameplayStatics::ApplyDamage(DispareitorPersonajeImpactado, Danio, InstigadorControlador, this, UDamageType::StaticClass());
+        }
+        if(ImpactoParticulas) {
+            UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactoParticulas, ImpactoResultado.ImpactPoint, ImpactoResultado.ImpactNormal.Rotation());
+        }
+        if(ImpactoSonido) {
+            UGameplayStatics::PlaySoundAtLocation(this, ImpactoSonido, ImpactoResultado.ImpactPoint);
         }
         if(PuntaArmaFlash) {
-            UGameplayStatics::SpawnEmitterAtLocation(Mundo, PuntaArmaFlash, PuntaArmaSocketTransform);
+            UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), PuntaArmaFlash, PuntaArmaSocketTransform);
         }
         if(DisparoSonido) {
             UGameplayStatics::PlaySoundAtLocation(this, DisparoSonido, GetActorLocation());
         }
     }
+}
+
+FHitResult AArmaHitScan::ImpactoCalcular(const FVector& Inicio, const FVector& Objetivo) {
+    FHitResult ImpactoResultado;
+    UWorld* Mundo = GetWorld();
+    if(Mundo) {
+        // Lo incrementamos un poco para pasar el objetivo y garantizar un hit
+        FVector Fin = bDispersionUsar ? PuntoFinalConDispersionCalcular(Inicio, Objetivo) : Inicio + (Objetivo - Inicio) * 1.25f;
+        Mundo->LineTraceSingleByChannel(ImpactoResultado, Inicio, Fin, ECollisionChannel::ECC_Visibility);
+        FVector HumoTrazaFinal = Fin; 
+        if(ImpactoResultado.bBlockingHit) {
+             HumoTrazaFinal = ImpactoResultado.ImpactPoint;
+        }
+        if(HumoTrazaPS) {
+            UParticleSystemComponent* HumoTrazaPSC = UGameplayStatics::SpawnEmitterAtLocation(Mundo, HumoTrazaPS, Inicio, FRotator::ZeroRotator, true);
+            if(HumoTrazaPSC) {
+                HumoTrazaPSC->SetVectorParameter(FName("Target"), HumoTrazaFinal);
+            }
+        }
+    }
+
+    return ImpactoResultado;
 }
 
 FVector AArmaHitScan::PuntoFinalConDispersionCalcular(const FVector& PuntoInicial, const FVector& Objetivo) {
@@ -65,12 +72,10 @@ FVector AArmaHitScan::PuntoFinalConDispersionCalcular(const FVector& PuntoInicia
     FVector LocalizacionFinal = EsferaCentro + VectorAleatorio;
     FVector ALocalizacionFinal = LocalizacionFinal - PuntoInicial;
 
-    DrawDebugSphere(GetWorld(), EsferaCentro, EsferaRadio, 12, FColor::Red, true);
+    /*DrawDebugSphere(GetWorld(), EsferaCentro, EsferaRadio, 12, FColor::Red, true);
     DrawDebugSphere(GetWorld(), LocalizacionFinal, 4.f, 12, FColor::Orange, true);
     DrawDebugLine(GetWorld(), PuntoInicial, PuntoInicial + ALocalizacionFinal * RAYO_LONGITUD / ALocalizacionFinal.Size(), FColor::Cyan, true);
-
-
-
+*/
     return FVector(PuntoInicial + ALocalizacionFinal * RAYO_LONGITUD / ALocalizacionFinal.Size()); // Lo dividimos para no producir un overflow
 }
 

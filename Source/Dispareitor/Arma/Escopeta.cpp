@@ -17,8 +17,31 @@ void AEscopeta::Disparar(const FVector& Objetivo) {
     if(PuntaArmaSocket) {
         FTransform PuntaArmaSocketTransform = PuntaArmaSocket->GetSocketTransform(ObtenerMalla());
         FVector Inicio = PuntaArmaSocketTransform.GetLocation();
+        TMap<ADispareitorPersonaje*, uint32> DispareitorPersonajesImpactadosMapa;
+
         for(uint32 i = 0; i < PerdigonesNumero; i++) {
-            FVector Fin = PuntoFinalConDispersionCalcular(Inicio, Objetivo);
+            FHitResult ImpactoResultado = ImpactoCalcular(Inicio, Objetivo);
+
+             ADispareitorPersonaje* DispareitorPersonajeImpactado = Cast<ADispareitorPersonaje>(ImpactoResultado.GetActor());
+            if(DispareitorPersonajeImpactado && HasAuthority() && InstigadorControlador) {
+                if(DispareitorPersonajesImpactadosMapa.Contains(DispareitorPersonajeImpactado)) {
+                    DispareitorPersonajesImpactadosMapa[DispareitorPersonajeImpactado]++;
+                } else {
+                    DispareitorPersonajesImpactadosMapa.Emplace(DispareitorPersonajeImpactado, 1);
+                }
+            }
+            if(ImpactoParticulas) {
+                UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactoParticulas, ImpactoResultado.ImpactPoint, ImpactoResultado.ImpactNormal.Rotation());
+            }
+            if(ImpactoSonido) {
+                UGameplayStatics::PlaySoundAtLocation(this, ImpactoSonido, ImpactoResultado.ImpactPoint, .5f, FMath::FRandRange(-.5f, .5f));
+            }
+        }
+
+        for(auto ElementoMapa : DispareitorPersonajesImpactadosMapa) {
+            if(ElementoMapa.Key && HasAuthority() && InstigadorControlador) {
+                UGameplayStatics::ApplyDamage(ElementoMapa.Key, Danio * ElementoMapa.Value, InstigadorControlador, this, UDamageType::StaticClass());
+            }
         }
     }
 }
