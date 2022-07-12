@@ -133,6 +133,9 @@ private:
 	UPROPERTY(EditAnywhere)
 	int32 MunicionPersonajeInicialEscopeta = 0;
 
+	UPROPERTY(EditAnywhere)
+	int32 MunicionPersonajeInicialFrancotirador = 0;
+
 	void MunicionPersonajeInicializar();
 
 	UPROPERTY(ReplicatedUsing = EstadoCombateAlReplicar)

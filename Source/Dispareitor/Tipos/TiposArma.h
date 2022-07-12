@@ -9,5 +9,6 @@ enum class ETipoArma : uint8 {
     ETA_Pistola UMETA(DisplayName = "Pistola"),
     ETA_Subfusil UMETA(DisplayName = "Subfusil"),
     ETA_Escopeta UMETA(DisplayName = "Escopeta"),
+    ETA_Francotirador UMETA(DisplayName = "Francotirador"),
     ETA_Maximo UMETA(DisplayName = "Maximo")
 };
