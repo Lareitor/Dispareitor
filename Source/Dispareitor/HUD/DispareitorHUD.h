@@ -41,6 +41,14 @@ public:
 
 	void AnadirAnunciosWidget();
 
+	UPROPERTY(EditAnywhere, Category = Francotirador)
+	TSubclassOf<class UUserWidget> FrancotiradorCrucetaClase;
+
+	UPROPERTY()
+	class UFrancotiradorCruceta* FrancotiradorCruceta;
+
+	void FrancotiradorCrucetaAnadir();
+
 protected:
 	virtual void BeginPlay() override;
 	

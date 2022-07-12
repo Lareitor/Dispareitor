@@ -16,6 +16,7 @@ public:
 	void HUDPersonajeMunicionActualizar(int32 PersonajeMunicion);
 	void HUDPartidaTiempoActualizar(float CuentaAtrasTiempo);
 	void HUDAnunciosTiempoActualizar(float CuentaAtrasTiempo);
+	void HUDFrancotiradorCrucetaActualizar(bool bEstaApuntando);
 	virtual void OnPossess(APawn* Peon) override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;

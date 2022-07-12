@@ -54,6 +54,12 @@ protected:
 
 	int32 RecargarCantidad();
 
+	UPROPERTY(EditAnywhere)
+	class USoundCue* FrancotiradorCrucetaZoomIn;
+
+	UPROPERTY(EditAnywhere)
+	USoundCue* FrancotiradorCrucetaZoomOut;
+
 private:
 	UPROPERTY()
 	class ADispareitorPersonaje* DispareitorPersonaje;

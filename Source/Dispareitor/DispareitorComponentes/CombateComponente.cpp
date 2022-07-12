@@ -318,6 +318,10 @@ void UCombateComponente::EstadoCombateAlReplicar() {
 
 // Llamado por DispareitorPersonaje cuando se pulsa o libera el boton de apuntar
 void UCombateComponente::ActualizarApuntando(bool Apuntando) {
+	if(DispareitorPersonaje == nullptr || ArmaEquipada == nullptr) {
+		return;
+	}
+
 	// Aunque esta funcion es posible que la llamemos desde el cliente, por cuestiones cosmeticas podemos hacerlo ahora
 	bApuntando = Apuntando; 
 	// Si lo estamos ejecutando en un cliente se invocará esta función en el servidor, y si lo estamos ejecutando en el servidor se ejecutará en él mismo
@@ -325,6 +329,18 @@ void UCombateComponente::ActualizarApuntando(bool Apuntando) {
 
 	if(DispareitorPersonaje) {
 		DispareitorPersonaje->GetCharacterMovement()->MaxWalkSpeed = bApuntando ? VelocidadCaminarApuntando : VelocidadCaminarBase;
+
+		if (DispareitorPersonaje->IsLocallyControlled() && ArmaEquipada->TipoArmaObtener() == ETipoArma::ETA_Francotirador) {
+			DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador :  Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller);
+			if (DispareitorControladorJugador) {
+				DispareitorControladorJugador->HUDFrancotiradorCrucetaActualizar(Apuntando);
+				if (Apuntando && FrancotiradorCrucetaZoomIn) {
+					UGameplayStatics::PlaySound2D(this, FrancotiradorCrucetaZoomIn);
+				} else if(FrancotiradorCrucetaZoomOut) {
+					UGameplayStatics::PlaySound2D(this, FrancotiradorCrucetaZoomOut);
+				}
+			}
+		}
 	}
 }
 

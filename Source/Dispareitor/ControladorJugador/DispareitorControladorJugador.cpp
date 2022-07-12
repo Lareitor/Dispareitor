@@ -2,6 +2,7 @@
 #include "Dispareitor/HUD/DispareitorHUD.h"
 #include "Dispareitor/HUD/PantallaDelPersonaje.h"
 #include "Dispareitor/HUD/AnunciosWidget.h"
+#include "Dispareitor/HUD/FrancotiradorCruceta.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 #include "Dispareitor/Personaje/DispareitorPersonaje.h"
@@ -148,6 +149,23 @@ void ADispareitorControladorJugador::HUDAnunciosTiempoActualizar(float CuentaAtr
         }
     }
 }
+
+void ADispareitorControladorJugador::HUDFrancotiradorCrucetaActualizar(bool bEstaApuntando) {
+    DispareitorHUD = DispareitorHUD != nullptr ? DispareitorHUD : Cast<ADispareitorHUD>(GetHUD());
+ 
+	if (!DispareitorHUD->FrancotiradorCruceta) {
+		DispareitorHUD->FrancotiradorCrucetaAnadir();
+	}
+ 
+	if(DispareitorHUD && DispareitorHUD->FrancotiradorCruceta && DispareitorHUD->FrancotiradorCruceta->AnimacionZoomIn) {
+		if (bEstaApuntando) {
+			DispareitorHUD->FrancotiradorCruceta->PlayAnimation(DispareitorHUD->FrancotiradorCruceta->AnimacionZoomIn);
+		} else {
+			DispareitorHUD->FrancotiradorCruceta->PlayAnimation(DispareitorHUD->FrancotiradorCruceta->AnimacionZoomIn, 0.f, 1, EUMGSequencePlayMode::Reverse);
+		}
+	}
+}
+
 
 void ADispareitorControladorJugador::HUDTiempoActivar() {
     float TiempoRestante = 0.f;

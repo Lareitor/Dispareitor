@@ -2,6 +2,7 @@
 #include "GameFramework/PlayerController.h"
 #include "PantallaDelPersonaje.h"
 #include "AnunciosWidget.h"
+#include "FrancotiradorCruceta.h"
 
 void ADispareitorHUD::BeginPlay() {
     Super::BeginPlay();
@@ -25,6 +26,14 @@ void ADispareitorHUD::AnadirAnunciosWidget() {
     }
 }
 
+void ADispareitorHUD::FrancotiradorCrucetaAnadir() {
+    APlayerController* ControladorDeJugador = GetOwningPlayerController();
+
+    if(ControladorDeJugador && FrancotiradorCrucetaClase) {
+        FrancotiradorCruceta = CreateWidget<UFrancotiradorCruceta>(ControladorDeJugador, FrancotiradorCrucetaClase);
+        FrancotiradorCruceta->AddToViewport();
+    }
+}
 
 // Llamado cada frame
 void ADispareitorHUD::DrawHUD() {
