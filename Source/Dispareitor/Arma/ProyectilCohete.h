@@ -15,13 +15,6 @@ public:
 protected:
 	virtual void CallbackAlImpactar(UPrimitiveComponent* ComponenteImpactante, AActor* ActorImpactado, UPrimitiveComponent* ComponenteImpactado, FVector ImpulsoNormal, const FHitResult& ImpactoResultado) override;
 	virtual void BeginPlay() override;
-	void DestruirTemporizadorFinalizado();
-
-	UPROPERTY(EditAnywhere)
-	class UNiagaraSystem* HumoTraza;
-
-	UPROPERTY()
-	class UNiagaraComponent* HumoTrazaComponente; 
 
 	UPROPERTY(EditAnywhere)
 	USoundCue* SonidoMientraVuela;
@@ -34,13 +27,4 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 	class UCoheteMovimientoComponente* CoheteMovimientoComponente;
-
-private:
-	UPROPERTY(VisibleAnywhere)
-	UStaticMeshComponent* Malla;
-
-	FTimerHandle DestruirTemporizador;
-
-	UPROPERTY(EditAnywhere)
-	float DestruirTiempo = 3.f;
 };

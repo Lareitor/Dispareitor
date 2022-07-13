@@ -1,6 +1,8 @@
 #include "Proyectil.h"
 #include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Particles/ParticleSystem.h"
 #include "Sound/SoundCue.h"
@@ -55,5 +57,32 @@ void AProyectil::Destroyed() {
 		UGameplayStatics::PlaySoundAtLocation(this, ImpactoSonido, GetActorLocation());
 	}
 }
+
+void AProyectil::HumoTrazaCrear() {
+	if(HumoTraza) {
+        HumoTrazaComponente = UNiagaraFunctionLibrary::SpawnSystemAttached(HumoTraza, GetRootComponent(), FName(), GetActorLocation(), GetActorRotation(), EAttachLocation::KeepWorldPosition, false);
+    }
+}
+
+
+void AProyectil::IniciarTemporizadorDeFin() {
+	GetWorldTimerManager().SetTimer(DestruirTemporizador, this, &AProyectil::DestruirTemporizadorDeFin, DestruirTiempo);
+}
+
+void AProyectil::DestruirTemporizadorDeFin() {
+    ExplosionDanioAplicar();
+    Destroy();
+}
+
+void AProyectil::ExplosionDanioAplicar() {  
+    APawn* PeonQueDispara = GetInstigator();  
+    if(PeonQueDispara && HasAuthority()) {
+        AController* ControladorDeQuienDispara = PeonQueDispara->GetController();
+        if(ControladorDeQuienDispara) {
+            UGameplayStatics::ApplyRadialDamageWithFalloff(this, Dano, 10.f, GetActorLocation(), DanioRadioInterno, DanioRadioExterno, 1.f, UDamageType::StaticClass(), TArray<AActor*>(), this, ControladorDeQuienDispara);
+        }
+    }
+}
+
 
 

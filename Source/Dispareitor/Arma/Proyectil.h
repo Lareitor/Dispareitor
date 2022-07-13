@@ -15,6 +15,10 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	void DestruirTemporizadorDeFin();
+	void IniciarTemporizadorDeFin();
+	void HumoTrazaCrear();
+	void ExplosionDanioAplicar();
 	
 	UFUNCTION()
 	virtual void CallbackAlImpactar(UPrimitiveComponent* ComponenteImpactante, AActor* ActorImpactado, UPrimitiveComponent* ComponenteImpactado, FVector ImpulsoNormal, const FHitResult& ImpactoResultado);
@@ -34,12 +38,32 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	class UProjectileMovementComponent* ProyectilMovimientoComponente;
 
+	UPROPERTY(EditAnywhere)
+	class UNiagaraSystem* HumoTraza;
+
+	UPROPERTY()
+	class UNiagaraComponent* HumoTrazaComponente; 
+
+	UPROPERTY(VisibleAnywhere)
+	UStaticMeshComponent* Malla;
+
+	UPROPERTY(EditAnywhere)
+	float DanioRadioInterno = 200.f;
+	
+	UPROPERTY(EditAnywhere)
+	float DanioRadioExterno = 500.f;
+
 private:
 	UPROPERTY(EditAnywhere)
 	UParticleSystem* Traza;
 
 	UPROPERTY()
 	class UParticleSystemComponent* TrazaComponente;
+
+	FTimerHandle DestruirTemporizador;
+
+	UPROPERTY(EditAnywhere)
+	float DestruirTiempo = 3.f;
 
 public:	
 	
