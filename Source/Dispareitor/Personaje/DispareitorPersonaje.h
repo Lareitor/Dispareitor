@@ -8,6 +8,7 @@
 #include "Dispareitor/Tipos/EstadosCombate.h"
 #include "DispareitorPersonaje.generated.h"
 
+// TODO Hacer que el cohete se elimine pasados 10 sg ya que si lo tiras contra el cielo dura forever
 // Si la cruceta no se pone roja al pasar sobre un enemigo, activar manualmente el check Trace Responses a Block en la malla del personaje
 // Si los disparos no son precisos a la malla comprobar que en la malla el tipo de canal es MallaDelEsqueleto
 UCLASS()
