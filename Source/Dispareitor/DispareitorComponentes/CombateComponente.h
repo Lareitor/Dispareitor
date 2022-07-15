@@ -23,8 +23,13 @@ public:
 
 	UFUNCTION(BluePrintCallable)
 	void RecargarFinalizado();
+
+	UFUNCTION(BluePrintCallable)
+	void RecargarCartuchoEscopeta();
 	
 	void DispararPresionado(bool bPresionado);
+
+	void EscopetaFinAnimacionSaltar();
 
 protected:	
 	virtual void BeginPlay() override;
@@ -154,6 +159,8 @@ private:
 	void EstadoCombateAlReplicar();
 
 	void MunicionActualizarValores();
+
+	void MunicionEscopetaActualizarValores();
 
 	void EquiparSonido();
 

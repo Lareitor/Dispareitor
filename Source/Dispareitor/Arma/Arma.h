@@ -117,6 +117,7 @@ public:
 	FORCEINLINE float ObtenerZoomFOV() const { return ZoomFOV; }
 	FORCEINLINE float ObtenerVelocidadInterpolacion() const { return ZoomVelocidadInterpolacion; }
 	bool EstaSinMunicion();
+	bool EstaConMunicionLlena();
 	FORCEINLINE ETipoArma TipoArmaObtener() const { return TipoArma; } 
 	FORCEINLINE int32 MunicionObtener() const { return Municion; }
 	FORCEINLINE int32 CargadorCapacidadObtener() const { return CargadorCapacidad; }

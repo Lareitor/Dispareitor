@@ -8,6 +8,7 @@
 #include "Casquillo.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Dispareitor/ControladorJugador/DispareitorControladorJugador.h"
+#include "Dispareitor/DispareitorComponentes/CombateComponente.h"
 
 AArma::AArma() {
 	PrimaryActorTick.bCanEverTick = false;
@@ -167,6 +168,11 @@ void AArma::GastarMunicion() {
 }
 
 void AArma::AlReplicarMunicion() {
+	DispareitorPersonaje = DispareitorPersonaje != nullptr ? DispareitorPersonaje : Cast<ADispareitorPersonaje>(GetOwner());
+	if(DispareitorPersonaje && DispareitorPersonaje->CombateComponenteObtener() && EstaConMunicionLlena()) {
+		DispareitorPersonaje->CombateComponenteObtener()->EscopetaFinAnimacionSaltar();
+	}
+
 	ActualizarHUDMunicion();
 }
 
@@ -192,6 +198,10 @@ void AArma::ActualizarHUDMunicion() {
 
 bool AArma::EstaSinMunicion() {
 	return Municion <= 0;
+}
+
+bool AArma::EstaConMunicionLlena() {
+	return Municion == CargadorCapacidad;
 }
 
 // Llamado por UCombateComponente::MunicionActualizarValores

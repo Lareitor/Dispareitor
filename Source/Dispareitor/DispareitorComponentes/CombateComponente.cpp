@@ -10,6 +10,7 @@
 #include "Camera/CameraComponent.h"
 #include "TimerManager.h"
 #include "Sound/SoundCue.h"
+#include "Dispareitor/Personaje/DispareitorInstanciaAnimacion.h"
 
 UCombateComponente::UCombateComponente() {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -267,6 +268,13 @@ void UCombateComponente::RecargarFinalizado() {
 	}
 }
 
+// Llamado por BP_DispareitorInstanciaAnimacion al ejecutar una notificacion en Montaje_Recargar al insertar un cartucho en la escopeta
+void UCombateComponente::RecargarCartuchoEscopeta() {
+	if(DispareitorPersonaje && DispareitorPersonaje->HasAuthority()) {
+		MunicionEscopetaActualizarValores();
+	}
+}
+
 void UCombateComponente::MunicionActualizarValores() {
 	if(DispareitorPersonaje == nullptr || ArmaEquipada == nullptr || !MunicionPersonajeMapa.Contains(ArmaEquipada->TipoArmaObtener())) {
 		return;
@@ -283,11 +291,39 @@ void UCombateComponente::MunicionActualizarValores() {
 	}
 }
 
+void UCombateComponente::MunicionEscopetaActualizarValores() {
+	if(DispareitorPersonaje == nullptr || ArmaEquipada == nullptr || !MunicionPersonajeMapa.Contains(ArmaEquipada->TipoArmaObtener())) {
+		return;
+	}
+
+	MunicionPersonajeMapa[ArmaEquipada->TipoArmaObtener()] -= 1;
+	MunicionPersonaje = MunicionPersonajeMapa[ArmaEquipada->TipoArmaObtener()];
+	DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller);
+	if(DispareitorControladorJugador) {
+		DispareitorControladorJugador->HUDPersonajeMunicionActualizar(MunicionPersonaje);
+	}
+	ArmaEquipada->MunicionAniadir(1);
+	bPuedoDisparar = true;
+	if(ArmaEquipada->EstaConMunicionLlena() || MunicionPersonaje == 0) {
+		EscopetaFinAnimacionSaltar();
+	}
+}
+
+void UCombateComponente::EscopetaFinAnimacionSaltar() {
+	UAnimInstance* InstanciaAnimacion = DispareitorPersonaje->GetMesh()->GetAnimInstance();
+	if(InstanciaAnimacion && DispareitorPersonaje->MontajeRecargarObtener()) {
+		InstanciaAnimacion->Montage_JumpToSection("EscopetaFin");
+	}
+}
 
 void UCombateComponente::MunicionPersonajeAlReplicar() {
 	DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller);
 	if(DispareitorControladorJugador) {
 		DispareitorControladorJugador->HUDPersonajeMunicionActualizar(MunicionPersonaje);
+	}
+
+	if(EstadoCombate == EEstadosCombate::EEC_Recargando && ArmaEquipada != nullptr && ArmaEquipada->TipoArmaObtener() == ETipoArma::ETA_Escopeta && MunicionPersonaje == 0) {
+		EscopetaFinAnimacionSaltar();
 	}
 }
 
@@ -384,10 +420,16 @@ void UCombateComponente::ServidorDisparar_Implementation(const FVector_NetQuanti
 
 // Esta función se ejecutará en el servidor + clientes
 void UCombateComponente::MulticastDisparar_Implementation(const FVector_NetQuantize& Objetivo) {
-	if(DispareitorPersonaje && ArmaEquipada && EstadoCombate == EEstadosCombate::EEC_Desocupado) {
-		DispareitorPersonaje->EjecutarMontajeDispararArma(bApuntando);
-		ArmaEquipada->Disparar(Objetivo);
-	}
+	if(DispareitorPersonaje && ArmaEquipada) {
+		if(EstadoCombate == EEstadosCombate::EEC_Desocupado) {
+			DispareitorPersonaje->EjecutarMontajeDispararArma(bApuntando);
+			ArmaEquipada->Disparar(Objetivo);
+		} else if(EstadoCombate == EEstadosCombate::EEC_Recargando && ArmaEquipada->TipoArmaObtener() == ETipoArma::ETA_Escopeta) {
+			DispareitorPersonaje->EjecutarMontajeDispararArma(bApuntando);
+			ArmaEquipada->Disparar(Objetivo);
+			EstadoCombate = EEstadosCombate::EEC_Desocupado;
+		}
+	} 
 }
 
 void UCombateComponente::EmpezarDisparoTemporizador() {
@@ -410,7 +452,8 @@ void UCombateComponente::TerminadoDisparoTemporizador() {
 }
 
 bool UCombateComponente::PuedoDisparar() {
-	return ArmaEquipada != nullptr && !ArmaEquipada->EstaSinMunicion() && bPuedoDisparar && EstadoCombate == EEstadosCombate::EEC_Desocupado;
+	return ArmaEquipada != nullptr && !ArmaEquipada->EstaSinMunicion() && bPuedoDisparar && 
+			(EstadoCombate == EEstadosCombate::EEC_Desocupado || (EstadoCombate == EEstadosCombate::EEC_Recargando && ArmaEquipada->TipoArmaObtener() == ETipoArma::ETA_Escopeta));
 }
 
 bool UCombateComponente::ArmaSinMunicionPeroPuedoRecargar() {

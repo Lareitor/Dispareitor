@@ -210,4 +210,5 @@ public:
 	EEstadosCombate EstadoCombateObtener() const;
 	FORCEINLINE UCombateComponente* CombateComponenteObtener() const { return CombateComponente; }
 	FORCEINLINE bool bSoloGirarCamaraObtener() const { return bSoloGirarCamara; }
+	FORCEINLINE UAnimMontage* MontajeRecargarObtener() const { return MontajeRecargar; } 
 };
