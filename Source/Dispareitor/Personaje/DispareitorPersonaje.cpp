@@ -149,7 +149,7 @@ void ADispareitorPersonaje::SetupPlayerInputComponent(UInputComponent* PlayerInp
 	PlayerInputComponent->BindAction("Disparar", IE_Pressed, this, &ADispareitorPersonaje::DispararPulsado);
 	PlayerInputComponent->BindAction("Disparar", IE_Released, this, &ADispareitorPersonaje::DispararLiberado);
 	PlayerInputComponent->BindAction("Recargar", IE_Pressed, this, &ADispareitorPersonaje::Recargar);
-
+	PlayerInputComponent->BindAction("GranadaArrojar", IE_Pressed, this, &ADispareitorPersonaje::GranadaArrojar);
 
 	PlayerInputComponent->BindAxis("MoverAdelanteAtras", this, &ADispareitorPersonaje::MoverAdelanteAtras);
 	PlayerInputComponent->BindAxis("MoverIzquierdaDerecha", this, &ADispareitorPersonaje::MoverIzquierdaDerecha);
@@ -257,6 +257,12 @@ void ADispareitorPersonaje::DispararLiberado() {
 
 	if(CombateComponente) {
 		CombateComponente->DispararPresionado(false);
+	}
+}
+
+void ADispareitorPersonaje::GranadaArrojar() {
+	if(CombateComponente) {
+		CombateComponente->GranadaArrojar();
 	}
 }
 
@@ -499,6 +505,14 @@ void ADispareitorPersonaje::EjecutarMontajeEliminacion() {
 		InstanciaAnimacion->Montage_Play(MontajeEliminacion);
 	}
 }
+
+void ADispareitorPersonaje::GranadaArrojarMontajeEjecutar() {
+	UAnimInstance* InstanciaAnimacion = GetMesh()->GetAnimInstance();
+	if(InstanciaAnimacion && GranadaArrojarMontaje) {
+		InstanciaAnimacion->Montage_Play(GranadaArrojarMontaje);
+	}
+}
+
 
 FVector ADispareitorPersonaje::ObtenerObjetoAlcanzado() const {
 	return (CombateComponente == nullptr || CombateComponente->ArmaEquipada == nullptr) ? FVector() : CombateComponente->ObjetoAlcanzado;	

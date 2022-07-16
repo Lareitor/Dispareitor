@@ -24,6 +24,8 @@ public:
 	void EjecutarMontajeDispararArma(bool bApuntando);
 	void EjecutarMontajeRecargar();
 	void EjecutarMontajeEliminacion();
+	void GranadaArrojarMontajeEjecutar();
+	
 	virtual void OnRep_ReplicatedMovement() override;
 	void Eliminado();
 
@@ -55,6 +57,7 @@ protected:
 	void CalcularInclinacion();
 	void ProxiesSimuladosGiro();
 	void EjecutarMontajeReaccionAImpacto();
+	void GranadaArrojar();
 	
 	UFUNCTION()
 	void RecibirDano(AActor* ActorDanado, float Dano, const UDamageType* TipoDano, class AController* ControladorInstigador, AActor* ActorCausante);
@@ -113,6 +116,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = Combate)
 	class UAnimMontage* MontajeEliminacion;
+
+	UPROPERTY(EditAnywhere, Category = Combate)
+	class UAnimMontage* GranadaArrojarMontaje;
 
 	void EsconderCamaraSiPersonajeCerca();
 

@@ -178,7 +178,7 @@ void UCombateComponente::MunicionPersonajeInicializar() {
 // Llamado por ADispareitorPersonaje::Equipar 
 // Solo ejecutado en el servidor
 void UCombateComponente::EquiparArma(class AArma* ArmaAEquipar) {
-	if(DispareitorPersonaje == nullptr || ArmaAEquipar == nullptr) {
+	if(DispareitorPersonaje == nullptr || ArmaAEquipar == nullptr || EstadoCombate != EEstadosCombate::EEC_Desocupado) {
 		return;
 	}
 
@@ -235,7 +235,7 @@ void UCombateComponente::Recargar() {
 	}
 
 	// Si lo ejecutamos desde el cliente podemos chequear si tiene municion para evitar llamadas innecesarias al servidor
-	if(MunicionPersonaje > 0 && EstadoCombate != EEstadosCombate::EEC_Recargando) {
+	if(MunicionPersonaje > 0 && EstadoCombate == EEstadosCombate::EEC_Desocupado) {
 		RecargarServidor();
 	}
 }
@@ -348,6 +348,11 @@ void UCombateComponente::EstadoCombateAlReplicar() {
 		case EEstadosCombate::EEC_Desocupado:
 			if(bDispararPresionado) {
 				Disparar();
+			}
+			break;	
+		case EEstadosCombate::EEC_LanzandoGranada:
+			if(DispareitorPersonaje && !DispareitorPersonaje->IsLocallyControlled()) {
+				DispareitorPersonaje->GranadaArrojarMontajeEjecutar();
 			}
 			break;	
 	}
@@ -465,3 +470,30 @@ void UCombateComponente::EquiparSonido() {
 		UGameplayStatics::PlaySoundAtLocation(this, ArmaEquipada->EquiparSonido, DispareitorPersonaje->GetActorLocation());
 	}
 }
+
+void UCombateComponente::GranadaArrojar() {
+	if(EstadoCombate != EEstadosCombate::EEC_Desocupado) {
+		return;
+	}
+
+	EstadoCombate = EEstadosCombate::EEC_LanzandoGranada;
+	if(DispareitorPersonaje) {
+		DispareitorPersonaje->GranadaArrojarMontajeEjecutar();
+	}
+	if(DispareitorPersonaje && !DispareitorPersonaje->HasAuthority()) {
+		GranadaArrojarServidor();
+	}
+}
+
+void UCombateComponente::GranadaArrojarServidor_Implementation() {
+	EstadoCombate = EEstadosCombate::EEC_LanzandoGranada;
+	if(DispareitorPersonaje) {
+		DispareitorPersonaje->GranadaArrojarMontajeEjecutar();
+	}
+} 
+
+void UCombateComponente::GranadaArrojarFinalizado() {
+	EstadoCombate = EEstadosCombate::EEC_Desocupado;
+}
+
+

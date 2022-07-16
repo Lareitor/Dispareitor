@@ -31,6 +31,9 @@ public:
 
 	void EscopetaFinAnimacionSaltar();
 
+	UFUNCTION(BluePrintCallable)
+	void GranadaArrojarFinalizado();
+
 protected:	
 	virtual void BeginPlay() override;
 	void ActualizarApuntando(bool Apuntado);
@@ -64,6 +67,11 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	USoundCue* FrancotiradorCrucetaZoomOut;
+
+	void GranadaArrojar();
+
+	UFUNCTION(Server, Reliable)
+	void GranadaArrojarServidor();
 
 private:
 	UPROPERTY()
