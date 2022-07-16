@@ -21,6 +21,10 @@ AArma::AArma() {
 	Malla->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 	Malla->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
+	Malla->SetCustomDepthStencilValue(PROFUNDIDAD_PERSONALIZADA_AZUL);
+	Malla->MarkRenderStateDirty(); // Para obligar a refrescar el render
+	ProfundidadPersonalizadaPermitir(true);
+
 	Esfera = CreateDefaultSubobject<USphereComponent>(TEXT("Esfera"));
 	Esfera->SetupAttachment(RootComponent);
 	Esfera->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
@@ -87,6 +91,8 @@ void AArma::ActualizarEstado(EEstado EstadoAActualizar) {
 				Malla->SetEnableGravity(true);
 				Malla->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 			}
+
+			ProfundidadPersonalizadaPermitir(false);
 		break;
 		case EEstado::EEA_Desequipada:
 			if(HasAuthority()) {
@@ -98,6 +104,10 @@ void AArma::ActualizarEstado(EEstado EstadoAActualizar) {
 			Malla->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
 			Malla->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 			Malla->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+			
+			Malla->SetCustomDepthStencilValue(PROFUNDIDAD_PERSONALIZADA_AZUL);
+			Malla->MarkRenderStateDirty();
+			ProfundidadPersonalizadaPermitir(true);
 		break;
 	}	
 }
@@ -114,6 +124,8 @@ void AArma::AlReplicarEstado() {
 				Malla->SetEnableGravity(true);
 				Malla->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 			}	
+
+			ProfundidadPersonalizadaPermitir(false);
 		break;
 		case EEstado::EEA_Desequipada:
 			Malla->SetSimulatePhysics(true);
@@ -122,6 +134,10 @@ void AArma::AlReplicarEstado() {
 			Malla->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
 			Malla->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 			Malla->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+
+			Malla->SetCustomDepthStencilValue(PROFUNDIDAD_PERSONALIZADA_AZUL);
+			Malla->MarkRenderStateDirty();
+			ProfundidadPersonalizadaPermitir(true);
 		break;
 	}
 }
@@ -208,4 +224,12 @@ bool AArma::EstaConMunicionLlena() {
 void AArma::MunicionAniadir(int32 Cantidad) {
 	Municion = FMath::Clamp(Municion + Cantidad, 0, CargadorCapacidad);
 	ActualizarHUDMunicion();
+}
+
+
+// Habilitar o deshabilitar custom depth para el outline en las armas
+void AArma::ProfundidadPersonalizadaPermitir(bool bPermitir) {
+	if(Malla) {
+		Malla->SetRenderCustomDepth(bPermitir);
+	}
 }

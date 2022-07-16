@@ -58,6 +58,8 @@ public:
 	UPROPERTY(EditAnywhere)
 	class USoundCue* EquiparSonido;
 
+	void ProfundidadPersonalizadaPermitir(bool bPermitir);
+
 protected:	
 	virtual void BeginPlay() override;
 

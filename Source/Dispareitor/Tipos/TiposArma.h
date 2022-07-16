@@ -2,6 +2,12 @@
 
 #define RAYO_LONGITUD 80000.f
 
+// Son colores del material PP_Highlight
+#define PROFUNDIDAD_PERSONALIZADA_MORADO 250
+#define PROFUNDIDAD_PERSONALIZADA_AZUL 251
+#define PROFUNDIDAD_PERSONALIZADA_BLAQUEZINO 252
+
+
 UENUM(BlueprintType)
 enum class ETipoArma : uint8 {
     ETA_RifleAsalto UMETA(DisplayName = "Rifle Asalto"),
