@@ -62,6 +62,10 @@ ADispareitorPersonaje::ADispareitorPersonaje() {
 	MinNetUpdateFrequency = 33.f;
 
 	DisolucionLineaTiempoComponente = CreateDefaultSubobject<UTimelineComponent>(TEXT("DisolucionLineaTiempoComponente"));
+
+	Granada = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Granada"));
+	Granada->SetupAttachment(GetMesh(), FName("GranadaSocket"));
+	Granada->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 // En esta funcion es donde registramos las variables que queremos replicar

@@ -267,7 +267,7 @@ void UCombateComponente::EquiparSonidoEjecutar() {
 // Puede ser llamado tanto en un cliente como en un servidor
 void UCombateComponente::Recargar() {
 
-	if(ArmaEquipada == nullptr || ArmaEquipada->MunicionObtener() == ArmaEquipada->CargadorCapacidadObtener()) {
+	if(ArmaEquipada == nullptr || ArmaEquipada->EstaConMunicionLlena()) {
 		return;
 	}
 

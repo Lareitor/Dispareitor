@@ -199,6 +199,9 @@ private:
 	UPROPERTY()
 	class ADispareitorEstadoJugador* DispareitorEstadoJugador;
 
+	UPROPERTY(VisibleAnywhere)
+	UStaticMeshComponent* Granada;
+
 public:	
 	void ActivarArmaSolapada(AArma* Arma);
 	bool EstaArmaEquipada();
