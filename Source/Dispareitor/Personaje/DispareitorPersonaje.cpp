@@ -86,6 +86,9 @@ void ADispareitorPersonaje::BeginPlay() {
 		// Enlazamos nuestro metodo de recibir daño al delegado, para que se invoque cuando ProyectilBala llame a ApplyDamage
 		OnTakeAnyDamage.AddDynamic(this, &ADispareitorPersonaje::RecibirDano);
 	}
+	if(Granada) {
+		Granada->SetVisibility(false);
+	}
 }
 
 void ADispareitorPersonaje::Tick(float DeltaTime) {

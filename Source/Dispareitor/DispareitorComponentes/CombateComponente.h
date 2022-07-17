@@ -34,6 +34,9 @@ public:
 	UFUNCTION(BluePrintCallable)
 	void GranadaArrojarFinalizado();
 
+	UFUNCTION(BluePrintCallable)
+	void GranadaArrojada();
+
 protected:	
 	virtual void BeginPlay() override;
 	void ActualizarApuntando(bool Apuntado);
@@ -78,6 +81,7 @@ protected:
 	void ManoIzquierdaUnirActor(AActor* Actor);
 	void MunicionPersonajeActualizar();
 	void ArmaVaciaRecargar();
+	void GranadaMostrar(bool bMostrar);
 
 private:
 	UPROPERTY()

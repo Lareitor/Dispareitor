@@ -391,6 +391,7 @@ void UCombateComponente::EstadoCombateAlReplicar() {
 			if(DispareitorPersonaje && !DispareitorPersonaje->IsLocallyControlled()) {
 				DispareitorPersonaje->GranadaArrojarMontajeEjecutar();
 				ManoIzquierdaUnirActor(ArmaEquipada);
+				GranadaMostrar(true);
 			}
 			break;	
 	}
@@ -508,6 +509,7 @@ void UCombateComponente::GranadaArrojar() {
 	if(DispareitorPersonaje) {
 		DispareitorPersonaje->GranadaArrojarMontajeEjecutar();
 		ManoIzquierdaUnirActor(ArmaEquipada);
+		GranadaMostrar(true);
 	}
 	if(DispareitorPersonaje && !DispareitorPersonaje->HasAuthority()) {
 		GranadaArrojarServidor();
@@ -519,8 +521,19 @@ void UCombateComponente::GranadaArrojarServidor_Implementation() {
 	if(DispareitorPersonaje) {
 		DispareitorPersonaje->GranadaArrojarMontajeEjecutar();
 		ManoIzquierdaUnirActor(ArmaEquipada);
+		GranadaMostrar(true);
 	}
 } 
+
+void UCombateComponente::GranadaMostrar(bool bMostrar) {
+	if(DispareitorPersonaje && DispareitorPersonaje->GranadaObtener()) {
+		DispareitorPersonaje->GranadaObtener()->SetVisibility(bMostrar);	
+	}
+}
+
+void UCombateComponente::GranadaArrojada() {
+	GranadaMostrar(false);
+}
 
 void UCombateComponente::GranadaArrojarFinalizado() {
 	EstadoCombate = EEstadosCombate::EEC_Desocupado;

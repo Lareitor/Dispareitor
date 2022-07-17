@@ -220,4 +220,5 @@ public:
 	FORCEINLINE UCombateComponente* CombateComponenteObtener() const { return CombateComponente; }
 	FORCEINLINE bool bSoloGirarCamaraObtener() const { return bSoloGirarCamara; }
 	FORCEINLINE UAnimMontage* MontajeRecargarObtener() const { return MontajeRecargar; } 
+	FORCEINLINE UStaticMeshComponent* GranadaObtener() const { return Granada; } 
 };
