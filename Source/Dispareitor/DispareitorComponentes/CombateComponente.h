@@ -73,6 +73,12 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void GranadaArrojarServidor();
 
+	void ArmaEquipadaSoltar();
+	void ManoDerechaUnirActor(AActor* Actor);
+	void ManoIzquierdaUnirActor(AActor* Actor);
+	void MunicionPersonajeActualizar();
+	void ArmaVaciaRecargar();
+
 private:
 	UPROPERTY()
 	class ADispareitorPersonaje* DispareitorPersonaje;
@@ -170,9 +176,7 @@ private:
 
 	void MunicionEscopetaActualizarValores();
 
-	void EquiparSonido();
-
-	bool ArmaSinMunicionPeroPuedoRecargar();
+	void EquiparSonidoEjecutar();
 	
 public:		
 	

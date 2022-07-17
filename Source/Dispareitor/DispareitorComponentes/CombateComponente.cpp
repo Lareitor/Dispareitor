@@ -182,18 +182,58 @@ void UCombateComponente::EquiparArma(class AArma* ArmaAEquipar) {
 		return;
 	}
 
+	ArmaEquipadaSoltar();
+	ArmaEquipada = ArmaAEquipar;
+	ArmaEquipada->ActualizarEstado(EEstado::EEA_Equipada); // Se propaga al cliente
+	ManoDerechaUnirActor(ArmaEquipada);
+	ArmaEquipada->SetOwner(DispareitorPersonaje);	
+	ArmaEquipada->ActualizarHUDMunicion();
+	MunicionPersonajeActualizar();
+	EquiparSonidoEjecutar();
+	ArmaVaciaRecargar();
+
+	DispareitorPersonaje->GetCharacterMovement()->bOrientRotationToMovement = false;
+	DispareitorPersonaje->bUseControllerRotationYaw = true;
+}
+
+void UCombateComponente::ArmaEquipadaSoltar() {
 	if(ArmaEquipada) {
 		ArmaEquipada->Soltar();
 	}
+}
 
-	ArmaEquipada = ArmaAEquipar;
-	ArmaEquipada->ActualizarEstado(EEstado::EEA_Equipada); // Se propaga al cliente
+void UCombateComponente::ManoDerechaUnirActor(AActor* Actor) {
+	if(DispareitorPersonaje == nullptr || DispareitorPersonaje->GetMesh() == nullptr || Actor == nullptr) {
+		return;	
+	}  
+
 	const USkeletalMeshSocket* ManoDerechaSocket = DispareitorPersonaje->GetMesh()->GetSocketByName(FName("ManoDerechaSocket"));
 	if(ManoDerechaSocket) {
-		ManoDerechaSocket->AttachActor(ArmaEquipada, DispareitorPersonaje->GetMesh()); // Tambien se propaga a los clientes, pero no hay garantias de cual se propaga antes 
+		ManoDerechaSocket->AttachActor(Actor, DispareitorPersonaje->GetMesh()); // Tambien se propaga a los clientes, pero no hay garantias de cual se propaga antes 
 	}
-	ArmaEquipada->SetOwner(DispareitorPersonaje);	
-	ArmaEquipada->ActualizarHUDMunicion();
+}
+
+void UCombateComponente::ManoIzquierdaUnirActor(AActor* Actor) {
+	if(DispareitorPersonaje == nullptr || DispareitorPersonaje->GetMesh() == nullptr || Actor == nullptr) {
+		return;	
+	}  
+
+	const USkeletalMeshSocket* ManoIzquierdaSocket = DispareitorPersonaje->GetMesh()->GetSocketByName(FName("ManoIzquierdaSocket"));
+	if(ManoIzquierdaSocket) {
+		ManoIzquierdaSocket->AttachActor(Actor, DispareitorPersonaje->GetMesh()); // Tambien se propaga a los clientes, pero no hay garantias de cual se propaga antes 
+	}
+}
+
+void UCombateComponente::ArmaVaciaRecargar() {
+	if(ArmaEquipada && ArmaEquipada->EstaSinMunicion()) {
+		Recargar();
+	}
+}
+
+void UCombateComponente::MunicionPersonajeActualizar() {
+	if(ArmaEquipada == nullptr) {
+		return;
+	}
 
 	if(MunicionPersonajeMapa.Contains(ArmaEquipada->TipoArmaObtener())) {
 		MunicionPersonaje = MunicionPersonajeMapa[ArmaEquipada->TipoArmaObtener()];
@@ -203,26 +243,23 @@ void UCombateComponente::EquiparArma(class AArma* ArmaAEquipar) {
 	if(DispareitorControladorJugador) {
 		DispareitorControladorJugador->HUDPersonajeMunicionActualizar(MunicionPersonaje);
 	}
-
-	EquiparSonido();
-
-	DispareitorPersonaje->GetCharacterMovement()->bOrientRotationToMovement = false;
-	DispareitorPersonaje->bUseControllerRotationYaw = true;
 }
+
 
 void UCombateComponente::AlReplicarArmaEquipada() {
 	if(ArmaEquipada && DispareitorPersonaje) {
 		// Para garantizar que se ejecutan en orden las ejecutamos en los clientes en el orden correcto
 		ArmaEquipada->ActualizarEstado(EEstado::EEA_Equipada); 
-		const USkeletalMeshSocket* ManoDerechaSocket = DispareitorPersonaje->GetMesh()->GetSocketByName(FName("ManoDerechaSocket"));
-		if(ManoDerechaSocket) {
-			ManoDerechaSocket->AttachActor(ArmaEquipada, DispareitorPersonaje->GetMesh());  
-		}
-
+		ManoDerechaUnirActor(ArmaEquipada);
 		DispareitorPersonaje->GetCharacterMovement()->bOrientRotationToMovement = false;
 		DispareitorPersonaje->bUseControllerRotationYaw = true;
+		EquiparSonidoEjecutar();
+	}
+}
 
-		EquiparSonido();
+void UCombateComponente::EquiparSonidoEjecutar() {
+	if(DispareitorPersonaje && ArmaEquipada && ArmaEquipada->EquiparSonido) {
+		UGameplayStatics::PlaySoundAtLocation(this, ArmaEquipada->EquiparSonido, DispareitorPersonaje->GetActorLocation());
 	}
 }
 
@@ -353,6 +390,7 @@ void UCombateComponente::EstadoCombateAlReplicar() {
 		case EEstadosCombate::EEC_LanzandoGranada:
 			if(DispareitorPersonaje && !DispareitorPersonaje->IsLocallyControlled()) {
 				DispareitorPersonaje->GranadaArrojarMontajeEjecutar();
+				ManoIzquierdaUnirActor(ArmaEquipada);
 			}
 			break;	
 	}
@@ -413,9 +451,7 @@ void UCombateComponente::Disparar() {
 		}
 
 		EmpezarDisparoTemporizador();
-	} else if (ArmaSinMunicionPeroPuedoRecargar()) { // Recargar automaticamente cuando se queda sin municion en el arma mientras estamos disparando
-		Recargar();
-	}
+	}  
 }
 
 // Esta funcion solo se ejecutará en el servidor
@@ -454,21 +490,13 @@ void UCombateComponente::TerminadoDisparoTemporizador() {
 	if(bDispararPresionado && ArmaEquipada->bAutomatica) {
 		Disparar();
 	}
+
+	ArmaVaciaRecargar(); // Recargar automaticamente cuando se queda sin municion en el arma 
 }
 
 bool UCombateComponente::PuedoDisparar() {
 	return ArmaEquipada != nullptr && !ArmaEquipada->EstaSinMunicion() && bPuedoDisparar && 
 			(EstadoCombate == EEstadosCombate::EEC_Desocupado || (EstadoCombate == EEstadosCombate::EEC_Recargando && ArmaEquipada->TipoArmaObtener() == ETipoArma::ETA_Escopeta));
-}
-
-bool UCombateComponente::ArmaSinMunicionPeroPuedoRecargar() {
-	return ArmaEquipada != nullptr && ArmaEquipada->MunicionObtener() == 0 && MunicionPersonaje > 0;
-}
-
-void UCombateComponente::EquiparSonido() {
-	if(ArmaEquipada->EquiparSonido) {
-		UGameplayStatics::PlaySoundAtLocation(this, ArmaEquipada->EquiparSonido, DispareitorPersonaje->GetActorLocation());
-	}
 }
 
 void UCombateComponente::GranadaArrojar() {
@@ -479,6 +507,7 @@ void UCombateComponente::GranadaArrojar() {
 	EstadoCombate = EEstadosCombate::EEC_LanzandoGranada;
 	if(DispareitorPersonaje) {
 		DispareitorPersonaje->GranadaArrojarMontajeEjecutar();
+		ManoIzquierdaUnirActor(ArmaEquipada);
 	}
 	if(DispareitorPersonaje && !DispareitorPersonaje->HasAuthority()) {
 		GranadaArrojarServidor();
@@ -489,11 +518,13 @@ void UCombateComponente::GranadaArrojarServidor_Implementation() {
 	EstadoCombate = EEstadosCombate::EEC_LanzandoGranada;
 	if(DispareitorPersonaje) {
 		DispareitorPersonaje->GranadaArrojarMontajeEjecutar();
+		ManoIzquierdaUnirActor(ArmaEquipada);
 	}
 } 
 
 void UCombateComponente::GranadaArrojarFinalizado() {
 	EstadoCombate = EEstadosCombate::EEC_Desocupado;
+	ManoDerechaUnirActor(ArmaEquipada);
 }
 
 
