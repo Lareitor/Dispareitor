@@ -37,6 +37,9 @@ public:
 	UFUNCTION(BluePrintCallable)
 	void GranadaArrojada();
 
+	UFUNCTION(Server, Reliable)
+	void GranadaArrojada_EnServidor(const FVector_NetQuantize& Objetivo);
+
 protected:	
 	virtual void BeginPlay() override;
 	void ActualizarApuntando(bool Apuntado);

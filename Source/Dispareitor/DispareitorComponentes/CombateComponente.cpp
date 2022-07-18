@@ -534,9 +534,15 @@ void UCombateComponente::GranadaMostrar(bool bMostrar) {
 
 void UCombateComponente::GranadaArrojada() {
 	GranadaMostrar(false);
-	if(DispareitorPersonaje && DispareitorPersonaje->HasAuthority() && DispareitorPersonaje->GranadaObtener() && GranadaClase) {
-		const FVector PosicionInicial = DispareitorPersonaje->GranadaObtener()->GetComponentLocation();
-		FVector AlObjetivo = ObjetoAlcanzado - PosicionInicial;
+	if(DispareitorPersonaje && DispareitorPersonaje->IsLocallyControlled()) {
+		GranadaArrojada_EnServidor(ObjetoAlcanzado);
+	}
+}
+
+void UCombateComponente::GranadaArrojada_EnServidor_Implementation(const FVector_NetQuantize& Objetivo) {
+	if(DispareitorPersonaje && DispareitorPersonaje->GranadaObtener() && GranadaClase) {
+		const FVector PosicionInicial = DispareitorPersonaje->GranadaObtener()->GetComponentLocation() + 40.f; // Le sumamos 40 para evitar chocar contra la propia malla del personaje o de su arma
+		FVector AlObjetivo = Objetivo - PosicionInicial;
 		FActorSpawnParameters SpawnParametros;
 		SpawnParametros.Owner = DispareitorPersonaje;
 		SpawnParametros.Instigator = DispareitorPersonaje;
