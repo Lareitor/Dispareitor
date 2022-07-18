@@ -11,6 +11,7 @@
 #include "TimerManager.h"
 #include "Sound/SoundCue.h"
 #include "Dispareitor/Personaje/DispareitorInstanciaAnimacion.h"
+#include "Dispareitor/Arma/Proyectil.h"
 
 UCombateComponente::UCombateComponente() {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -501,7 +502,7 @@ bool UCombateComponente::PuedoDisparar() {
 }
 
 void UCombateComponente::GranadaArrojar() {
-	if(EstadoCombate != EEstadosCombate::EEC_Desocupado) {
+	if(EstadoCombate != EEstadosCombate::EEC_Desocupado || ArmaEquipada == nullptr) {
 		return;
 	}
 
@@ -533,6 +534,17 @@ void UCombateComponente::GranadaMostrar(bool bMostrar) {
 
 void UCombateComponente::GranadaArrojada() {
 	GranadaMostrar(false);
+	if(DispareitorPersonaje && DispareitorPersonaje->HasAuthority() && DispareitorPersonaje->GranadaObtener() && GranadaClase) {
+		const FVector PosicionInicial = DispareitorPersonaje->GranadaObtener()->GetComponentLocation();
+		FVector AlObjetivo = ObjetoAlcanzado - PosicionInicial;
+		FActorSpawnParameters SpawnParametros;
+		SpawnParametros.Owner = DispareitorPersonaje;
+		SpawnParametros.Instigator = DispareitorPersonaje;
+		UWorld* Mundo = GetWorld();
+		if(Mundo) {
+			Mundo->SpawnActor<AProyectil>(GranadaClase, PosicionInicial, AlObjetivo.Rotation(), SpawnParametros);
+		}
+	}
 }
 
 void UCombateComponente::GranadaArrojarFinalizado() {

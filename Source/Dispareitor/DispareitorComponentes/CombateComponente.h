@@ -76,6 +76,9 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void GranadaArrojarServidor();
 
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class AProyectil> GranadaClase;
+
 	void ArmaEquipadaSoltar();
 	void ManoDerechaUnirActor(AActor* Actor);
 	void ManoIzquierdaUnirActor(AActor* Actor);
