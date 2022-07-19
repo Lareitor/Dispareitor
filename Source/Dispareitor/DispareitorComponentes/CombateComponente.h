@@ -183,11 +183,20 @@ private:
 	void EstadoCombateAlReplicar();
 
 	void MunicionActualizarValores();
-
 	void MunicionEscopetaActualizarValores();
-
 	void EquiparSonidoEjecutar();
+
+	UPROPERTY(ReplicatedUsing = GranadasActuales_AlReplicar)
+	int32 GranadasActuales = 4;
+
+	UFUNCTION()
+	void GranadasActuales_AlReplicar();
+
+	UPROPERTY(EditAnywhere)
+	int32 GranadasMaximo = 4;
+
+	void HUDGranadasActualizar();
 	
 public:		
-	
+	FORCEINLINE int32 GranadasActualesObtener() const { return GranadasActuales; }
 };

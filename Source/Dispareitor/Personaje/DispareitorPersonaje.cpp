@@ -552,6 +552,10 @@ float ADispareitorPersonaje::CalcularVelocidad() {
 // LLamado al recibir daño por parte de AProyectilBala::CallbackAlImpactar y ALimitesJuego::CallbackMallaSolapadoInicio
 // Solo se ejecuta en el server
 void ADispareitorPersonaje::RecibirDano(AActor* ActorDanado, float Dano, const UDamageType* TipoDano, class AController* ControladorInstigador, AActor* ActorCausante) {
+	if(bEliminado) {
+		return;
+	}
+
 	Vida = FMath::Clamp(Vida - Dano, 0.f, VidaMaxima);
 	ActualizarHUDVida();
 	EjecutarMontajeReaccionAImpacto();

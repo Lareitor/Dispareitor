@@ -30,4 +30,7 @@ public:
 	
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* Tiempo;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* GranadasCantidad;
 };

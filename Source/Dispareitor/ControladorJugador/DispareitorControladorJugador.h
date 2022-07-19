@@ -17,6 +17,7 @@ public:
 	void HUDPartidaTiempoActualizar(float CuentaAtrasTiempo);
 	void HUDAnunciosTiempoActualizar(float CuentaAtrasTiempo);
 	void HUDFrancotiradorCrucetaActualizar(bool bEstaApuntando);
+	void HUDGranadasActualizar(int32 GranadasCantidad);
 	virtual void OnPossess(APawn* Peon) override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -83,4 +84,5 @@ private:
 	float HUDVidaMaxima;
 	float HUDMuertos;
 	int32 HUDMuertes; 
+	int32 HUDGranadasActuales;
 };

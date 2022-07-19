@@ -45,6 +45,12 @@ void ADispareitorControladorJugador::SondearInicio() {
                 HUDVidaActualizar(HUDVida, HUDVidaMaxima);
                 HUDMuertosActualizar(HUDMuertos);
                 HUDMuertesActualizar(HUDMuertes);
+
+                ADispareitorPersonaje* DispareitorPersonaje = Cast<ADispareitorPersonaje>(GetPawn());
+                if(DispareitorPersonaje && DispareitorPersonaje->CombateComponenteObtener()) {
+                    //HUDGranadasActualizar(HUDGranadasActuales);
+                    HUDGranadasActualizar(DispareitorPersonaje->CombateComponenteObtener()->GranadasActualesObtener());
+                }
             }
         }
     }
@@ -166,6 +172,16 @@ void ADispareitorControladorJugador::HUDFrancotiradorCrucetaActualizar(bool bEst
 	}
 }
 
+void ADispareitorControladorJugador::HUDGranadasActualizar(int32 GranadasCantidad) {
+    DispareitorHUD = DispareitorHUD != nullptr ? DispareitorHUD : Cast<ADispareitorHUD>(GetHUD());
+
+    if(DispareitorHUD && DispareitorHUD->PantallaDelPersonaje && DispareitorHUD->PantallaDelPersonaje->GranadasCantidad) {
+        FString GranadasCantidadTexto = FString::Printf(TEXT("%d"), GranadasCantidad);
+        DispareitorHUD->PantallaDelPersonaje->GranadasCantidad->SetText(FText::FromString(GranadasCantidadTexto));   
+    } else {
+        HUDGranadasActuales = GranadasCantidad;
+    }
+}
 
 void ADispareitorControladorJugador::HUDTiempoActivar() {
     float TiempoRestante = 0.f;

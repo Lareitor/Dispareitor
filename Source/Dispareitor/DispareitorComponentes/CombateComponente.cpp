@@ -45,6 +45,7 @@ void UCombateComponente::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	DOREPLIFETIME(UCombateComponente, bApuntando);
 	DOREPLIFETIME_CONDITION(UCombateComponente, MunicionPersonaje, COND_OwnerOnly);
 	DOREPLIFETIME(UCombateComponente, EstadoCombate);
+	DOREPLIFETIME(UCombateComponente, GranadasActuales);
 }
 
 void UCombateComponente::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) {
@@ -501,8 +502,29 @@ bool UCombateComponente::PuedoDisparar() {
 			(EstadoCombate == EEstadosCombate::EEC_Desocupado || (EstadoCombate == EEstadosCombate::EEC_Recargando && ArmaEquipada->TipoArmaObtener() == ETipoArma::ETA_Escopeta));
 }
 
+// Llamado por ADispareitorPersonaje::GranadaArrojar
 void UCombateComponente::GranadaArrojar() {
-	if(EstadoCombate != EEstadosCombate::EEC_Desocupado || ArmaEquipada == nullptr) {
+	if(GranadasActuales == 0 || EstadoCombate != EEstadosCombate::EEC_Desocupado || ArmaEquipada == nullptr) {
+		return;
+	}
+
+	EstadoCombate = EEstadosCombate::EEC_LanzandoGranada;
+	if(DispareitorPersonaje) {
+		DispareitorPersonaje->GranadaArrojarMontajeEjecutar();
+		ManoIzquierdaUnirActor(ArmaEquipada);
+		GranadaMostrar(true);
+
+		if(!DispareitorPersonaje->HasAuthority()) {
+			GranadaArrojarServidor();
+		} else {
+			GranadasActuales = FMath::Clamp(GranadasActuales - 1, 0, GranadasMaximo);
+			HUDGranadasActualizar();	
+		}
+	}
+}
+
+void UCombateComponente::GranadaArrojarServidor_Implementation() {
+	if(GranadasActuales == 0) {
 		return;
 	}
 
@@ -512,19 +534,21 @@ void UCombateComponente::GranadaArrojar() {
 		ManoIzquierdaUnirActor(ArmaEquipada);
 		GranadaMostrar(true);
 	}
-	if(DispareitorPersonaje && !DispareitorPersonaje->HasAuthority()) {
-		GranadaArrojarServidor();
-	}
+
+	GranadasActuales = FMath::Clamp(GranadasActuales - 1, 0, GranadasMaximo);
+	HUDGranadasActualizar();
+} 
+
+void UCombateComponente::GranadasActuales_AlReplicar() {
+	HUDGranadasActualizar();
 }
 
-void UCombateComponente::GranadaArrojarServidor_Implementation() {
-	EstadoCombate = EEstadosCombate::EEC_LanzandoGranada;
-	if(DispareitorPersonaje) {
-		DispareitorPersonaje->GranadaArrojarMontajeEjecutar();
-		ManoIzquierdaUnirActor(ArmaEquipada);
-		GranadaMostrar(true);
+void UCombateComponente::HUDGranadasActualizar() {
+	DispareitorControladorJugador = DispareitorControladorJugador == nullptr ? Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller) : DispareitorControladorJugador; 
+	if(DispareitorControladorJugador) {
+		DispareitorControladorJugador->HUDGranadasActualizar(GranadasActuales);
 	}
-} 
+}
 
 void UCombateComponente::GranadaMostrar(bool bMostrar) {
 	if(DispareitorPersonaje && DispareitorPersonaje->GranadaObtener()) {
@@ -557,5 +581,6 @@ void UCombateComponente::GranadaArrojarFinalizado() {
 	EstadoCombate = EEstadosCombate::EEC_Desocupado;
 	ManoDerechaUnirActor(ArmaEquipada);
 }
+
 
 
