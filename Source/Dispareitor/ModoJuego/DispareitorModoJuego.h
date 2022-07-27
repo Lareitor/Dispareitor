@@ -15,29 +15,21 @@ class DISPAREITOR_API ADispareitorModoJuego : public AGameMode {
 public:
 	ADispareitorModoJuego();
 	virtual void Tick(float DeltaTime) override;
-	virtual void JugadorEliminado(class ADispareitorPersonaje* VictimaDispareitorJugador, class ADispareitorControladorJugador* VictimaDispareitorControladorJugador, class ADispareitorControladorJugador* AtacanteDispareitorControladorJugador);	
+	virtual void JugadorEliminado(class ADispareitorPersonaje* DispareitorPersonajeVictima, class ADispareitorControladorJugador* DispareitorControladorJugadorVictima, class ADispareitorControladorJugador* DispareitorControladorJugadorAtacante);	
 	virtual void PeticionReaparecer(ACharacter* PersonajeEliminado, AController* ControladorEliminado);
-
-	UPROPERTY(EditDefaultsOnly)
-	float CalentamientoTiempo = 10.f;
-
-	UPROPERTY(EditDefaultsOnly)
-	float PartidaTiempo = 120.f;
-
-	UPROPERTY(EditDefaultsOnly)
-	float EnfriamientoTiempo = 10.f;
-
-	float InicioNivelTiempo = 0.f;
+	UPROPERTY(EditDefaultsOnly)	float TiempoCalentamiento = 10.f;
+	UPROPERTY(EditDefaultsOnly)	float TiempoPartida = 300.f;
+	UPROPERTY(EditDefaultsOnly)	float TiempoEnfriamiento = 10.f;
+	float TiempoInicioNivel = 0.f;
 
 protected:
 	virtual void BeginPlay() override;	
 	virtual void OnMatchStateSet() override;
 
 private:
-	float CuentaAtrasTiempo = 0.f;
-
-	void ArmasSituar();
+	float TiempoCuentaAtras = 0.f;
+	void SituarArmas();
 
 public:
-	FORCEINLINE float CuentaAtrasTiempoObtener() const { return CuentaAtrasTiempo; }	
+	FORCEINLINE float ObtenerTiempoCuentaAtras() const { return TiempoCuentaAtras; }	
 };

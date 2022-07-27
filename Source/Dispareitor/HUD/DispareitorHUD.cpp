@@ -8,29 +8,29 @@ void ADispareitorHUD::BeginPlay() {
     Super::BeginPlay();
 }
 
-void ADispareitorHUD::AnadirPantallaDelPersonaje() {
+void ADispareitorHUD::MostrarPantallaDelPersonaje() {
     APlayerController* ControladorDeJugador = GetOwningPlayerController();
 
-    if(ControladorDeJugador && PantallaDelPersonajeClase) {
-        PantallaDelPersonaje = CreateWidget<UPantallaDelPersonaje>(ControladorDeJugador, PantallaDelPersonajeClase);
+    if(ControladorDeJugador && ClasePantallaDelPersonaje) {
+        PantallaDelPersonaje = CreateWidget<UPantallaDelPersonaje>(ControladorDeJugador, ClasePantallaDelPersonaje);
         PantallaDelPersonaje->AddToViewport();
     }
 }
 
-void ADispareitorHUD::AnadirAnunciosWidget() {
+void ADispareitorHUD::MostrarAnunciosWidget() {
     APlayerController* ControladorDeJugador = GetOwningPlayerController();
 
-    if(ControladorDeJugador && AnunciosWidgetClase) {
-        AnunciosWidget = CreateWidget<UAnunciosWidget>(ControladorDeJugador, AnunciosWidgetClase);
+    if(ControladorDeJugador && ClaseAnunciosWidget) {
+        AnunciosWidget = CreateWidget<UAnunciosWidget>(ControladorDeJugador, ClaseAnunciosWidget);
         AnunciosWidget->AddToViewport();
     }
 }
 
-void ADispareitorHUD::FrancotiradorCrucetaAnadir() {
+void ADispareitorHUD::MostrarFrancotiradorCruceta() {
     APlayerController* ControladorDeJugador = GetOwningPlayerController();
 
-    if(ControladorDeJugador && FrancotiradorCrucetaClase) {
-        FrancotiradorCruceta = CreateWidget<UFrancotiradorCruceta>(ControladorDeJugador, FrancotiradorCrucetaClase);
+    if(ControladorDeJugador && ClaseFrancotiradorCruceta) {
+        FrancotiradorCruceta = CreateWidget<UFrancotiradorCruceta>(ControladorDeJugador, ClaseFrancotiradorCruceta);
         FrancotiradorCruceta->AddToViewport();
     }
 }
@@ -39,42 +39,42 @@ void ADispareitorHUD::FrancotiradorCrucetaAnadir() {
 void ADispareitorHUD::DrawHUD() {
     Super::DrawHUD();
 
-    FVector2D PantallaTamano;
+    FVector2D TamanioPantalla;
     if(GEngine) {
-        GEngine->GameViewport->GetViewportSize(PantallaTamano);
-        const FVector2D PantallaCentro(PantallaTamano.X / 2.f, PantallaTamano.Y / 2.f);
+        GEngine->GameViewport->GetViewportSize(TamanioPantalla);
+        const FVector2D CentroPantalla(TamanioPantalla.X / 2.f, TamanioPantalla.Y / 2.f);
 
-        float AperturaEscalada = CrucetaAperturaMaxima * HUDCruceta.CrucetaApertura;    
+        float AperturaEscalada = AperturaMaximaCruceta * HUDCruceta.CrucetaApertura;    
 
         if(HUDCruceta.CrucetaCentro) {
             FVector2D Apertura(0.f, 0.f);
-            DibujarCruceta(HUDCruceta.CrucetaCentro, PantallaCentro, Apertura, HUDCruceta.CrucetaColor);
+            DibujarCruceta(HUDCruceta.CrucetaCentro, CentroPantalla, Apertura, HUDCruceta.CrucetaColor);
         }
         if(HUDCruceta.CrucetaIzquierda) {
             FVector2D Apertura(-AperturaEscalada, 0.f);
-            DibujarCruceta(HUDCruceta.CrucetaIzquierda, PantallaCentro, Apertura, HUDCruceta.CrucetaColor);
+            DibujarCruceta(HUDCruceta.CrucetaIzquierda, CentroPantalla, Apertura, HUDCruceta.CrucetaColor);
         }
         if(HUDCruceta.CrucetaDerecha) {
             FVector2D Apertura(AperturaEscalada, 0.f);
-            DibujarCruceta(HUDCruceta.CrucetaDerecha, PantallaCentro, Apertura, HUDCruceta.CrucetaColor);
+            DibujarCruceta(HUDCruceta.CrucetaDerecha, CentroPantalla, Apertura, HUDCruceta.CrucetaColor);
         }
         if(HUDCruceta.CrucetaArriba) {
             FVector2D Apertura(0.f, -AperturaEscalada);
-            DibujarCruceta(HUDCruceta.CrucetaArriba, PantallaCentro, Apertura, HUDCruceta.CrucetaColor);
+            DibujarCruceta(HUDCruceta.CrucetaArriba, CentroPantalla, Apertura, HUDCruceta.CrucetaColor);
         }
         if(HUDCruceta.CrucetaAbajo) {
             FVector2D Apertura(0.f, AperturaEscalada);
-            DibujarCruceta(HUDCruceta.CrucetaAbajo, PantallaCentro, Apertura, HUDCruceta.CrucetaColor);
+            DibujarCruceta(HUDCruceta.CrucetaAbajo, CentroPantalla, Apertura, HUDCruceta.CrucetaColor);
         }
     }
 }
 
-void ADispareitorHUD::DibujarCruceta(UTexture2D* Textura, FVector2D PantallaCentro, FVector2D Apertura, FLinearColor CrucetaColor) {
-    const float TexturaAnchura = Textura->GetSizeX();
-    const float TexturaAltura = Textura->GetSizeY();
-    const FVector2D TexturaPuntoDondeDibujar(PantallaCentro.X - (TexturaAnchura / 2.f) + Apertura.X, PantallaCentro.Y - (TexturaAltura / 2.f) + Apertura.Y);
+void ADispareitorHUD::DibujarCruceta(UTexture2D* Textura, FVector2D CentroPantalla, FVector2D Apertura, FLinearColor CrucetaColor) {
+    const float AnchuraTextura = Textura->GetSizeX();
+    const float AlturaTextura = Textura->GetSizeY();
+    const FVector2D PosicionDondeDibujarTextura(CentroPantalla.X - (AnchuraTextura / 2.f) + Apertura.X, CentroPantalla.Y - (AlturaTextura / 2.f) + Apertura.Y);
 
-    DrawTexture(Textura, TexturaPuntoDondeDibujar.X, TexturaPuntoDondeDibujar.Y, TexturaAnchura, TexturaAltura, 0.f, 0.f, 1.f, 1.f, CrucetaColor);
+    DrawTexture(Textura, PosicionDondeDibujarTextura.X, PosicionDondeDibujarTextura.Y, AnchuraTextura, AlturaTextura, 0.f, 0.f, 1.f, 1.f, CrucetaColor);
 }
 
 

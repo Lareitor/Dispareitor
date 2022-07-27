@@ -24,29 +24,27 @@ ADispareitorModoJuego::ADispareitorModoJuego() {
 
 void ADispareitorModoJuego::BeginPlay() {
     Super::BeginPlay();
-
-    ArmasSituar();
-
-    InicioNivelTiempo = GetWorld()->GetTimeSeconds();
+    SituarArmas();
+    TiempoInicioNivel = GetWorld()->GetTimeSeconds();
 }
 
 void ADispareitorModoJuego::Tick(float DeltaTime) {
     Super::Tick(DeltaTime);
 
     if(MatchState == MatchState::WaitingToStart) {
-        CuentaAtrasTiempo = CalentamientoTiempo - GetWorld()->GetTimeSeconds() + InicioNivelTiempo;
-        if(CuentaAtrasTiempo <= 0.f) {
+        TiempoCuentaAtras = TiempoCalentamiento - GetWorld()->GetTimeSeconds() + TiempoInicioNivel;
+        if(TiempoCuentaAtras <= 0.f) {
             // Pasamos del estado WaitingToStart a InProgress donde los jugadores aparecen ya con las mallas
             StartMatch();
         }
     } else if(MatchState == MatchState::InProgress) {
-        CuentaAtrasTiempo = CalentamientoTiempo + PartidaTiempo - GetWorld()->GetTimeSeconds() + InicioNivelTiempo;
-        if(CuentaAtrasTiempo <= 0.f) {
+        TiempoCuentaAtras = TiempoCalentamiento + TiempoPartida - GetWorld()->GetTimeSeconds() + TiempoInicioNivel;
+        if(TiempoCuentaAtras <= 0.f) {
             SetMatchState(MatchState::Enfriamiento);
         }
     } else if(MatchState == MatchState::Enfriamiento) {
-        CuentaAtrasTiempo = CalentamientoTiempo + PartidaTiempo + EnfriamientoTiempo - GetWorld()->GetTimeSeconds() + InicioNivelTiempo;
-        if(CuentaAtrasTiempo <= 0.f) {
+        TiempoCuentaAtras = TiempoCalentamiento + TiempoPartida + TiempoEnfriamiento - GetWorld()->GetTimeSeconds() + TiempoInicioNivel;
+        if(TiempoCuentaAtras <= 0.f) {
             RestartGame();
         }
     }
@@ -59,28 +57,28 @@ void ADispareitorModoJuego::OnMatchStateSet() {
     for(FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It) {
         ADispareitorControladorJugador* DispareitorControladorJugador = Cast<ADispareitorControladorJugador>(*It);
         if(DispareitorControladorJugador) {
-            DispareitorControladorJugador->PartidaEstadoActualizar(MatchState);
+            DispareitorControladorJugador->ActualizarEstadoPartida(MatchState);
         }
     }
 }
 
-// Llamado por ADispareitorPersonaje::RecibirDano
-void ADispareitorModoJuego::JugadorEliminado(class ADispareitorPersonaje* VictimaDispareitorJugador, class ADispareitorControladorJugador* VictimaDispareitorControladorJugador, class ADispareitorControladorJugador* AtacanteDispareitorControladorJugador) {
-    ADispareitorEstadoJugador* AtacanteEstadoJugador = AtacanteDispareitorControladorJugador ? Cast<ADispareitorEstadoJugador>(AtacanteDispareitorControladorJugador->PlayerState) : nullptr;
-    ADispareitorEstadoJugador* VictimaEstadoJugador = VictimaDispareitorControladorJugador ? Cast<ADispareitorEstadoJugador>(VictimaDispareitorControladorJugador->PlayerState) : nullptr;
+// Llamado por ADispareitorPersonaje::RecibirDanio
+void ADispareitorModoJuego::JugadorEliminado(class ADispareitorPersonaje* DispareitorPersonajeVictima, class ADispareitorControladorJugador* DispareitorControladorJugadorVictima, class ADispareitorControladorJugador* DispareitorControladorJugadorAtacante) {
+    ADispareitorEstadoJugador* AtacanteEstadoJugador = DispareitorControladorJugadorAtacante ? Cast<ADispareitorEstadoJugador>(DispareitorControladorJugadorAtacante->PlayerState) : nullptr;
+    ADispareitorEstadoJugador* VictimaEstadoJugador = DispareitorControladorJugadorVictima ? Cast<ADispareitorEstadoJugador>(DispareitorControladorJugadorVictima->PlayerState) : nullptr;
 
     ADispareitorEstadoJuego* DispareitorEstadoJuego = GetGameState<ADispareitorEstadoJuego>();
 
     if(AtacanteEstadoJugador && AtacanteEstadoJugador != VictimaEstadoJugador && DispareitorEstadoJuego) {
         AtacanteEstadoJugador->IncrementarMuertos(1.f);
-        DispareitorEstadoJuego->EstadoJugadoresPuntuacionMasAltaActualizar(AtacanteEstadoJugador);
+        DispareitorEstadoJuego->ActualizarArrayDeEstadoJugadoresConPuntuacionMasAlta(AtacanteEstadoJugador);
     }
     if(VictimaEstadoJugador) {
         VictimaEstadoJugador->IncrementarMuertes(1);
     }
 
-    if(VictimaDispareitorJugador) {
-        VictimaDispareitorJugador->Eliminado();
+    if(DispareitorPersonajeVictima) {
+        DispareitorPersonajeVictima->Eliminado();
     }
 }
 
@@ -93,48 +91,48 @@ void ADispareitorModoJuego::PeticionReaparecer(ACharacter* PersonajeEliminado, A
 
     // Reaparecer lo mas alejado de los enemigos
     if(ControladorEliminado) {
-        TArray<AActor*> IniciosDeJugador; 
-        UGameplayStatics::GetAllActorsOfClass(this, APlayerStart::StaticClass(), IniciosDeJugador);
+        TArray<AActor*> IniciosJugador; 
+        UGameplayStatics::GetAllActorsOfClass(this, APlayerStart::StaticClass(), IniciosJugador);
 
-        AActor* InicioDeJugadorMasLejano = nullptr; 
+        AActor* InicioJugadorMasLejano = nullptr; 
         float DistanciaMasLejana = 0.f;
-        for(AActor* InicioDeJugador : IniciosDeJugador) {
-            float InicioDeJugadorDistanciaMasCercanaAJugador = MAX_flt; 
+        for(AActor* InicioJugador : IniciosJugador) {
+            float DistanciaEntreInicioJugadorYPersonajeMasCercana = MAX_flt; 
             for(FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It) {
                 ADispareitorControladorJugador* DispareitorControladorJugador = Cast<ADispareitorControladorJugador>(*It);
                 if(DispareitorControladorJugador != ControladorEliminado) {
                     ADispareitorPersonaje* DispareitorPersonaje = Cast<ADispareitorPersonaje>(DispareitorControladorJugador->GetPawn());
-                    float DistanciaEntreInicioDeJugadorYPersonaje = InicioDeJugador->GetDistanceTo(DispareitorPersonaje);
-                    if(DistanciaEntreInicioDeJugadorYPersonaje < InicioDeJugadorDistanciaMasCercanaAJugador) {
-                        InicioDeJugadorDistanciaMasCercanaAJugador = DistanciaEntreInicioDeJugadorYPersonaje;
+                    float DistanciaEntreInicioJugadorYPersonaje = InicioJugador->GetDistanceTo(DispareitorPersonaje);
+                    if(DistanciaEntreInicioJugadorYPersonaje < DistanciaEntreInicioJugadorYPersonajeMasCercana) {
+                        DistanciaEntreInicioJugadorYPersonajeMasCercana = DistanciaEntreInicioJugadorYPersonaje;
                     }
                 }
             }
 
-            if(InicioDeJugadorDistanciaMasCercanaAJugador > DistanciaMasLejana) {
-                DistanciaMasLejana = InicioDeJugadorDistanciaMasCercanaAJugador;
-                InicioDeJugadorMasLejano = InicioDeJugador;
+            if(DistanciaEntreInicioJugadorYPersonajeMasCercana > DistanciaMasLejana) {
+                DistanciaMasLejana = DistanciaEntreInicioJugadorYPersonajeMasCercana;
+                InicioJugadorMasLejano = InicioJugador;
             }
         }
-        if(InicioDeJugadorMasLejano) {
-            RestartPlayerAtPlayerStart(ControladorEliminado, InicioDeJugadorMasLejano);
+        if(InicioJugadorMasLejano) {
+            RestartPlayerAtPlayerStart(ControladorEliminado, InicioJugadorMasLejano);
         } else {
-            int32 IndiceIniciosDeJugadorElegido = FMath::RandRange(0, IniciosDeJugador.Num() - 1);
-            RestartPlayerAtPlayerStart(ControladorEliminado, IniciosDeJugador[IndiceIniciosDeJugadorElegido]);
+            int32 IndiceIniciosJugadorElegido = FMath::RandRange(0, IniciosJugador.Num() - 1);
+            RestartPlayerAtPlayerStart(ControladorEliminado, IniciosJugador[IndiceIniciosJugadorElegido]);
         }
     }
 }
 
 //LLamado por BeginPlay
-void ADispareitorModoJuego::ArmasSituar() {
-	TArray<AActor*> ArmasPuntosReaparicion; 
-    UGameplayStatics::GetAllActorsWithTag(this, "PuntoReaparicionArma", ArmasPuntosReaparicion);
+void ADispareitorModoJuego::SituarArmas() {
+	TArray<AActor*> PuntosReaparicionArmas; 
+    UGameplayStatics::GetAllActorsWithTag(this, "PuntoReaparicionArma", PuntosReaparicionArmas);
 
     TArray<AActor*> Armas; 
     UGameplayStatics::GetAllActorsOfClass(this, AArma::StaticClass(), Armas);
 
-    int32 ArmasPuntosReaparicionIndice = 0;
+    int32 IndicePuntosReaparicionArmas = 0;
     for(AActor* Arma : Armas) {
-        Arma->SetActorLocation(ArmasPuntosReaparicion[ArmasPuntosReaparicionIndice++]->GetActorLocation());
+        Arma->SetActorLocation(PuntosReaparicionArmas[IndicePuntosReaparicionArmas++]->GetActorLocation());
     }
 }

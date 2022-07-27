@@ -14,13 +14,13 @@ void ADispareitorEstadoJugador::GetLifetimeReplicatedProps(TArray< FLifetimeProp
 
 // Este metodo solo se ejecuta en el servidor
 // Llamado por ADispareitorPersonaje::SondearInicializacion y ADispareitorModoJuego::JugadorEliminado
-void ADispareitorEstadoJugador::IncrementarMuertos(float MuertosIncremento) {
-   SetScore(GetScore() + MuertosIncremento); // Score es una variable heredada de APlayerState que se replica 
-   DispareitorPersonaje = DispareitorPersonaje == nullptr ? Cast<ADispareitorPersonaje>(GetPawn()) : DispareitorPersonaje;
+void ADispareitorEstadoJugador::IncrementarMuertos(float Incremento) {
+   SetScore(GetScore() + Incremento); // Score es una variable heredada de APlayerState que se replica 
+   DispareitorPersonaje = DispareitorPersonaje != nullptr ? DispareitorPersonaje : Cast<ADispareitorPersonaje>(GetPawn());
    if(DispareitorPersonaje) {
-      DispareitorControladorJugador = DispareitorControladorJugador == nullptr ? Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller) : DispareitorControladorJugador;
+      DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller);
       if(DispareitorControladorJugador) {
-         DispareitorControladorJugador->HUDMuertosActualizar(GetScore());
+         DispareitorControladorJugador->ActualizarMuertosHUD(GetScore());
       }
    }
 }
@@ -28,33 +28,33 @@ void ADispareitorEstadoJugador::IncrementarMuertos(float MuertosIncremento) {
 void ADispareitorEstadoJugador::OnRep_Score() {
    Super::OnRep_Score();
 
-   DispareitorPersonaje = DispareitorPersonaje == nullptr ? Cast<ADispareitorPersonaje>(GetPawn()) : DispareitorPersonaje;
+   DispareitorPersonaje = DispareitorPersonaje != nullptr ? DispareitorPersonaje : Cast<ADispareitorPersonaje>(GetPawn());
    if(DispareitorPersonaje) {
-      DispareitorControladorJugador = DispareitorControladorJugador == nullptr ? Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller) : DispareitorControladorJugador;
+      DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller);
       if(DispareitorControladorJugador) {
-         DispareitorControladorJugador->HUDMuertosActualizar(GetScore());
+         DispareitorControladorJugador->ActualizarMuertosHUD(GetScore());
       }
    }
 }
 
 // Llamado por ADispareitorPersonaje::SondearInicializacion y ADispareitorModoJuego::JugadorEliminado
-void ADispareitorEstadoJugador::IncrementarMuertes(int32 MuertesIncremento) {
-   Muertes += MuertesIncremento;
-   DispareitorPersonaje = DispareitorPersonaje == nullptr ? Cast<ADispareitorPersonaje>(GetPawn()) : DispareitorPersonaje;
+void ADispareitorEstadoJugador::IncrementarMuertes(int32 Incremento) {
+   Muertes += Incremento;
+   DispareitorPersonaje = DispareitorPersonaje != nullptr ? DispareitorPersonaje : Cast<ADispareitorPersonaje>(GetPawn());
    if(DispareitorPersonaje) {
-      DispareitorControladorJugador = DispareitorControladorJugador == nullptr ? Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller) : DispareitorControladorJugador;
+      DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller);
       if(DispareitorControladorJugador) {
-         DispareitorControladorJugador->HUDMuertesActualizar(Muertes);
+         DispareitorControladorJugador->ActualizarMuertesHUD(Muertes);
       }
    }
 }
 
-void ADispareitorEstadoJugador::AlReplicarMuertes() {
-   DispareitorPersonaje = DispareitorPersonaje == nullptr ? Cast<ADispareitorPersonaje>(GetPawn()) : DispareitorPersonaje;
+void ADispareitorEstadoJugador::AlReplicar_Muertes() {
+   DispareitorPersonaje = DispareitorPersonaje != nullptr ? DispareitorPersonaje : Cast<ADispareitorPersonaje>(GetPawn());
    if(DispareitorPersonaje) {
-      DispareitorControladorJugador = DispareitorControladorJugador == nullptr ? Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller) : DispareitorControladorJugador;
+      DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller);
       if(DispareitorControladorJugador) {
-         DispareitorControladorJugador->HUDMuertesActualizar(Muertes);
+         DispareitorControladorJugador->ActualizarMuertesHUD(Muertes);
       }
    }
 }

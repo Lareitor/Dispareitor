@@ -20,7 +20,7 @@ void AEscopeta::Disparar(const FVector& Objetivo) {
         TMap<ADispareitorPersonaje*, uint32> DispareitorPersonajesImpactadosMapa;
 
         for(uint32 i = 0; i < PerdigonesNumero; i++) {
-            FHitResult ImpactoResultado = ImpactoCalcular(Inicio, Objetivo);
+            FHitResult ImpactoResultado = CalcularImpacto(Inicio, Objetivo);
 
              ADispareitorPersonaje* DispareitorPersonajeImpactado = Cast<ADispareitorPersonaje>(ImpactoResultado.GetActor());
             if(DispareitorPersonajeImpactado && HasAuthority() && InstigadorControlador) {
@@ -30,11 +30,11 @@ void AEscopeta::Disparar(const FVector& Objetivo) {
                     DispareitorPersonajesImpactadosMapa.Emplace(DispareitorPersonajeImpactado, 1);
                 }
             }
-            if(ImpactoParticulas) {
-                UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactoParticulas, ImpactoResultado.ImpactPoint, ImpactoResultado.ImpactNormal.Rotation());
+            if(SistemaParticulasAlImpactar) {
+                UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SistemaParticulasAlImpactar, ImpactoResultado.ImpactPoint, ImpactoResultado.ImpactNormal.Rotation());
             }
-            if(ImpactoSonido) {
-                UGameplayStatics::PlaySoundAtLocation(this, ImpactoSonido, ImpactoResultado.ImpactPoint, .5f, FMath::FRandRange(-.5f, .5f));
+            if(SonidoAlImpactar) {
+                UGameplayStatics::PlaySoundAtLocation(this, SonidoAlImpactar, ImpactoResultado.ImpactPoint, .5f, FMath::FRandRange(-.5f, .5f));
             }
         }
 

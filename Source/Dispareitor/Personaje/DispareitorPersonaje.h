@@ -21,204 +21,131 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void PostInitializeComponents() override;
-	void EjecutarMontajeDispararArma(bool bApuntando);
-	void EjecutarMontajeRecargar();
-	void EjecutarMontajeEliminacion();
-	void GranadaArrojarMontajeEjecutar();
-	
+	void EjecutarMontajeDispararArma(bool bApuntando); 
+	void EjecutarMontajeRecargar(); 
+	void EjecutarMontajeEliminado(); 
+	void EjecutarMontajeArrojarGranada(); 
 	virtual void OnRep_ReplicatedMovement() override;
 	void Eliminado();
-
 	// RPC Multicast. Si se invoca en el servidor, se ejecuta en el servidor + clientes, si se invoca en el cliente solo se ejecuta en ese cliente
-	UFUNCTION(NetMulticast, Reliable)
-	void MulticastEliminado();
+	UFUNCTION(NetMulticast, Reliable) void Eliminado_Multicast();
 	virtual void Destroyed() override;
-
 	void SondearInicializacion();
-
-	UPROPERTY(Replicated)
-	bool bSoloGirarCamara = false;
+	UPROPERTY(Replicated) bool bSoloGirarCamara = false;
 
 protected:
 	virtual void BeginPlay() override;
-	void MoverAdelanteAtras(float Valor);
-	void MoverIzquierdaDerecha(float Valor);
-	void Girar(float Valor);
-	void MirarArribaAbajo(float Valor);
+	void MoverAdelanteAtrasPulsado(float Valor);
+	void MoverIzquierdaDerechaPulsado(float Valor);
+	void GirarIzquierdaDerechaPulsado(float Valor);
+	void GirarArribaAbajoPulsado(float Valor);
 	virtual void Jump() override;
-	void Agachar();
-	void Equipar();
+	void AgacharPulsado();
+	void EquiparPulsado();
 	void ApuntarPulsado();
 	void ApuntarLiberado();
 	void DispararPulsado();
 	void DispararLiberado();
-	void Recargar();
+	void RecargarPulsado();
+	void ArrojarGranadaPulsado();
+	void CalcularRotarEnSitio(float DeltaTime);
 	void CalcularGiroEInclinacionParadoYArmado(float DeltaTime);
 	void CalcularInclinacion();
-	void ProxiesSimuladosGiro();
+	void CalcularGiroParadoYArmadoEnProxiesSimulados();
 	void EjecutarMontajeReaccionAImpacto();
-	void GranadaArrojar();
-	
-	UFUNCTION()
-	void RecibirDano(AActor* ActorDanado, float Dano, const UDamageType* TipoDano, class AController* ControladorInstigador, AActor* ActorCausante);
-	void ActualizarHUDVida();
-
-	void RotarEnSitio(float DeltaTime);
+	UFUNCTION() void RecibirDanio(AActor* ActorDaniado, float Danio, const UDamageType* TipoDanio, class AController* ControladorInstigador, AActor* ActorCausante);
+	void ActualizarVidaHUD();
 
 private:
-	UPROPERTY(VisibleAnywhere, Category = Camara)	
-	class USpringArmComponent* BrazoCamara;
-
-	UPROPERTY(VisibleAnywhere, Category = Camara)	
-	class UCameraComponent* Camara;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UWidgetComponent* HUDSobreLaCabeza;
-
-	UPROPERTY()
-	class UHUDSobreLaCabeza* HUDSobreLaCabezaReal;
-
+	// Inicializa la variable a nullptr, en otro caso tendria basura y podría producir errores de codigo como crasheos. Otra forma de hacerlo seria usando directamente = nullptr;
+	UPROPERTY() class ADispareitorControladorJugador* DispareitorControladorJugador; 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true")) class UCombateComponente* CombateComponente;
+	UPROPERTY()	class ADispareitorEstadoJugador* DispareitorEstadoJugador;
+	UPROPERTY(VisibleAnywhere, Category = Camara) class USpringArmComponent* BrazoCamara;
+	UPROPERTY(VisibleAnywhere, Category = Camara) class UCameraComponent* Camara;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true")) class UWidgetComponent* HUDSobreLaCabeza;
+	UPROPERTY()	class UHUDSobreLaCabeza* HUDSobreLaCabezaReal;
 	// Cuando cambie esta variable en el servidor se replicará su estado automaticamente en los clientes seleccionados
-	// La replicación funciona sola en una direccion servidor -> clientes
-	// La replicacion es mas eficiente que las llamadas RPCs
-	UPROPERTY(ReplicatedUsing = AlReplicarArmaSolapada) 
-	class AArma* ArmaSolapada;
-		
-	UFUNCTION()
-	void AlReplicarArmaSolapada(AArma* ArmaReplicadaAnterior);
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UCombateComponente* CombateComponente;
-
+	// La replicación funciona sola en una direccion servidor -> clientes. La replicacion es mas eficiente que las llamadas RPCs
+	UPROPERTY(ReplicatedUsing = ArmaSolapada_AlReplicar) class AArma* ArmaSolapada;
+	UFUNCTION()	void ArmaSolapada_AlReplicar(AArma* ArmaReplicadaAnterior);
 	// Hace esta funcion de tipo RPC, para llamarla desde los clientes pero que se ejecuten en el servidor
 	// Reliable garantiza que la información llega al servidor (el cliente recibe una confirmación de parte del servidor, si no la recibe vuelve a enviar la info)
-	UFUNCTION(Server, Reliable) 
-	void ServidorEquipar();
-
-	// AO = Aim Offset
+	UFUNCTION(Server, Reliable) void Equipar_EnServidor();
+	/**
+	 * AO = Aim Offset
+	 */
 	float AOGiro;
-	float InterpolacionAOGiro;
+	float AOGiroInterpolacion;
 	float AOInclinacion;
 	FRotator ArmadoRotacionInicial;
-
 	// Indica el sentido en el que debemos realizar el giro cuando estamos parados y con arma. Se utiliza en las transacciones de la maquina de estados
 	EGirarEnSitio GirarEnSitio;
 	void CalcularGirarEnSitio(float DeltaTime);
-
-	UPROPERTY(EditAnywhere, Category = Combate)
-	class UAnimMontage* MontajeDispararArma;
-
-	UPROPERTY(EditAnywhere, Category = Combate)
-	class UAnimMontage* MontajeRecargar;
-
-	UPROPERTY(EditAnywhere, Category = Combate)
-	class UAnimMontage* MontajeReaccionAImpacto;
-
-	UPROPERTY(EditAnywhere, Category = Combate)
-	class UAnimMontage* MontajeEliminacion;
-
-	UPROPERTY(EditAnywhere, Category = Combate)
-	class UAnimMontage* GranadaArrojarMontaje;
-
+	UPROPERTY(EditAnywhere, Category = Combate)	class UAnimMontage* MontajeDispararArma;
+	UPROPERTY(EditAnywhere, Category = Combate)	class UAnimMontage* MontajeRecargar;
+	UPROPERTY(EditAnywhere, Category = Combate)	class UAnimMontage* MontajeReaccionAImpacto;
+	UPROPERTY(EditAnywhere, Category = Combate)	class UAnimMontage* MontajeEliminado;
+	UPROPERTY(EditAnywhere, Category = Combate)	class UAnimMontage* MontajeArrojarGranada;
 	void EsconderCamaraSiPersonajeCerca();
-
-	UPROPERTY(EditAnywhere)
-	float CamaraLimiteCerca = 200.f;
-
+	UPROPERTY(EditAnywhere)	float DistanciaMinimaEntrePersonajeYCamara = 200.f;
 	// Al rotar el hueso raiz giramos la cintura sin mover las piernas
 	bool bRotarHuesoRaiz;
 	// Para los proxies simulados
-	float GiroUmbral = 0.5f;
-	FRotator ProxyRotacionFrameAnterior;
-	FRotator ProxyRotacionFrameActual;
-	float ProxyGiro;
+	float UmbralDeGiroEnProxy = 0.5f;
+	FRotator RotacionFrameAnteriorEnProxy;
+	FRotator RotacionFrameActualEnProxy;
+	float GiroEnProxy;
 	float TiempoDesdeUltimaReplicacionDeMovimiento;
-	
 	float CalcularVelocidad();
-
 	/**
 	 * Vida 
 	 */
-	UPROPERTY(EditAnywhere, Category = "Estadisticas")
-	float VidaMaxima = 100.f;
-
-	UPROPERTY(ReplicatedUsing = AlReplicarVida, VisibleAnywhere, Category = "Estadisticas")
-	float Vida = 100.f;
-
-	UFUNCTION()
-	void AlReplicarVida();
-
-	UPROPERTY() // Inicializa la variable a nullptr, en otro caso tendria basura y podría producir errores de codigo como crasheos. Otra forma de hacerlo seria usando directamente = nullptr;
-	class ADispareitorControladorJugador* DispareitorControladorJugador; 
-
+	UPROPERTY(EditAnywhere, Category = "Estadisticas") float VidaMaxima = 100.f;
+	UPROPERTY(ReplicatedUsing = AlReplicar_Vida, VisibleAnywhere, Category = "Estadisticas") float Vida = 100.f;
+	UFUNCTION()	void AlReplicar_Vida();
 	bool bEliminado = false;
-
 	FTimerHandle TemporizadorEliminado;
-	
-	UPROPERTY(EditDefaultsOnly) // Solo editable en la clase Character?¿ para que no se pueda editar en las hijas y que puedan poner distintos retardos lo cual no sería justo
-	float EliminadoRetardo = 3.f;
-
+	// Solo editable en la clase Character?¿ para que no se pueda editar en las hijas y que puedan poner distintos retardos lo cual no sería justo
+	UPROPERTY(EditDefaultsOnly) float RetardoDeEliminacion = 3.f;
 	void TemporizadorEliminadoFinalizado();
-
 	/** 
 	 * Efecto disolucion
 	 */
-	UPROPERTY(VisibleAnywhere)
-	UTimelineComponent* DisolucionLineaTiempoComponente;
-	
-	FOnTimelineFloat DisolucionRutaDelegado;
-
-	UPROPERTY(EditAnywhere)
-	UCurveFloat* DisolucionCurva;
-
-	UFUNCTION()
-	void DisolucionActualizarMaterialCallback(float DisolucionValor);
-
-	void DisolucionEmpezar();
-
-	UPROPERTY(VisibleAnywhere, Category = Eliminacion)
-	UMaterialInstanceDynamic* DisolucionInstanciaMaterialDinamico;
-
-	// Se setea en el BP y a partir de ella creamos DisolucionInstanciaMaterialDinamico
-	UPROPERTY(EditAnywhere, Category = Eliminacion)
-	UMaterialInstance* DisolucionInstanciaMaterial;
-
+	UPROPERTY(VisibleAnywhere) UTimelineComponent* ComponenteLineaDelTiempoParaDisolucion;
+	FOnTimelineFloat DelegadoLineaDelTiempoParaDisolucion;
+	UPROPERTY(EditAnywhere)	UCurveFloat* CurvaDeDisolucion;
+	UFUNCTION()	void Callback_ActualizarMaterialEnDisolucion(float DisolucionValor);
+	void EmpezarDisolucion();
+	UPROPERTY(VisibleAnywhere, Category = Eliminacion) UMaterialInstanceDynamic* InstanciaMaterialDinamicoParaDisolucion;
+	// Se setea en el BP y a partir de ella creamos InstanciaMaterialDinamicoParaDisolucion
+	UPROPERTY(EditAnywhere, Category = Eliminacion)	UMaterialInstance* InstanciaMaterialParaDisolucion;
 	/**
 	 * Robot eliminacion
 	 */
-	UPROPERTY(EditAnywhere)
-	UParticleSystem* RobotEliminacionSistemaParticulas;
-
-	// Almacena el RobotEliminacionSistemaParticulas creado
-	UPROPERTY(VisibleAnywhere)
-	UParticleSystemComponent* RobotEliminacionComponente;
-
-	UPROPERTY(EditAnywhere)
-	class USoundCue* RobotEliminacionSonido;
-
-	UPROPERTY()
-	class ADispareitorEstadoJugador* DispareitorEstadoJugador;
-
-	UPROPERTY(VisibleAnywhere)
-	UStaticMeshComponent* Granada;
+	UPROPERTY(EditAnywhere)	UParticleSystem* SistemaParticulasRobotEliminacion; //p_bot_cage
+	// Almacena el SistemaParticulasRobotEliminacion creado
+	UPROPERTY(VisibleAnywhere) UParticleSystemComponent* ComponenteSistemaParticulasRobotEliminacion;
+	UPROPERTY(EditAnywhere)	class USoundCue* SonidoRobotEliminacion; //roboteliminacion_cue
+	UPROPERTY(VisibleAnywhere) UStaticMeshComponent* Granada;
 
 public:	
 	void ActivarArmaSolapada(AArma* Arma);
-	bool EstaArmaEquipada();
+	bool HayArmaEquipada();
 	bool EstaApuntando();
+	AArma* ObtenerArmaEquipada();
+	FVector ObtenerObjetoAlcanzado() const;
+	EEstadosCombate ObtenerEstadoCombate() const;
 	FORCEINLINE float ObtenerAOGiro() const { return AOGiro; } 
 	FORCEINLINE float ObtenerAOInclinacion() const { return AOInclinacion; } 
-	AArma* ObtenerArmaEquipada();
 	FORCEINLINE EGirarEnSitio ObtenerGirarEnSitio() const { return GirarEnSitio; }
-	FVector ObtenerObjetoAlcanzado() const;
 	FORCEINLINE UCameraComponent* ObtenerCamara() const { return Camara; }
 	FORCEINLINE bool DeboRotarHuesoRaiz() const { return bRotarHuesoRaiz; }
 	FORCEINLINE bool EstaEliminado() const { return bEliminado; }
 	FORCEINLINE float ObtenerVida() const { return Vida; }
 	FORCEINLINE float ObtenerVidaMaxima() const { return VidaMaxima; }
-	EEstadosCombate EstadoCombateObtener() const;
-	FORCEINLINE UCombateComponente* CombateComponenteObtener() const { return CombateComponente; }
-	FORCEINLINE bool bSoloGirarCamaraObtener() const { return bSoloGirarCamara; }
-	FORCEINLINE UAnimMontage* MontajeRecargarObtener() const { return MontajeRecargar; } 
-	FORCEINLINE UStaticMeshComponent* GranadaObtener() const { return Granada; } 
+	FORCEINLINE UCombateComponente* ObtenerCombateComponente() const { return CombateComponente; }
+	FORCEINLINE bool DeboSoloGirarCamara() const { return bSoloGirarCamara; }
+	FORCEINLINE UAnimMontage* ObtenerMontajeRecargar() const { return MontajeRecargar; } 
+	FORCEINLINE UStaticMeshComponent* ObtenerGranada() const { return Granada; } 
 };

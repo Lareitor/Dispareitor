@@ -7,19 +7,19 @@
 void ADispareitorEstadoJuego::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-    DOREPLIFETIME(ADispareitorEstadoJuego, EstadoJugadoresPuntuacionMasAlta);
+    DOREPLIFETIME(ADispareitorEstadoJuego, ArrayDeEstadoJugadoresConPuntuacionMasAlta);
 }
 
 // Llamado por ADispareitorModoJuego::JugadorEliminado
-void ADispareitorEstadoJuego::EstadoJugadoresPuntuacionMasAltaActualizar(class ADispareitorEstadoJugador* DispareitorEstadoJugador) {
-    if(EstadoJugadoresPuntuacionMasAlta.Num() == 0) {
-        EstadoJugadoresPuntuacionMasAlta.Add(DispareitorEstadoJugador);
+void ADispareitorEstadoJuego::ActualizarArrayDeEstadoJugadoresConPuntuacionMasAlta(class ADispareitorEstadoJugador* DispareitorEstadoJugador) {
+    if(ArrayDeEstadoJugadoresConPuntuacionMasAlta.Num() == 0) {
+        ArrayDeEstadoJugadoresConPuntuacionMasAlta.Add(DispareitorEstadoJugador);
         PuntuacionMasAlta = DispareitorEstadoJugador->GetScore();
     } else if(DispareitorEstadoJugador->GetScore() == PuntuacionMasAlta) {
-        EstadoJugadoresPuntuacionMasAlta.AddUnique(DispareitorEstadoJugador);
+        ArrayDeEstadoJugadoresConPuntuacionMasAlta.AddUnique(DispareitorEstadoJugador);
     } else if(DispareitorEstadoJugador->GetScore() > PuntuacionMasAlta) {
-        EstadoJugadoresPuntuacionMasAlta.Empty();
-        EstadoJugadoresPuntuacionMasAlta.AddUnique(DispareitorEstadoJugador);
+        ArrayDeEstadoJugadoresConPuntuacionMasAlta.Empty();
+        ArrayDeEstadoJugadoresConPuntuacionMasAlta.AddUnique(DispareitorEstadoJugador);
         PuntuacionMasAlta = DispareitorEstadoJugador->GetScore();
     }  
 }

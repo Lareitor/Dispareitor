@@ -12,8 +12,5 @@ public:
 	ALimitesJuego();
 
 protected:
-	UFUNCTION()
-	virtual void CallbackMallaSolapadoInicio(UPrimitiveComponent* ComponenteSolapado, AActor* OtroActor, UPrimitiveComponent* OtroComponente, int32 OtroIndice, bool bFromSweep, const FHitResult& SweepResult);
-
-	
+	UFUNCTION()	virtual void Callback_SolapadaMallaInicio(UPrimitiveComponent* ComponenteSolapado, AActor* OtroActor, UPrimitiveComponent* OtroComponente, int32 OtroIndice, bool bFromSweep, const FHitResult& SweepResult);
 };

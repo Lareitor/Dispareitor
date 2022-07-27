@@ -10,22 +10,13 @@ class DISPAREITOR_API ADispareitorEstadoJugador : public APlayerState {
 
 public:
 	virtual void GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const override;
-	
 	virtual void OnRep_Score() override; // Como ya viene implementada de serie nos sirve para cambiar los muertos (a favor)
-	
-	UFUNCTION()
-	virtual void AlReplicarMuertes(); // Esta la implementamos nosotros para las muertes (en contra) 
-	
-	void IncrementarMuertos(float MuertosIncremento);
-	void IncrementarMuertes(int32 MuertesIncremento);
+	UFUNCTION()	virtual void AlReplicar_Muertes(); // Esta la implementamos nosotros para las muertes (en contra) 
+	void IncrementarMuertos(float Incremento);
+	void IncrementarMuertes(int32 Incremento);
 
 private:	
-	UPROPERTY()
-	class ADispareitorPersonaje* DispareitorPersonaje;
-
-	UPROPERTY()
-	class ADispareitorControladorJugador* DispareitorControladorJugador;
-
-	UPROPERTY(ReplicatedUsing = AlReplicarMuertes)
-	int32 Muertes;	
+	UPROPERTY()	class ADispareitorPersonaje* DispareitorPersonaje;
+	UPROPERTY()	class ADispareitorControladorJugador* DispareitorControladorJugador;
+	UPROPERTY(ReplicatedUsing = AlReplicar_Muertes)	int32 Muertes;	
 };

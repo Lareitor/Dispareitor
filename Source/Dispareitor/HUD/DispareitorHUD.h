@@ -23,43 +23,25 @@ class DISPAREITOR_API ADispareitorHUD : public AHUD {
 
 public:
 	virtual void DrawHUD() override;
-
-    // A partir de PantallaDelPersonajeClase creamos el objeto PantallaDelPersonaje
-	UPROPERTY(EditAnywhere, Category = Estadisticas)
-	TSubclassOf<class UUserWidget> PantallaDelPersonajeClase;
-
-	UPROPERTY()
-	class UPantallaDelPersonaje* PantallaDelPersonaje;
-
-	void AnadirPantallaDelPersonaje();	
-
-	UPROPERTY(EditAnywhere, Category = Anuncios)
-	TSubclassOf<class UUserWidget> AnunciosWidgetClase;
-
-	UPROPERTY()
-	class UAnunciosWidget* AnunciosWidget;
-
-	void AnadirAnunciosWidget();
-
-	UPROPERTY(EditAnywhere, Category = Francotirador)
-	TSubclassOf<class UUserWidget> FrancotiradorCrucetaClase;
-
-	UPROPERTY()
-	class UFrancotiradorCruceta* FrancotiradorCruceta;
-
-	void FrancotiradorCrucetaAnadir();
+    // A partir de ClasePantallaDelPersonaje creamos el objeto PantallaDelPersonaje
+	UPROPERTY(EditAnywhere, Category = Estadisticas) TSubclassOf<class UUserWidget> ClasePantallaDelPersonaje; //WBP_PantallaDelPersonaje
+	UPROPERTY()	class UPantallaDelPersonaje* PantallaDelPersonaje;
+	void MostrarPantallaDelPersonaje();	
+	UPROPERTY(EditAnywhere, Category = Anuncios) TSubclassOf<class UUserWidget> ClaseAnunciosWidget; //WBP_Anuncios 
+	UPROPERTY() class UAnunciosWidget* AnunciosWidget;
+	void MostrarAnunciosWidget();
+	UPROPERTY(EditAnywhere, Category = Francotirador) TSubclassOf<class UUserWidget> ClaseFrancotiradorCruceta; //WBP_FrancotiradorCruceta
+	UPROPERTY() class UFrancotiradorCruceta* FrancotiradorCruceta;
+	void MostrarFrancotiradorCruceta();
 
 protected:
 	virtual void BeginPlay() override;
 	
 private:
 	FHUDCruceta HUDCruceta;
-	void DibujarCruceta(UTexture2D* Textura, FVector2D PantallaCentro, FVector2D Apertura, FLinearColor CrucetaColor);
-
-	UPROPERTY(EditAnywhere)
-	float CrucetaAperturaMaxima = 16.f;
+	void DibujarCruceta(UTexture2D* Textura, FVector2D CentroPantalla, FVector2D Apertura, FLinearColor ColorCruceta);
+	UPROPERTY(EditAnywhere)	float AperturaMaximaCruceta = 16.f;
 
 public:
-	FORCEINLINE void ActualizarHUDCruceta(const FHUDCruceta& HUDT) { HUDCruceta = HUDT; }		
-	
+	FORCEINLINE void ActualizarCrucetaHUD(const FHUDCruceta& HUDT) { HUDCruceta = HUDT; }		
 };

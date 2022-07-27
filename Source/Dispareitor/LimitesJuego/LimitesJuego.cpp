@@ -4,10 +4,10 @@
 
 ALimitesJuego::ALimitesJuego() {
     GetStaticMeshComponent()->SetGenerateOverlapEvents(true);
-    GetStaticMeshComponent()->OnComponentBeginOverlap.AddDynamic(this, &ALimitesJuego::CallbackMallaSolapadoInicio);		
+    GetStaticMeshComponent()->OnComponentBeginOverlap.AddDynamic(this, &ALimitesJuego::Callback_SolapadaMallaInicio);		
 }
 
-void ALimitesJuego::CallbackMallaSolapadoInicio(UPrimitiveComponent* ComponenteSolapado, AActor* OtroActor, UPrimitiveComponent* OtroComponente, int32 OtroIndice, bool bFromSweep, const FHitResult& SweepResult) { 
+void ALimitesJuego::Callback_SolapadaMallaInicio(UPrimitiveComponent* ComponenteSolapado, AActor* OtroActor, UPrimitiveComponent* OtroComponente, int32 OtroIndice, bool bFromSweep, const FHitResult& SweepResult) { 
 	ADispareitorPersonaje* DispareitorPersonaje = Cast<ADispareitorPersonaje>(OtroActor);
 	if(DispareitorPersonaje && HasAuthority()) {
 		AController* ControladorPersonaje = DispareitorPersonaje->Controller; // Es el propio controlador del personaje (se hace daño asimismo)

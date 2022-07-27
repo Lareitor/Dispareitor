@@ -14,10 +14,8 @@ public:
 
 protected:
 	virtual void BeginPlay() override;	
-	UFUNCTION()
-	void AlRebotar(const FHitResult& ImpactoResultado, const FVector& ImpactoVelocidad);
+	UFUNCTION()	void Callback_AlRebotar(const FHitResult& ResultadoDelImpacto, const FVector& VelocidadAlImpactar);
 	
 private:
-	UPROPERTY(EditAnywhere)
-	USoundCue* ReboteSonido;	
+	UPROPERTY(EditAnywhere)	USoundCue* SonidoAlRebotar;	//GrenadeLauncher_Bounce_Cue
 };

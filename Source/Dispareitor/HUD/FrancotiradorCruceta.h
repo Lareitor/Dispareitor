@@ -9,6 +9,5 @@ class DISPAREITOR_API UFrancotiradorCruceta : public UUserWidget {
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(Transient, meta = (BindWidgetAnim))
-	UWidgetAnimation* AnimacionZoomIn;
+	UPROPERTY(Transient, meta = (BindWidgetAnim)) UWidgetAnimation* AnimacionZoomIn;
 };

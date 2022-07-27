@@ -9,13 +9,7 @@ class DISPAREITOR_API UAnunciosWidget : public UUserWidget {
 	GENERATED_BODY()
 
 public:	
-	UPROPERTY(meta = (BindWidget))
-	class UTextBlock* CalentamientoTiempo;
-
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* PartidaComienza;
-
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* Informacion;	
-	
+	UPROPERTY(meta = (BindWidget)) class UTextBlock* TiempoCalentamiento;
+	UPROPERTY(meta = (BindWidget)) UTextBlock* PartidaComienza;
+	UPROPERTY(meta = (BindWidget)) UTextBlock* Informacion;	
 };

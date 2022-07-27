@@ -9,80 +9,54 @@ class DISPAREITOR_API ADispareitorControladorJugador : public APlayerController 
 	GENERATED_BODY()
 
 public:
-	void HUDVidaActualizar(float Vida, float VidaMaxima);
-	void HUDMuertosActualizar(float Muertos);
-	void HUDMuertesActualizar(int32 Muertes);
-	void HUDArmaMunicionActualizar(int32 ArmaMunicion);
-	void HUDPersonajeMunicionActualizar(int32 PersonajeMunicion);
-	void HUDPartidaTiempoActualizar(float CuentaAtrasTiempo);
-	void HUDAnunciosTiempoActualizar(float CuentaAtrasTiempo);
-	void HUDFrancotiradorCrucetaActualizar(bool bEstaApuntando);
-	void HUDGranadasActualizar(int32 GranadasCantidad);
+	void ActualizarVidaHUD(float Vida, float VidaMaxima);
+	void ActualizarMuertosHUD(float Muertos);
+	void ActualizarMuertesHUD(int32 Muertes);
+	void ActualizarMunicionArmaHUD(int32 MunicionArma);
+	void ActualizarMunicionPersonajeHUD(int32 MunicionPersonaje);
+	void ActualizarTiempoPartidaHUD(float TiempoCuentaAtras);
+	void ActualizarTiempoAnunciosHUD(float TiempoCuentaAtras);
+	void ActualizarCrucetaFrancotiradorHUD(bool bEstaApuntando);
+	void ActualizarGranadasHUD(int32 CantidadGranadas);
 	virtual void OnPossess(APawn* Peon) override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
-	virtual float ServidorTiempoObtener();
+	virtual float ObtenerTiempoServidor();
 	virtual void ReceivedPlayer() override;
-	void PartidaEstadoActualizar(FName Estado);
-
-	void PartidaEstadoManejador();
-	void EnfriamientoManejador();
+	void ActualizarEstadoPartida(FName Estado);
+	void ManejarEstadoPartida();
+	void ManejarEnfriamiento();
 	
 protected:
 	virtual void BeginPlay() override;
-	void HUDTiempoActivar();
+	void ActivarTiempoHUD();
 	void SondearInicio();
-
 	// Sincronizacion tiempos entre cliente y servidor
-
-	UFUNCTION(Server, Reliable)
-	void TiempoServidorPeticion_EnServidor(float TiempoClientePeticion);
-
-	UFUNCTION(Client, Reliable)
-	void TiempoServidorDevolucion_EnCliente(float TiempoClientePeticion, float TiempoServidorAlRecibirPeticion);
-
-	float TiempoServidorClienteDelta = 0.f; 
-
-	UPROPERTY(EditAnywhere, Category = Tiempo)
-	float TiempoSincronizacionFrecuencia = 5.f;
-
+	UFUNCTION(Server, Reliable)	void PedirTiempoServidor_EnServidor(float TiempoClientePeticion);
+	UFUNCTION(Client, Reliable)	void DevolverTiempoServidor_EnCliente(float TiempoClientePeticion, float TiempoServidorAlRecibirPeticion);
+	float DeltaTiempoServidorCliente = 0.f; 
+	UPROPERTY(EditAnywhere, Category = Tiempo) float TiempoSincronizacionFrecuencia = 5.f;
 	float TiempoSincronizacionPasado = 0.f;
-	void TiempoSincronizacionComprobar(float DeltaTime);
-
-	UFUNCTION(Server, Reliable)
-	void PartidaEstadoComprobar_EnServidor();
-
-	UFUNCTION(Client, Reliable)
-	void PartidaEstadoComprobar_EnCliente(FName _PartidaEstado, float _CalentamientoTiempo, float _PartidaTiempo, float _EnfriamientoTiempo, float _InicioNivelTiempo);
+	void ComprobarTiempoSincronizacion(float DeltaTime);
+	UFUNCTION(Server, Reliable)	void ComprobarEstadoPartida_EnServidor();
+	UFUNCTION(Client, Reliable)	void ComprobarEstadoPartida_EnCliente(FName _EstadoPartida, float _TiempoCalentamiento, float _TiempoPartida, float _TiempoEnfriamiento, float _TiempoInicioNivel);
 
 private:
-	UPROPERTY()
-	class ADispareitorHUD* DispareitorHUD;	
-
-	UPROPERTY()
-	class ADispareitorModoJuego* DispareitorModoJuego;
-
-	float InicioNivelTiempo = 0.f;
-	float PartidaTiempo = 0.f;
-	float CalentamientoTiempo = 0.f;
-	float EnfriamientoTiempo = 0.f; 
+	UPROPERTY() class ADispareitorHUD* DispareitorHUD;	
+	UPROPERTY()	class ADispareitorModoJuego* DispareitorModoJuego;
+	float TiempoInicioNivel = 0.f;
+	float TiempoPartida = 0.f;
+	float TiempoCalentamiento = 0.f;
+	float TiempoEnfriamiento = 0.f; 
 	uint32 SegundosRestantes = 0;
-
-	UPROPERTY(ReplicatedUsing = PartidaEstado_AlReplicar)
-	FName PartidaEstado;
-
-	UFUNCTION()
-	void PartidaEstado_AlReplicar();
-
-	UPROPERTY()
-	class UPantallaDelPersonaje* PantallaDelPersonaje;
+	UPROPERTY(ReplicatedUsing = AlReplicar_EstadoPartida) FName EstadoPartida;
+	UFUNCTION()	void AlReplicar_EstadoPartida();
+	UPROPERTY() class UPantallaDelPersonaje* PantallaDelPersonaje;
 	bool bPantallaDelPersonajeInicializada = false;
-
 	// Variables cache usadas durante el proceso de Sondeo
-	float HUDVida;
-	float HUDVidaMaxima;
-	float HUDMuertos;
-	int32 HUDMuertes; 
-	int32 HUDGranadasActuales;
+	float VidaHUD;
+	float VidaMaximaHUD;
+	float MuertosHUD;
+	int32 MuertesHUD; 
+	int32 GranadasActualesHUD;
 };

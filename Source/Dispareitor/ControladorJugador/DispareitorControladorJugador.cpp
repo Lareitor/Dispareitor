@@ -13,27 +13,26 @@
 #include "Dispareitor/EstadoJuego/DispareitorEstadoJuego.h"
 #include "Dispareitor/EstadoJugador/DispareitorEstadoJugador.h"
 
-
 // APlayerController solo existe en el servidor y en el cliente propietario. Permite el acceso al HUD: vida, muertos, muertes, municion...
 
 void ADispareitorControladorJugador::BeginPlay() {
     Super::BeginPlay();
 
     DispareitorHUD = Cast<ADispareitorHUD>(GetHUD());
-    PartidaEstadoComprobar_EnServidor();
+    ComprobarEstadoPartida_EnServidor();
 }
 
 void ADispareitorControladorJugador::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-    DOREPLIFETIME(ADispareitorControladorJugador, PartidaEstado);
+    DOREPLIFETIME(ADispareitorControladorJugador, EstadoPartida);
 }
 
 
 void ADispareitorControladorJugador::Tick(float DeltaTime) {
     Super::Tick(DeltaTime);
-    HUDTiempoActivar();
-    TiempoSincronizacionComprobar(DeltaTime);
+    ActivarTiempoHUD();
+    ComprobarTiempoSincronizacion(DeltaTime);
     SondearInicio();
 }
 
@@ -42,14 +41,14 @@ void ADispareitorControladorJugador::SondearInicio() {
         if(DispareitorHUD && DispareitorHUD->PantallaDelPersonaje) {
             PantallaDelPersonaje = DispareitorHUD->PantallaDelPersonaje;  
             if(PantallaDelPersonaje) {
-                HUDVidaActualizar(HUDVida, HUDVidaMaxima);
-                HUDMuertosActualizar(HUDMuertos);
-                HUDMuertesActualizar(HUDMuertes);
+                ActualizarVidaHUD(VidaHUD, VidaMaximaHUD);
+                ActualizarMuertosHUD(MuertosHUD);
+                ActualizarMuertesHUD(MuertesHUD);
 
                 ADispareitorPersonaje* DispareitorPersonaje = Cast<ADispareitorPersonaje>(GetPawn());
-                if(DispareitorPersonaje && DispareitorPersonaje->CombateComponenteObtener()) {
-                    //HUDGranadasActualizar(HUDGranadasActuales);
-                    HUDGranadasActualizar(DispareitorPersonaje->CombateComponenteObtener()->GranadasActualesObtener());
+                if(DispareitorPersonaje && DispareitorPersonaje->ObtenerCombateComponente()) {
+                    //ActualizarGranadasHUD(GranadasActualesHUD);
+                    ActualizarGranadasHUD(DispareitorPersonaje->ObtenerCombateComponente()->ObtenerGranadasActuales());
                 }
             }
         }
@@ -62,28 +61,55 @@ void ADispareitorControladorJugador::OnPossess(APawn* Peon) {
 
     ADispareitorPersonaje* DispareitorPersonaje = Cast<ADispareitorPersonaje>(Peon);
     if(DispareitorPersonaje) {
-        HUDVidaActualizar(DispareitorPersonaje->ObtenerVida(), DispareitorPersonaje->ObtenerVidaMaxima());
+        ActualizarVidaHUD(DispareitorPersonaje->ObtenerVida(), DispareitorPersonaje->ObtenerVidaMaxima());
     }
 }
 
-// Llamado por OnPossess y ADispareitorPersonaje::ActualizarHUDVida 
-void ADispareitorControladorJugador::HUDVidaActualizar(float Vida, float VidaMaxima) {
+// Llamado por OnPossess y ADispareitorPersonaje::ActualizarVidaHUD 
+void ADispareitorControladorJugador::ActualizarVidaHUD(float Vida, float VidaMaxima) {
     DispareitorHUD = DispareitorHUD != nullptr ? DispareitorHUD : Cast<ADispareitorHUD>(GetHUD());
 
-    if(DispareitorHUD && DispareitorHUD->PantallaDelPersonaje && DispareitorHUD->PantallaDelPersonaje->VidaBarra && DispareitorHUD->PantallaDelPersonaje->VidaTexto) {
-        DispareitorHUD->PantallaDelPersonaje->VidaBarra->SetPercent(Vida / VidaMaxima); 
-        FString VidaTexto = FString::Printf(TEXT("%d/%d"), FMath::CeilToInt(Vida), FMath::CeilToInt(VidaMaxima));
-        DispareitorHUD->PantallaDelPersonaje->VidaTexto->SetText(FText::FromString(VidaTexto)); 
+    if(DispareitorHUD && DispareitorHUD->PantallaDelPersonaje && DispareitorHUD->PantallaDelPersonaje->BarraVida && DispareitorHUD->PantallaDelPersonaje->TextoVida) {
+        DispareitorHUD->PantallaDelPersonaje->BarraVida->SetPercent(Vida / VidaMaxima); 
+        FString TextoVida = FString::Printf(TEXT("%d/%d"), FMath::CeilToInt(Vida), FMath::CeilToInt(VidaMaxima));
+        DispareitorHUD->PantallaDelPersonaje->TextoVida->SetText(FText::FromString(TextoVida)); 
     } else {
         bPantallaDelPersonajeInicializada = true;
-        HUDVida = Vida;
-        HUDVidaMaxima = VidaMaxima;
+        VidaHUD = Vida;
+        VidaMaximaHUD = VidaMaxima;
 
+    }
+}
+
+// Llamado por BeginPlay
+void ADispareitorControladorJugador::ComprobarEstadoPartida_EnServidor_Implementation() {
+    DispareitorModoJuego = DispareitorModoJuego != nullptr ? DispareitorModoJuego : Cast<ADispareitorModoJuego>(UGameplayStatics::GetGameMode(this));
+    if(DispareitorModoJuego) {
+        TiempoCalentamiento = DispareitorModoJuego->TiempoCalentamiento;
+        TiempoPartida = DispareitorModoJuego->TiempoPartida;
+        TiempoEnfriamiento = DispareitorModoJuego->TiempoEnfriamiento;
+        TiempoInicioNivel = DispareitorModoJuego->TiempoInicioNivel;
+        EstadoPartida = DispareitorModoJuego->GetMatchState();
+        ComprobarEstadoPartida_EnCliente(EstadoPartida, TiempoCalentamiento, TiempoPartida, TiempoEnfriamiento, TiempoInicioNivel);
+    }
+}
+
+void ADispareitorControladorJugador::ComprobarEstadoPartida_EnCliente_Implementation(FName _EstadoPartida, float _TiempoCalentamiento, float _TiempoPartida, float _TiempoEnfriamiento, float _TiempoInicioNivel) {
+    TiempoCalentamiento = _TiempoCalentamiento;
+    TiempoPartida = _TiempoPartida;
+    TiempoEnfriamiento = _TiempoEnfriamiento;
+    TiempoInicioNivel = _TiempoInicioNivel;
+    EstadoPartida = _EstadoPartida;
+    ActualizarEstadoPartida(EstadoPartida);
+
+    // Si nos unimos cuando la partida ya esté empezada no veremos este anuncio
+    if(DispareitorHUD && EstadoPartida == MatchState::WaitingToStart) {
+        DispareitorHUD->MostrarAnunciosWidget();
     }
 }
 
 // Llamado por ADispareitorEstadoJugador::IncrementarMuertos
-void ADispareitorControladorJugador::HUDMuertosActualizar(float Muertos) {
+void ADispareitorControladorJugador::ActualizarMuertosHUD(float Muertos) {
     DispareitorHUD = DispareitorHUD != nullptr ? DispareitorHUD : Cast<ADispareitorHUD>(GetHUD());
 
     if(DispareitorHUD && DispareitorHUD->PantallaDelPersonaje && DispareitorHUD->PantallaDelPersonaje->Muertos) {
@@ -91,12 +117,12 @@ void ADispareitorControladorJugador::HUDMuertosActualizar(float Muertos) {
         DispareitorHUD->PantallaDelPersonaje->Muertos->SetText(FText::FromString(MuertosTexto));   
     } else {
         bPantallaDelPersonajeInicializada = true;
-        HUDMuertos = Muertos;
+        MuertosHUD = Muertos;
     }
 }
 
 // Llamado por ADispareitorEstadoJugador::IncrementarMuertes
-void ADispareitorControladorJugador::HUDMuertesActualizar(int32 Muertes) {
+void ADispareitorControladorJugador::ActualizarMuertesHUD(int32 Muertes) {
     DispareitorHUD = DispareitorHUD != nullptr ? DispareitorHUD : Cast<ADispareitorHUD>(GetHUD());
 
     if(DispareitorHUD && DispareitorHUD->PantallaDelPersonaje && DispareitorHUD->PantallaDelPersonaje->Muertes) {
@@ -104,35 +130,35 @@ void ADispareitorControladorJugador::HUDMuertesActualizar(int32 Muertes) {
         DispareitorHUD->PantallaDelPersonaje->Muertes->SetText(FText::FromString(MuertesTexto));   
     } else {
         bPantallaDelPersonajeInicializada = true;
-        HUDMuertes = Muertes;
+        MuertesHUD = Muertes;
     }
 }
 
-void ADispareitorControladorJugador::HUDArmaMunicionActualizar(int32 ArmaMunicion) {
+void ADispareitorControladorJugador::ActualizarMunicionArmaHUD(int32 MunicionArma) {
     DispareitorHUD = DispareitorHUD != nullptr ? DispareitorHUD : Cast<ADispareitorHUD>(GetHUD());
 
     if(DispareitorHUD && DispareitorHUD->PantallaDelPersonaje && DispareitorHUD->PantallaDelPersonaje->MunicionArma) {
-        FString ArmaMunicionTexto = FString::Printf(TEXT("%d"), ArmaMunicion);
-        DispareitorHUD->PantallaDelPersonaje->MunicionArma->SetText(FText::FromString(ArmaMunicionTexto));   
+        FString TextoMunicionArma = FString::Printf(TEXT("%d"), MunicionArma);
+        DispareitorHUD->PantallaDelPersonaje->MunicionArma->SetText(FText::FromString(TextoMunicionArma));   
     }
 }
 
-void ADispareitorControladorJugador::HUDPersonajeMunicionActualizar(int32 PersonajeMunicion) {
+void ADispareitorControladorJugador::ActualizarMunicionPersonajeHUD(int32 MunicionPersonaje) {
     DispareitorHUD = DispareitorHUD != nullptr ? DispareitorHUD : Cast<ADispareitorHUD>(GetHUD());
 
     if(DispareitorHUD && DispareitorHUD->PantallaDelPersonaje && DispareitorHUD->PantallaDelPersonaje->MunicionPersonaje) {
-        FString PersonajeMunicionTexto = FString::Printf(TEXT("%d"), PersonajeMunicion);
-        DispareitorHUD->PantallaDelPersonaje->MunicionPersonaje->SetText(FText::FromString(PersonajeMunicionTexto));   
+        FString TextoMunicionPersonaje = FString::Printf(TEXT("%d"), MunicionPersonaje);
+        DispareitorHUD->PantallaDelPersonaje->MunicionPersonaje->SetText(FText::FromString(TextoMunicionPersonaje));   
     }
 }
 
-void ADispareitorControladorJugador::HUDPartidaTiempoActualizar(float CuentaAtrasTiempo) {
+void ADispareitorControladorJugador::ActualizarTiempoPartidaHUD(float TiempoCuentaAtras) {
     DispareitorHUD = DispareitorHUD != nullptr ? DispareitorHUD : Cast<ADispareitorHUD>(GetHUD());
 
     if(DispareitorHUD && DispareitorHUD->PantallaDelPersonaje && DispareitorHUD->PantallaDelPersonaje->Tiempo) {
-        if(CuentaAtrasTiempo >= 0.f) {  
-            int32 Minutos = FMath::FloorToInt(CuentaAtrasTiempo / 60.f);
-            int32 Segundos = CuentaAtrasTiempo - Minutos * 60;
+        if(TiempoCuentaAtras >= 0.f) {  
+            int32 Minutos = FMath::FloorToInt(TiempoCuentaAtras / 60.f);
+            int32 Segundos = TiempoCuentaAtras - Minutos * 60;
             FString PartidaTiempoTexto = FString::Printf(TEXT("%02d:%02d"), Minutos, Segundos);
             DispareitorHUD->PantallaDelPersonaje->Tiempo->SetText(FText::FromString(PartidaTiempoTexto)); 
         } else {
@@ -141,26 +167,26 @@ void ADispareitorControladorJugador::HUDPartidaTiempoActualizar(float CuentaAtra
     }
 }
 
-void ADispareitorControladorJugador::HUDAnunciosTiempoActualizar(float CuentaAtrasTiempo) {
+void ADispareitorControladorJugador::ActualizarTiempoAnunciosHUD(float TiempoCuentaAtras) {
     DispareitorHUD = DispareitorHUD != nullptr ? DispareitorHUD : Cast<ADispareitorHUD>(GetHUD());
 
-    if(DispareitorHUD && DispareitorHUD->AnunciosWidget && DispareitorHUD->AnunciosWidget->CalentamientoTiempo) {
-        if(CuentaAtrasTiempo >= 0.f) {            
-            int32 Minutos = FMath::FloorToInt(CuentaAtrasTiempo / 60.f);
-            int32 Segundos = CuentaAtrasTiempo - Minutos * 60;
-            FString CalentamientoTiempoTexto = FString::Printf(TEXT("%02d:%02d"), Minutos, Segundos);
-            DispareitorHUD->AnunciosWidget->CalentamientoTiempo->SetText(FText::FromString(CalentamientoTiempoTexto));   
+    if(DispareitorHUD && DispareitorHUD->AnunciosWidget && DispareitorHUD->AnunciosWidget->TiempoCalentamiento) {
+        if(TiempoCuentaAtras >= 0.f) {            
+            int32 Minutos = FMath::FloorToInt(TiempoCuentaAtras / 60.f);
+            int32 Segundos = TiempoCuentaAtras - Minutos * 60;
+            FString TextoTiempoCalentamiento = FString::Printf(TEXT("%02d:%02d"), Minutos, Segundos);
+            DispareitorHUD->AnunciosWidget->TiempoCalentamiento->SetText(FText::FromString(TextoTiempoCalentamiento));   
         } else {
-            DispareitorHUD->AnunciosWidget->CalentamientoTiempo->SetText(FText());   
+            DispareitorHUD->AnunciosWidget->TiempoCalentamiento->SetText(FText());   
         }
     }
 }
 
-void ADispareitorControladorJugador::HUDFrancotiradorCrucetaActualizar(bool bEstaApuntando) {
+void ADispareitorControladorJugador::ActualizarCrucetaFrancotiradorHUD(bool bEstaApuntando) {
     DispareitorHUD = DispareitorHUD != nullptr ? DispareitorHUD : Cast<ADispareitorHUD>(GetHUD());
  
 	if (!DispareitorHUD->FrancotiradorCruceta) {
-		DispareitorHUD->FrancotiradorCrucetaAnadir();
+		DispareitorHUD->MostrarFrancotiradorCruceta();
 	}
  
 	if(DispareitorHUD && DispareitorHUD->FrancotiradorCruceta && DispareitorHUD->FrancotiradorCruceta->AnimacionZoomIn) {
@@ -172,123 +198,123 @@ void ADispareitorControladorJugador::HUDFrancotiradorCrucetaActualizar(bool bEst
 	}
 }
 
-void ADispareitorControladorJugador::HUDGranadasActualizar(int32 GranadasCantidad) {
+void ADispareitorControladorJugador::ActualizarGranadasHUD(int32 CantidadGranadas) {
     DispareitorHUD = DispareitorHUD != nullptr ? DispareitorHUD : Cast<ADispareitorHUD>(GetHUD());
 
-    if(DispareitorHUD && DispareitorHUD->PantallaDelPersonaje && DispareitorHUD->PantallaDelPersonaje->GranadasCantidad) {
-        FString GranadasCantidadTexto = FString::Printf(TEXT("%d"), GranadasCantidad);
-        DispareitorHUD->PantallaDelPersonaje->GranadasCantidad->SetText(FText::FromString(GranadasCantidadTexto));   
+    if(DispareitorHUD && DispareitorHUD->PantallaDelPersonaje && DispareitorHUD->PantallaDelPersonaje->CantidadGranadas) {
+        FString TextoCantidadGranadas = FString::Printf(TEXT("%d"), CantidadGranadas);
+        DispareitorHUD->PantallaDelPersonaje->CantidadGranadas->SetText(FText::FromString(TextoCantidadGranadas));   
     } else {
-        HUDGranadasActuales = GranadasCantidad;
+        GranadasActualesHUD = CantidadGranadas;
     }
 }
 
-void ADispareitorControladorJugador::HUDTiempoActivar() {
+void ADispareitorControladorJugador::ActivarTiempoHUD() {
     float TiempoRestante = 0.f;
-    if(PartidaEstado == MatchState::WaitingToStart) {
-        TiempoRestante = CalentamientoTiempo - ServidorTiempoObtener() + InicioNivelTiempo;
-    } else if(PartidaEstado == MatchState::InProgress) {
-        TiempoRestante = CalentamientoTiempo + PartidaTiempo - ServidorTiempoObtener() + InicioNivelTiempo;
-    } else if(PartidaEstado == MatchState::Enfriamiento) {
-        TiempoRestante = CalentamientoTiempo + PartidaTiempo + EnfriamientoTiempo - ServidorTiempoObtener() + InicioNivelTiempo;
+    if(EstadoPartida == MatchState::WaitingToStart) {
+        TiempoRestante = TiempoCalentamiento - ObtenerTiempoServidor() + TiempoInicioNivel;
+    } else if(EstadoPartida == MatchState::InProgress) {
+        TiempoRestante = TiempoCalentamiento + TiempoPartida - ObtenerTiempoServidor() + TiempoInicioNivel;
+    } else if(EstadoPartida == MatchState::Enfriamiento) {
+        TiempoRestante = TiempoCalentamiento + TiempoPartida + TiempoEnfriamiento - ObtenerTiempoServidor() + TiempoInicioNivel;
     }
     uint32 SegundosRestantesTemporal = FMath::CeilToInt(TiempoRestante);
 
     if(HasAuthority()) {
         DispareitorModoJuego = DispareitorModoJuego != nullptr ? DispareitorModoJuego : Cast<ADispareitorModoJuego>(UGameplayStatics::GetGameMode(this));
         if(DispareitorModoJuego) {
-            SegundosRestantesTemporal = FMath::CeilToInt(DispareitorModoJuego->CuentaAtrasTiempoObtener() + InicioNivelTiempo);
+            SegundosRestantesTemporal = FMath::CeilToInt(DispareitorModoJuego->ObtenerTiempoCuentaAtras() + TiempoInicioNivel);
         }   
     }
 
     if(SegundosRestantesTemporal != SegundosRestantes) {
-        if(PartidaEstado == MatchState::WaitingToStart || PartidaEstado == MatchState::Enfriamiento) {
-            HUDAnunciosTiempoActualizar(TiempoRestante);
-        } else if(PartidaEstado == MatchState::InProgress) {
-            HUDPartidaTiempoActualizar(TiempoRestante);
+        if(EstadoPartida == MatchState::WaitingToStart || EstadoPartida == MatchState::Enfriamiento) {
+            ActualizarTiempoAnunciosHUD(TiempoRestante);
+        } else if(EstadoPartida == MatchState::InProgress) {
+            ActualizarTiempoPartidaHUD(TiempoRestante);
         }   
     }
     SegundosRestantes = SegundosRestantesTemporal;
 }
 
 // Peticion tiempo (ejecutada en servidor) cliente -> servidor 
-void ADispareitorControladorJugador::TiempoServidorPeticion_EnServidor_Implementation(float TiempoClientePeticion) {
+void ADispareitorControladorJugador::PedirTiempoServidor_EnServidor_Implementation(float TiempoClientePeticion) {
     float TiempoServidorAlRecibirPeticion = GetWorld()->GetTimeSeconds();
-    TiempoServidorDevolucion_EnCliente(TiempoClientePeticion, TiempoServidorAlRecibirPeticion);
+    DevolverTiempoServidor_EnCliente(TiempoClientePeticion, TiempoServidorAlRecibirPeticion);
 }
 
 // Respuesta tiempo (ejecutada en cliente) servidor -> cliente
-void ADispareitorControladorJugador::TiempoServidorDevolucion_EnCliente_Implementation(float TiempoClientePeticion, float TiempoServidorAlRecibirPeticion) {
+void ADispareitorControladorJugador::DevolverTiempoServidor_EnCliente_Implementation(float TiempoClientePeticion, float TiempoServidorAlRecibirPeticion) {
     // RoundTripTime
     float RTT = GetWorld()->GetTimeSeconds() - TiempoClientePeticion;
-    float TiempoServidorActual = TiempoServidorAlRecibirPeticion +(0.5f * RTT);
-    TiempoServidorClienteDelta = TiempoServidorActual - GetWorld()->GetTimeSeconds();
+    float TiempoServidorActual = TiempoServidorAlRecibirPeticion + (0.5f * RTT);
+    DeltaTiempoServidorCliente = TiempoServidorActual - GetWorld()->GetTimeSeconds();
 }
 
-float ADispareitorControladorJugador::ServidorTiempoObtener() {
-    return HasAuthority() ? GetWorld()->GetTimeSeconds() : GetWorld()->GetTimeSeconds() + TiempoServidorClienteDelta;
+float ADispareitorControladorJugador::ObtenerTiempoServidor() {
+    return HasAuthority() ? GetWorld()->GetTimeSeconds() : GetWorld()->GetTimeSeconds() + DeltaTiempoServidorCliente;
 }
 
 // El momento mas temprano en el que podemos sincronizar con el servidor
 void ADispareitorControladorJugador::ReceivedPlayer() {
     Super::ReceivedPlayer();
     if(IsLocalController()) {
-        TiempoServidorPeticion_EnServidor(GetWorld()->GetTimeSeconds());
+        PedirTiempoServidor_EnServidor(GetWorld()->GetTimeSeconds());
     }
 }
 
-void ADispareitorControladorJugador::TiempoSincronizacionComprobar(float DeltaTime) {
+void ADispareitorControladorJugador::ComprobarTiempoSincronizacion(float DeltaTime) {
     TiempoSincronizacionPasado += DeltaTime;
     if(IsLocalController() && TiempoSincronizacionPasado > TiempoSincronizacionFrecuencia) {
-        TiempoServidorPeticion_EnServidor(GetWorld()->GetTimeSeconds());
+        PedirTiempoServidor_EnServidor(GetWorld()->GetTimeSeconds());
         TiempoSincronizacionPasado = 0.f;
     }
 }
 
 // Llamado por ADispareitorModoJuego::OnMatchStateSet
-void ADispareitorControladorJugador::PartidaEstadoActualizar(FName Estado) {
-    PartidaEstado = Estado;
-    PartidaEstadoManejador();
+void ADispareitorControladorJugador::ActualizarEstadoPartida(FName Estado) {
+    EstadoPartida = Estado;
+    ManejarEstadoPartida();
 }
 
-void ADispareitorControladorJugador::PartidaEstado_AlReplicar() {
-    PartidaEstadoManejador();
+void ADispareitorControladorJugador::AlReplicar_EstadoPartida() {
+    ManejarEstadoPartida();
 }
 
-void ADispareitorControladorJugador::PartidaEstadoManejador() {
+void ADispareitorControladorJugador::ManejarEstadoPartida() {
     DispareitorHUD = DispareitorHUD != nullptr ? DispareitorHUD : Cast<ADispareitorHUD>(GetHUD());
     if(DispareitorHUD) {
-        if(PartidaEstado == MatchState::InProgress) {
+        if(EstadoPartida == MatchState::InProgress) {
             if(DispareitorHUD->PantallaDelPersonaje == nullptr) {
-                DispareitorHUD->AnadirPantallaDelPersonaje();
+                DispareitorHUD->MostrarPantallaDelPersonaje();
             }
             if(DispareitorHUD->AnunciosWidget) {
                 DispareitorHUD->AnunciosWidget->SetVisibility(ESlateVisibility::Hidden);
             }
-        } else if(PartidaEstado == MatchState::Enfriamiento) {
+        } else if(EstadoPartida == MatchState::Enfriamiento) {
             DispareitorHUD->PantallaDelPersonaje->RemoveFromParent();
             if(DispareitorHUD->AnunciosWidget && DispareitorHUD->AnunciosWidget->PartidaComienza && DispareitorHUD->AnunciosWidget->Informacion) {
                 DispareitorHUD->AnunciosWidget->SetVisibility(ESlateVisibility::Visible);
                 
-                FString PartidaComienzaTexto("Nueva partida comienza en:");
-                DispareitorHUD->AnunciosWidget->PartidaComienza->SetText(FText::FromString(PartidaComienzaTexto));
+                FString TextoPartidaComienza("Nueva partida comienza en:");
+                DispareitorHUD->AnunciosWidget->PartidaComienza->SetText(FText::FromString(TextoPartidaComienza));
                 
                 ADispareitorEstadoJuego* DispareitorEstadoJuego = Cast<ADispareitorEstadoJuego>(UGameplayStatics::GetGameState(this));
                 ADispareitorEstadoJugador* DispareitorEstadoJugador = GetPlayerState<ADispareitorEstadoJugador>();
                 if(DispareitorEstadoJuego && DispareitorEstadoJugador) {
-                    TArray<ADispareitorEstadoJugador*> EstadoJugadoresPuntuacionMasAlta = DispareitorEstadoJuego->EstadoJugadoresPuntuacionMasAlta;
+                    TArray<ADispareitorEstadoJugador*> ArrayDeEstadoJugadoresConPuntuacionMasAlta = DispareitorEstadoJuego->ArrayDeEstadoJugadoresConPuntuacionMasAlta;
                     FString JugadoresPuntuacionMasAltaTexto;
-                    if(EstadoJugadoresPuntuacionMasAlta.Num() == 0) {
+                    if(ArrayDeEstadoJugadoresConPuntuacionMasAlta.Num() == 0) {
                         JugadoresPuntuacionMasAltaTexto = FString("No hay ganador. Sois todos unos losers!"); 
-                    } else if(EstadoJugadoresPuntuacionMasAlta.Num() == 1) {
-                        if(EstadoJugadoresPuntuacionMasAlta[0] == DispareitorEstadoJugador) {
+                    } else if(ArrayDeEstadoJugadoresConPuntuacionMasAlta.Num() == 1) {
+                        if(ArrayDeEstadoJugadoresConPuntuacionMasAlta[0] == DispareitorEstadoJugador) {
                             JugadoresPuntuacionMasAltaTexto = FString("Eres el ganador. El puto amo de Dispareitor!");
                         } else {
-                            JugadoresPuntuacionMasAltaTexto = FString::Printf(TEXT("Apunta bien su nombre para la siguiente...\n Os ha barrido de la partida: %s"), *EstadoJugadoresPuntuacionMasAlta[0]->GetPlayerName());
+                            JugadoresPuntuacionMasAltaTexto = FString::Printf(TEXT("Toma nota de su nombre para la siguiente...\n Os ha barrido de la partida: %s"), *ArrayDeEstadoJugadoresConPuntuacionMasAlta[0]->GetPlayerName());
                         }
-                    } else if(EstadoJugadoresPuntuacionMasAlta.Num() > 1) {
+                    } else if(ArrayDeEstadoJugadoresConPuntuacionMasAlta.Num() > 1) {
                         JugadoresPuntuacionMasAltaTexto = FString("Han quedado empatados en el 'namber guan':\n");
-                        for(auto EstadoJugador : EstadoJugadoresPuntuacionMasAlta) {
+                        for(auto EstadoJugador : ArrayDeEstadoJugadoresConPuntuacionMasAlta) {
                             JugadoresPuntuacionMasAltaTexto.Append(FString::Printf(TEXT("%s\n"), *EstadoJugador->GetPlayerName()));    
                         }
                     }
@@ -299,38 +325,13 @@ void ADispareitorControladorJugador::PartidaEstadoManejador() {
         }
     } 
     
-    if(PartidaEstado == MatchState::Enfriamiento) {
+    if(EstadoPartida == MatchState::Enfriamiento) {
         ADispareitorPersonaje* DispareitorPersonaje = Cast<ADispareitorPersonaje>(GetPawn());
-        if(DispareitorPersonaje && DispareitorPersonaje->CombateComponenteObtener()) {
+        if(DispareitorPersonaje && DispareitorPersonaje->ObtenerCombateComponente()) {
             DispareitorPersonaje->bSoloGirarCamara = true;
-            DispareitorPersonaje->CombateComponenteObtener()->DispararPresionado(false);
+            DispareitorPersonaje->ObtenerCombateComponente()->DispararPresionado(false);
         }
     }
 }
 
-void ADispareitorControladorJugador::PartidaEstadoComprobar_EnServidor_Implementation() {
-    DispareitorModoJuego = DispareitorModoJuego != nullptr ? DispareitorModoJuego : Cast<ADispareitorModoJuego>(UGameplayStatics::GetGameMode(this));
-    if(DispareitorModoJuego) {
-        CalentamientoTiempo = DispareitorModoJuego->CalentamientoTiempo;
-        PartidaTiempo = DispareitorModoJuego->PartidaTiempo;
-        EnfriamientoTiempo = DispareitorModoJuego->EnfriamientoTiempo;
-        InicioNivelTiempo = DispareitorModoJuego->InicioNivelTiempo;
-        PartidaEstado = DispareitorModoJuego->GetMatchState();
-        PartidaEstadoComprobar_EnCliente(PartidaEstado, CalentamientoTiempo, PartidaTiempo, EnfriamientoTiempo, InicioNivelTiempo);
-    }
-}
-
-void ADispareitorControladorJugador::PartidaEstadoComprobar_EnCliente_Implementation(FName _PartidaEstado, float _CalentamientoTiempo, float _PartidaTiempo, float _EnfriamientoTiempo, float _InicioNivelTiempo) {
-    CalentamientoTiempo = _CalentamientoTiempo;
-    PartidaTiempo = _PartidaTiempo;
-    EnfriamientoTiempo = _EnfriamientoTiempo;
-    InicioNivelTiempo = _InicioNivelTiempo;
-    PartidaEstado = _PartidaEstado;
-    PartidaEstadoActualizar(PartidaEstado);
-
-    // Si nos unimos cuando la partida ya esté empezada no veremos este anuncio
-    if(DispareitorHUD && PartidaEstado == MatchState::WaitingToStart) {
-        DispareitorHUD->AnadirAnunciosWidget();
-    }
-}
 

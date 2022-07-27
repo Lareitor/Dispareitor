@@ -30,11 +30,11 @@ void UDispareitorInstanciaAnimacion::NativeUpdateAnimation(float DeltaTime) {
 
     bEnElAire = DispareitorPersonaje->GetCharacterMovement()->IsFalling();
     bAcelerando = DispareitorPersonaje->GetCharacterMovement()->GetCurrentAcceleration().Size() > 0.f ? true : false;
-    bArmaEquipada = DispareitorPersonaje->EstaArmaEquipada();
+    bArmaEquipada = DispareitorPersonaje->HayArmaEquipada();
     ArmaEquipada = DispareitorPersonaje->ObtenerArmaEquipada();
     bAgachado = DispareitorPersonaje->bIsCrouched;
     bApuntando = DispareitorPersonaje->EstaApuntando();
-    // Se utiliza en las transacciones
+    // Se utiliza en las transiciones
     GirarEnSitio = DispareitorPersonaje->ObtenerGirarEnSitio();
     bRotarHuesoRaiz = DispareitorPersonaje->DeboRotarHuesoRaiz();
     bEliminado = DispareitorPersonaje->EstaEliminado();
@@ -46,17 +46,17 @@ void UDispareitorInstanciaAnimacion::NativeUpdateAnimation(float DeltaTime) {
     // MakeRotFromX toma un vector como direccion y calcula su rotacion
     FRotator RotacionMovimiento = UKismetMathLibrary::MakeRotFromX(DispareitorPersonaje->GetVelocity());
     // Calcula la desviacion entre ambos rotator
-    FRotator DeltaRotacionObjetivo = UKismetMathLibrary::NormalizedDeltaRotator(RotacionMovimiento, RotacionApuntado);
+    FRotator RotacionObjetivoDelta = UKismetMathLibrary::NormalizedDeltaRotator(RotacionMovimiento, RotacionApuntado);
     // Rotacion suave. Es parecido al Smoothing Time del BS, pero si el problema que conlleva su uso, y es que esta última interpola entre -180 a 180 pasando por 0, lo cual provoca un glitch cuando
     // nos movemos hacia atras. En cambio esta funcion, utiliza el camino mas corto entre -180 y 180 sin pasar por 0
-    DeltaRotacion = FMath::RInterpTo(DeltaRotacion, DeltaRotacionObjetivo, DeltaTime, 6.f);
-    GiroDesviacion = DeltaRotacion.Yaw;
+    RotacionPersonajeDelta = FMath::RInterpTo(RotacionPersonajeDelta, RotacionObjetivoDelta, DeltaTime, 6.f);
+    GiroDesviacion = RotacionPersonajeDelta.Yaw;
 
     // Inclinacion (hacia los lados) tiene que ver entre el Giro del anterior frame y el actual
     // Actualiza el BS_ArmadoCorrer
-    PersonajeRotacionUltimoFrame = PersonajeRotacion;
-    PersonajeRotacion = DispareitorPersonaje->GetActorRotation();
-    const FRotator PersonajeRotacionDelta = UKismetMathLibrary::NormalizedDeltaRotator(PersonajeRotacion, PersonajeRotacionUltimoFrame);
+    RotacionPersonajeAnteriorFrame = RotacionPersonajeActualFrame;
+    RotacionPersonajeActualFrame = DispareitorPersonaje->GetActorRotation();
+    const FRotator PersonajeRotacionDelta = UKismetMathLibrary::NormalizedDeltaRotator(RotacionPersonajeActualFrame, RotacionPersonajeAnteriorFrame);
     const float InclinacionObjetivo = PersonajeRotacionDelta.Yaw / DeltaTime; // Lo escala y lo hacemos proporcional al DeltaTime
     const float Interpolacion = FMath::FInterpTo(Inclinacion, InclinacionObjetivo, DeltaTime, 6.f);  // Si la velocidad de interpolacion (ultimo parametro) es 0 devuelve InclinacionObjetivo
     Inclinacion = FMath::Clamp(Interpolacion, -90.f, 90.f);
@@ -79,13 +79,13 @@ void UDispareitorInstanciaAnimacion::NativeUpdateAnimation(float DeltaTime) {
         if(DispareitorPersonaje->IsLocallyControlled()) {
             bControladoLocalmente = true;
             
-            FVector ManoDerechaVector = DispareitorPersonaje->GetMesh()->GetBoneLocation(FName("hand_r"), EBoneSpaces::WorldSpace);
-            //UE_LOG(LogTemp, Warning, TEXT("hand_r: (%f, %f, %f)"), ManoDerechaVector.X, ManoDerechaVector.Y, ManoDerechaVector.Z);
+            FVector PosicionManoDerecha = DispareitorPersonaje->GetMesh()->GetBoneLocation(FName("hand_r"), EBoneSpaces::WorldSpace);
+            //UE_LOG(LogTemp, Warning, TEXT("hand_r: (%f, %f, %f)"), PosicionManoDerecha.X, PosicionManoDerecha.Y, PosicionManoDerecha.Z);
   
-            // Para que el arma apunte con la boca a ObtenerObjetoAlcanzado hay que hacer ManoDerechaVector + (ManoDerechaVector - ObtenerObjetoAlcanzado), si hacemos solo ObtenerObjetoAlcanzado apunta con la culata
-            FRotator RotacionAMirar = UKismetMathLibrary::FindLookAtRotation(ManoDerechaVector, ManoDerechaVector + (ManoDerechaVector - DispareitorPersonaje->ObtenerObjetoAlcanzado()));
+            // Para que el arma apunte con la boca a ObtenerObjetoAlcanzado hay que hacer PosicionManoDerecha + (PosicionManoDerecha - ObtenerObjetoAlcanzado), si hacemos solo ObtenerObjetoAlcanzado apunta con la culata
+            FRotator RotacionAMirar = UKismetMathLibrary::FindLookAtRotation(PosicionManoDerecha, PosicionManoDerecha + (PosicionManoDerecha - DispareitorPersonaje->ObtenerObjetoAlcanzado()));
             // Para evitar que cuando estemos mirando a algo lejano y luego pasemos a algo cercano el arma mire instantaneamente a ese objeto cercano, realizamos una interpolacion
-            ManoDerechaRotacion = FMath::RInterpTo(ManoDerechaRotacion, RotacionAMirar, DeltaTime, 30.f);
+            RotacionManoDerecha = FMath::RInterpTo(RotacionManoDerecha, RotacionAMirar, DeltaTime, 30.f);
  
             /*FTransform ArmaBocaTransform = ArmaEquipada->ObtenerMalla()->GetSocketTransform(FName("MuzzleFlash"), ERelativeTransformSpace::RTS_World);
             FVector ArmaBocaX(FRotationMatrix(ArmaBocaTransform.GetRotation().Rotator()).GetUnitAxis(EAxis::X));
@@ -94,7 +94,7 @@ void UDispareitorInstanciaAnimacion::NativeUpdateAnimation(float DeltaTime) {
         }
     }
 
-    bUsarFABRIK = DispareitorPersonaje->EstadoCombateObtener() == EEstadosCombate::EEC_Desocupado;
-    bTransformarManoDerecha = DispareitorPersonaje->EstadoCombateObtener() == EEstadosCombate::EEC_Desocupado && !DispareitorPersonaje->bSoloGirarCamaraObtener();
-    bUsarAO = DispareitorPersonaje->EstadoCombateObtener() == EEstadosCombate::EEC_Desocupado && !DispareitorPersonaje->bSoloGirarCamaraObtener();
+    bUsarFABRIK = DispareitorPersonaje->ObtenerEstadoCombate() == EEstadosCombate::EEC_Desocupado;
+    bTransformarManoDerecha = DispareitorPersonaje->ObtenerEstadoCombate() == EEstadosCombate::EEC_Desocupado && !DispareitorPersonaje->DeboSoloGirarCamara();
+    bUsarAO = DispareitorPersonaje->ObtenerEstadoCombate() == EEstadosCombate::EEC_Desocupado && !DispareitorPersonaje->DeboSoloGirarCamara();
 }

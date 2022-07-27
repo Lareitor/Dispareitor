@@ -17,13 +17,13 @@ ACasquillo::ACasquillo() {
 
 void ACasquillo::BeginPlay() {
 	Super::BeginPlay();
-	Malla->OnComponentHit.AddDynamic(this, &ACasquillo::CallbackAlGolpear);
+	Malla->OnComponentHit.AddDynamic(this, &ACasquillo::Callback_AlGolpear);
 	Malla->AddImpulse(GetActorForwardVector() * ImpulsoEyeccion);
 
 	SetLifeSpan(3.f);
 }
 
-void ACasquillo::CallbackAlGolpear(UPrimitiveComponent* ComponenteGolpeante, AActor* ActorGolpeado, UPrimitiveComponent* ComponenteGolpeado, FVector ImpulsoNormal, const FHitResult& GolpeResultado) {
+void ACasquillo::Callback_AlGolpear(UPrimitiveComponent* ComponenteGolpeante, AActor* ActorGolpeado, UPrimitiveComponent* ComponenteGolpeado, FVector ImpulsoNormal, const FHitResult& GolpeResultado) {
 	if(Sonido) {
 		UGameplayStatics::PlaySoundAtLocation(this, Sonido, GetActorLocation());
 	}

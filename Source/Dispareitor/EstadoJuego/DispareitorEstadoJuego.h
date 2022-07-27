@@ -10,10 +10,10 @@ class DISPAREITOR_API ADispareitorEstadoJuego : public AGameState {
 
 public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-	void EstadoJugadoresPuntuacionMasAltaActualizar(class ADispareitorEstadoJugador* DispareitorEstadoJugador);
+	void ActualizarArrayDeEstadoJugadoresConPuntuacionMasAlta(class ADispareitorEstadoJugador* DispareitorEstadoJugador);
 
 	UPROPERTY(Replicated)
-	TArray<ADispareitorEstadoJugador*> EstadoJugadoresPuntuacionMasAlta;
+	TArray<ADispareitorEstadoJugador*> ArrayDeEstadoJugadoresConPuntuacionMasAlta;
 
 private:
 	float PuntuacionMasAlta = 0.f;	

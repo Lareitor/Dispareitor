@@ -61,7 +61,7 @@ ADispareitorPersonaje::ADispareitorPersonaje() {
 	NetUpdateFrequency = 66.f;
 	MinNetUpdateFrequency = 33.f;
 
-	DisolucionLineaTiempoComponente = CreateDefaultSubobject<UTimelineComponent>(TEXT("DisolucionLineaTiempoComponente"));
+	ComponenteLineaDelTiempoParaDisolucion = CreateDefaultSubobject<UTimelineComponent>(TEXT("ComponenteLineaDelTiempoParaDisolucion"));
 
 	Granada = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Granada"));
 	Granada->SetupAttachment(GetMesh(), FName("GranadaSocket"));
@@ -81,10 +81,10 @@ void ADispareitorPersonaje::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 void ADispareitorPersonaje::BeginPlay() {
 	Super::BeginPlay();	
 
-	ActualizarHUDVida();
+	ActualizarVidaHUD();
 	if(HasAuthority()) {
 		// Enlazamos nuestro metodo de recibir daño al delegado, para que se invoque cuando ProyectilBala llame a ApplyDamage
-		OnTakeAnyDamage.AddDynamic(this, &ADispareitorPersonaje::RecibirDano);
+		OnTakeAnyDamage.AddDynamic(this, &ADispareitorPersonaje::RecibirDanio);
 	}
 	if(Granada) {
 		Granada->SetVisibility(false);
@@ -94,12 +94,12 @@ void ADispareitorPersonaje::BeginPlay() {
 void ADispareitorPersonaje::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 
-	RotarEnSitio(DeltaTime);
+	CalcularRotarEnSitio(DeltaTime);
 	EsconderCamaraSiPersonajeCerca();
 	SondearInicializacion();
 }
 
-void ADispareitorPersonaje::RotarEnSitio(float DeltaTime) {
+void ADispareitorPersonaje::CalcularRotarEnSitio(float DeltaTime) {
 	if(bSoloGirarCamara) {
 		bUseControllerRotationYaw = false;
 		GirarEnSitio = EGirarEnSitio::EGES_NoGirar;	
@@ -141,7 +141,7 @@ void ADispareitorPersonaje::SondearInicializacion() {
 // para almacenar el tiempo desde la ultima replicacion de movimiento y si pasa un cierto umbral volvemos a llamar a esta funcion 
 void ADispareitorPersonaje::OnRep_ReplicatedMovement() {
 	Super::OnRep_ReplicatedMovement();
-	ProxiesSimuladosGiro();	
+	CalcularGiroParadoYArmadoEnProxiesSimulados();	
 	TiempoDesdeUltimaReplicacionDeMovimiento = 0.f;
 }
 
@@ -149,19 +149,19 @@ void ADispareitorPersonaje::SetupPlayerInputComponent(UInputComponent* PlayerInp
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	PlayerInputComponent->BindAction("Saltar", IE_Pressed, this, &ADispareitorPersonaje::Jump);
-	PlayerInputComponent->BindAction("Equipar", IE_Pressed, this, &ADispareitorPersonaje::Equipar);
-	PlayerInputComponent->BindAction("Agachar", IE_Pressed, this, &ADispareitorPersonaje::Agachar);
+	PlayerInputComponent->BindAction("EquiparPulsado", IE_Pressed, this, &ADispareitorPersonaje::EquiparPulsado);
+	PlayerInputComponent->BindAction("AgacharPulsado", IE_Pressed, this, &ADispareitorPersonaje::AgacharPulsado);
 	PlayerInputComponent->BindAction("Apuntar", IE_Pressed, this, &ADispareitorPersonaje::ApuntarPulsado);
 	PlayerInputComponent->BindAction("Apuntar", IE_Released, this, &ADispareitorPersonaje::ApuntarLiberado);
 	PlayerInputComponent->BindAction("Disparar", IE_Pressed, this, &ADispareitorPersonaje::DispararPulsado);
 	PlayerInputComponent->BindAction("Disparar", IE_Released, this, &ADispareitorPersonaje::DispararLiberado);
-	PlayerInputComponent->BindAction("Recargar", IE_Pressed, this, &ADispareitorPersonaje::Recargar);
-	PlayerInputComponent->BindAction("GranadaArrojar", IE_Pressed, this, &ADispareitorPersonaje::GranadaArrojar);
+	PlayerInputComponent->BindAction("RecargarPulsado", IE_Pressed, this, &ADispareitorPersonaje::RecargarPulsado);
+	PlayerInputComponent->BindAction("ArrojarGranadaPulsado", IE_Pressed, this, &ADispareitorPersonaje::ArrojarGranadaPulsado);
 
-	PlayerInputComponent->BindAxis("MoverAdelanteAtras", this, &ADispareitorPersonaje::MoverAdelanteAtras);
-	PlayerInputComponent->BindAxis("MoverIzquierdaDerecha", this, &ADispareitorPersonaje::MoverIzquierdaDerecha);
-	PlayerInputComponent->BindAxis("Girar", this, &ADispareitorPersonaje::Girar);
-	PlayerInputComponent->BindAxis("MirarArribaAbajo", this, &ADispareitorPersonaje::MirarArribaAbajo);
+	PlayerInputComponent->BindAxis("MoverAdelanteAtrasPulsado", this, &ADispareitorPersonaje::MoverAdelanteAtrasPulsado);
+	PlayerInputComponent->BindAxis("MoverIzquierdaDerechaPulsado", this, &ADispareitorPersonaje::MoverIzquierdaDerechaPulsado);
+	PlayerInputComponent->BindAxis("GirarIzquierdaDerechaPulsado", this, &ADispareitorPersonaje::GirarIzquierdaDerechaPulsado);
+	PlayerInputComponent->BindAxis("GirarArribaAbajoPulsado", this, &ADispareitorPersonaje::GirarArribaAbajoPulsado);
 }
 
 void ADispareitorPersonaje::PostInitializeComponents() {
@@ -171,7 +171,7 @@ void ADispareitorPersonaje::PostInitializeComponents() {
 	}
 }
 
-void ADispareitorPersonaje::MoverAdelanteAtras(float Valor) {
+void ADispareitorPersonaje::MoverAdelanteAtrasPulsado(float Valor) {
 	if(bSoloGirarCamara) {
 		return;
 	}
@@ -183,7 +183,7 @@ void ADispareitorPersonaje::MoverAdelanteAtras(float Valor) {
 	}
 }
 
-void ADispareitorPersonaje::MoverIzquierdaDerecha(float Valor) {
+void ADispareitorPersonaje::MoverIzquierdaDerechaPulsado(float Valor) {
 	if(bSoloGirarCamara) {
 		return;
 	}
@@ -195,15 +195,15 @@ void ADispareitorPersonaje::MoverIzquierdaDerecha(float Valor) {
 	}
 }
 
-void ADispareitorPersonaje::Girar(float Valor) {
+void ADispareitorPersonaje::GirarIzquierdaDerechaPulsado(float Valor) {
 	AddControllerYawInput(Valor);
 }
 
-void ADispareitorPersonaje::MirarArribaAbajo(float Valor) {
+void ADispareitorPersonaje::GirarArribaAbajoPulsado(float Valor) {
 	AddControllerPitchInput(Valor);
 }
 
-void ADispareitorPersonaje::Agachar() {
+void ADispareitorPersonaje::AgacharPulsado() {
 	if(bSoloGirarCamara) {
 		return;
 	}
@@ -267,13 +267,13 @@ void ADispareitorPersonaje::DispararLiberado() {
 	}
 }
 
-void ADispareitorPersonaje::GranadaArrojar() {
+void ADispareitorPersonaje::ArrojarGranadaPulsado() {
 	if(CombateComponente) {
-		CombateComponente->GranadaArrojar();
+		CombateComponente->ArrojarGranada();
 	}
 }
 
-void ADispareitorPersonaje::Recargar() {
+void ADispareitorPersonaje::RecargarPulsado() {
 	if(bSoloGirarCamara) {
 		return;
 	}
@@ -283,7 +283,7 @@ void ADispareitorPersonaje::Recargar() {
 	}
 }
 
-void ADispareitorPersonaje::Equipar() {
+void ADispareitorPersonaje::EquiparPulsado() {
 	if(bSoloGirarCamara) {
 		return;
 	}
@@ -292,13 +292,13 @@ void ADispareitorPersonaje::Equipar() {
 		if(HasAuthority()) { // Estamos en el servidor
 			CombateComponente->EquiparArma(ArmaSolapada);
 		} else { // Estamos en un cliente
-			ServidorEquipar();
+			Equipar_EnServidor();
 		}		
 	}
 }
 
-// Aunque la definicion de la funcion es ServidorEquipar hay que añadirle _Implementation, ya que UE creará ServidorEquipar y nosotros _Implementation que incluirá el codigo que se ejecuta en el servidor  
-void ADispareitorPersonaje::ServidorEquipar_Implementation() {
+// Aunque la definicion de la funcion es Equipar_EnServidor hay que añadirle _Implementation, ya que UE creará Equipar_EnServidor y nosotros _Implementation que incluirá el codigo que se ejecuta en el servidor  
+void ADispareitorPersonaje::Equipar_EnServidor_Implementation() {
 	if(CombateComponente) {
 		CombateComponente->EquiparArma(ArmaSolapada);
 	}
@@ -306,7 +306,7 @@ void ADispareitorPersonaje::ServidorEquipar_Implementation() {
 
 // En el servidor (Para el caso en el que el jugador sea ademas el servidor)
 // Sabemos que esta funcion solo es llamada en el servidor 
-// Llamada por Arma al solapar y desolapar el arma
+// Llamada por AArma::Callback_EsferaSolapadaInicio y AArma::Callback_EsferaSolapadaFin
 void ADispareitorPersonaje::ActivarArmaSolapada(AArma* Arma) {
 	if(IsLocallyControlled()) { 
 		if(ArmaSolapada) {
@@ -326,21 +326,13 @@ void ADispareitorPersonaje::ActivarArmaSolapada(AArma* Arma) {
 // En los clientes (Para el caso en el que el jugador no sea el servidor)
 // Se llama automaticamente en el cliente (hemos especificado arriba que ArmaSolapada solo replique su estado en el cliente que posee ADispareitorPersonaje) cuando la variable es replicada por el servidor. Nunca se llama en el servidor
 // Acepta 0 ó 1 argumento. Si le pasamos argumento tiene que ser del tipo de la variable replicada, y se rellenará con el valor anterior replicado o null si no lo tuviera
-void ADispareitorPersonaje::AlReplicarArmaSolapada(AArma* ArmaReplicadaAnterior) {
+void ADispareitorPersonaje::ArmaSolapada_AlReplicar(AArma* ArmaReplicadaAnterior) {
 	if(ArmaSolapada) {
 		ArmaSolapada->MostrarLeyendaSobreArma(true);
 	}
 	if(ArmaReplicadaAnterior) {
 		ArmaReplicadaAnterior->MostrarLeyendaSobreArma(false);
 	}
-}
-
-bool ADispareitorPersonaje::EstaArmaEquipada() {
-	return CombateComponente && CombateComponente->ArmaEquipada;
-}
-
-bool ADispareitorPersonaje::EstaApuntando() {
-	return CombateComponente && CombateComponente->bApuntando;
 }
 
 // Llamado por Tick
@@ -360,7 +352,7 @@ void ADispareitorPersonaje::CalcularGiroEInclinacionParadoYArmado(float DeltaTim
 		FRotator DeltaArmadoRotacion = UKismetMathLibrary::NormalizedDeltaRotator(ArmadoRotacionActual, ArmadoRotacionInicial);
 		AOGiro = DeltaArmadoRotacion.Yaw;
 		if(GirarEnSitio == EGirarEnSitio::EGES_NoGirar) {
-			InterpolacionAOGiro = AOGiro;
+			AOGiroInterpolacion = AOGiro;
 		}
 		CalcularGirarEnSitio(DeltaTime);
 	} else { // corriendo o saltando (Velocidad > 0.f || bEnElAire)
@@ -381,8 +373,8 @@ void ADispareitorPersonaje::CalcularGirarEnSitio(float DeltaTime) {
 	}
 
 	if(GirarEnSitio != EGirarEnSitio::EGES_NoGirar) {
-		InterpolacionAOGiro = FMath::FInterpTo(InterpolacionAOGiro, 0.f, DeltaTime, 4.f);
-		AOGiro = InterpolacionAOGiro;
+		AOGiroInterpolacion = FMath::FInterpTo(AOGiroInterpolacion, 0.f, DeltaTime, 4.f);
+		AOGiro = AOGiroInterpolacion;
 		if(FMath::Abs(AOGiro) < 15.f) {
 			GirarEnSitio = EGirarEnSitio::EGES_NoGirar;
 			ArmadoRotacionInicial = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
@@ -405,7 +397,7 @@ void ADispareitorPersonaje::CalcularInclinacion() {
 }
 
 // Llamado solo por los proxies simulados para implementar el giro y evitar de este modo el jittering  
-void ADispareitorPersonaje::ProxiesSimuladosGiro() {
+void ADispareitorPersonaje::CalcularGiroParadoYArmadoEnProxiesSimulados() {
 	if(CombateComponente == nullptr || CombateComponente->ArmaEquipada == nullptr) {
 		return;
 	}
@@ -418,14 +410,14 @@ void ADispareitorPersonaje::ProxiesSimuladosGiro() {
 		return;
 	}
 
-	ProxyRotacionFrameAnterior = ProxyRotacionFrameActual;
-	ProxyRotacionFrameActual = GetActorRotation();
-	ProxyGiro = UKismetMathLibrary::NormalizedDeltaRotator(ProxyRotacionFrameActual, ProxyRotacionFrameAnterior).Yaw;
+	RotacionFrameAnteriorEnProxy = RotacionFrameActualEnProxy;
+	RotacionFrameActualEnProxy = GetActorRotation();
+	GiroEnProxy = UKismetMathLibrary::NormalizedDeltaRotator(RotacionFrameActualEnProxy, RotacionFrameAnteriorEnProxy).Yaw;
 
-	if(FMath::Abs(ProxyGiro) > GiroUmbral) {
-		if(ProxyGiro > GiroUmbral) {
+	if(FMath::Abs(GiroEnProxy) > UmbralDeGiroEnProxy) {
+		if(GiroEnProxy > UmbralDeGiroEnProxy) {
 			GirarEnSitio = 	EGirarEnSitio::EGES_Derecha;
-		} else if(ProxyGiro < -GiroUmbral) {
+		} else if(GiroEnProxy < -UmbralDeGiroEnProxy) {
 			GirarEnSitio = EGirarEnSitio::EGES_Izquierda;
 		} else {
 			GirarEnSitio = EGirarEnSitio::EGES_NoGirar;	
@@ -436,7 +428,7 @@ void ADispareitorPersonaje::ProxiesSimuladosGiro() {
 }
 
 AArma* ADispareitorPersonaje::ObtenerArmaEquipada() {
-	return CombateComponente == nullptr ? nullptr : CombateComponente->ArmaEquipada;
+	return CombateComponente != nullptr ? CombateComponente->ArmaEquipada : nullptr;
 }
 
 // Llamado por CombateComponente
@@ -463,7 +455,7 @@ void ADispareitorPersonaje::EjecutarMontajeRecargar() {
 	if(InstanciaAnimacion && MontajeRecargar) {
 		InstanciaAnimacion->Montage_Play(MontajeRecargar);
 		FName NombreSeccion;
-		switch(CombateComponente->ArmaEquipada->TipoArmaObtener()) {
+		switch(CombateComponente->ArmaEquipada->ObtenerTipoArma()) {
 			case ETipoArma::ETA_RifleAsalto:
 				NombreSeccion = FName("RifleAsalto");	
 				break;
@@ -491,7 +483,7 @@ void ADispareitorPersonaje::EjecutarMontajeRecargar() {
 }
 
 
-// Llamado por RecibirDano y AlReplicarVida
+// Llamado por RecibirDanio y AlReplicar_Vida
 void ADispareitorPersonaje::EjecutarMontajeReaccionAImpacto() {
 	if(CombateComponente == nullptr || CombateComponente->ArmaEquipada == nullptr) {
 		return;
@@ -506,23 +498,22 @@ void ADispareitorPersonaje::EjecutarMontajeReaccionAImpacto() {
 }
 
 // Llamado por Eliminado
-void ADispareitorPersonaje::EjecutarMontajeEliminacion() {
+void ADispareitorPersonaje::EjecutarMontajeEliminado() {
 	UAnimInstance* InstanciaAnimacion = GetMesh()->GetAnimInstance();
-	if(InstanciaAnimacion && MontajeEliminacion) {
-		InstanciaAnimacion->Montage_Play(MontajeEliminacion);
+	if(InstanciaAnimacion && MontajeEliminado) {
+		InstanciaAnimacion->Montage_Play(MontajeEliminado);
 	}
 }
 
-void ADispareitorPersonaje::GranadaArrojarMontajeEjecutar() {
+void ADispareitorPersonaje::EjecutarMontajeArrojarGranada() {
 	UAnimInstance* InstanciaAnimacion = GetMesh()->GetAnimInstance();
-	if(InstanciaAnimacion && GranadaArrojarMontaje) {
-		InstanciaAnimacion->Montage_Play(GranadaArrojarMontaje);
+	if(InstanciaAnimacion && MontajeArrojarGranada) {
+		InstanciaAnimacion->Montage_Play(MontajeArrojarGranada);
 	}
 }
-
 
 FVector ADispareitorPersonaje::ObtenerObjetoAlcanzado() const {
-	return (CombateComponente == nullptr || CombateComponente->ArmaEquipada == nullptr) ? FVector() : CombateComponente->ObjetoAlcanzado;	
+	return (CombateComponente != nullptr && CombateComponente->ArmaEquipada != nullptr) ? CombateComponente->ObjetoAlcanzado : FVector();	
 }
 
 // Llamado por Tick
@@ -530,7 +521,7 @@ void ADispareitorPersonaje::EsconderCamaraSiPersonajeCerca() {
 	if(!IsLocallyControlled()) {
 		return;
 	}
-	if((Camara->GetComponentLocation() - GetActorLocation()).Size() < CamaraLimiteCerca) {
+	if((Camara->GetComponentLocation() - GetActorLocation()).Size() < DistanciaMinimaEntrePersonajeYCamara) {
 		GetMesh()->SetVisibility(false);
 		if(CombateComponente && CombateComponente->ArmaEquipada && CombateComponente->ArmaEquipada->ObtenerMalla()) {
 			CombateComponente->ArmaEquipada->ObtenerMalla()->bOwnerNoSee = true;
@@ -543,21 +534,15 @@ void ADispareitorPersonaje::EsconderCamaraSiPersonajeCerca() {
 	}
 }
 
-float ADispareitorPersonaje::CalcularVelocidad() {
-	FVector VelocidadTemporal = GetVelocity();
-    VelocidadTemporal.Z = 0.f;
-    return VelocidadTemporal.Size();
-}
-
-// LLamado al recibir daño por parte de AProyectilBala::CallbackAlImpactar y ALimitesJuego::CallbackMallaSolapadoInicio
+// LLamado al recibir daño por parte de AProyectilBala::Callback_AlImpactar y ALimitesJuego::Callback_SolapadaMallaInicio
 // Solo se ejecuta en el server
-void ADispareitorPersonaje::RecibirDano(AActor* ActorDanado, float Dano, const UDamageType* TipoDano, class AController* ControladorInstigador, AActor* ActorCausante) {
+void ADispareitorPersonaje::RecibirDanio(AActor* ActorDaniado, float Danio, const UDamageType* TipoDanio, class AController* ControladorInstigador, AActor* ActorCausante) {
 	if(bEliminado) {
 		return;
 	}
 
-	Vida = FMath::Clamp(Vida - Dano, 0.f, VidaMaxima);
-	ActualizarHUDVida();
+	Vida = FMath::Clamp(Vida - Danio, 0.f, VidaMaxima);
+	ActualizarVidaHUD();
 	EjecutarMontajeReaccionAImpacto();
 
 	if(Vida == 0.f) {
@@ -571,15 +556,15 @@ void ADispareitorPersonaje::RecibirDano(AActor* ActorDanado, float Dano, const U
 }
 
 // Se ejecuta en los clientes
-void ADispareitorPersonaje::AlReplicarVida() {
-	ActualizarHUDVida();
+void ADispareitorPersonaje::AlReplicar_Vida() {
+	ActualizarVidaHUD();
 	EjecutarMontajeReaccionAImpacto();
 }
 
-void ADispareitorPersonaje::ActualizarHUDVida() {
+void ADispareitorPersonaje::ActualizarVidaHUD() {
 	DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(Controller);
 	if(DispareitorControladorJugador) {
-		DispareitorControladorJugador->HUDVidaActualizar(Vida, VidaMaxima);
+		DispareitorControladorJugador->ActualizarVidaHUD(Vida, VidaMaxima);
 	}
 }
 
@@ -589,20 +574,20 @@ void ADispareitorPersonaje::Eliminado() {
 	if(CombateComponente && CombateComponente->ArmaEquipada) {
 		CombateComponente->ArmaEquipada->Soltar();
 	}
-	MulticastEliminado();
-	GetWorldTimerManager().SetTimer(TemporizadorEliminado, this, &ADispareitorPersonaje::TemporizadorEliminadoFinalizado, EliminadoRetardo);
+	Eliminado_Multicast();
+	GetWorldTimerManager().SetTimer(TemporizadorEliminado, this, &ADispareitorPersonaje::TemporizadorEliminadoFinalizado, RetardoDeEliminacion);
 }
 
-void ADispareitorPersonaje::MulticastEliminado_Implementation() {
+void ADispareitorPersonaje::Eliminado_Multicast_Implementation() {
 	bEliminado = true;
-	EjecutarMontajeEliminacion();
+	EjecutarMontajeEliminado();
 
-	if(DisolucionInstanciaMaterial) {
-		DisolucionInstanciaMaterialDinamico = UMaterialInstanceDynamic::Create(DisolucionInstanciaMaterial, this);
-		GetMesh()->SetMaterial(0, DisolucionInstanciaMaterialDinamico);
-		DisolucionInstanciaMaterialDinamico->SetScalarParameterValue(TEXT("Disolucion"), 0.55f);
-		DisolucionInstanciaMaterialDinamico->SetScalarParameterValue(TEXT("Brillo"), 200.f);
-		DisolucionEmpezar();
+	if(InstanciaMaterialParaDisolucion) {
+		InstanciaMaterialDinamicoParaDisolucion = UMaterialInstanceDynamic::Create(InstanciaMaterialParaDisolucion, this);
+		GetMesh()->SetMaterial(0, InstanciaMaterialDinamicoParaDisolucion);
+		InstanciaMaterialDinamicoParaDisolucion->SetScalarParameterValue(TEXT("Disolucion"), 0.55f);
+		InstanciaMaterialDinamicoParaDisolucion->SetScalarParameterValue(TEXT("Brillo"), 200.f);
+		EmpezarDisolucion();
 	}
 
 	GetCharacterMovement()->DisableMovement(); // Impide movimiento
@@ -614,32 +599,32 @@ void ADispareitorPersonaje::MulticastEliminado_Implementation() {
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	if(RobotEliminacionSistemaParticulas) {
+	if(SistemaParticulasRobotEliminacion) {
 		FVector RobotEliminacionPuntoAparicion(GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z + 200.f);
-		RobotEliminacionComponente = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), RobotEliminacionSistemaParticulas, RobotEliminacionPuntoAparicion, GetActorRotation());
+		ComponenteSistemaParticulasRobotEliminacion = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SistemaParticulasRobotEliminacion, RobotEliminacionPuntoAparicion, GetActorRotation());
 	}
-	if(RobotEliminacionSonido) {
-		UGameplayStatics::SpawnSoundAtLocation(this, RobotEliminacionSonido, GetActorLocation());
+	if(SonidoRobotEliminacion) {
+		UGameplayStatics::SpawnSoundAtLocation(this, SonidoRobotEliminacion, GetActorLocation());
 	}
 	if(HUDSobreLaCabeza) {
 		HUDSobreLaCabeza->SetVisibility(false);
 	}
 	if(DispareitorControladorJugador) {
-		DispareitorControladorJugador->HUDArmaMunicionActualizar(0);
+		DispareitorControladorJugador->ActualizarMunicionArmaHUD(0);
 	}
 }
 
-void ADispareitorPersonaje::DisolucionEmpezar() {
-	DisolucionRutaDelegado.BindDynamic(this, &ADispareitorPersonaje::DisolucionActualizarMaterialCallback);
-	if(DisolucionLineaTiempoComponente && DisolucionCurva) {
-		DisolucionLineaTiempoComponente->AddInterpFloat(DisolucionCurva, DisolucionRutaDelegado);
-		DisolucionLineaTiempoComponente->Play();
+void ADispareitorPersonaje::EmpezarDisolucion() {
+	DelegadoLineaDelTiempoParaDisolucion.BindDynamic(this, &ADispareitorPersonaje::Callback_ActualizarMaterialEnDisolucion);
+	if(ComponenteLineaDelTiempoParaDisolucion && CurvaDeDisolucion) {
+		ComponenteLineaDelTiempoParaDisolucion->AddInterpFloat(CurvaDeDisolucion, DelegadoLineaDelTiempoParaDisolucion);
+		ComponenteLineaDelTiempoParaDisolucion->Play();
 	}
 }
 
-void ADispareitorPersonaje::DisolucionActualizarMaterialCallback(float DisolucionValor) {
-	if(DisolucionInstanciaMaterialDinamico) {
-		DisolucionInstanciaMaterialDinamico->SetScalarParameterValue(TEXT("Disolucion"), DisolucionValor);
+void ADispareitorPersonaje::Callback_ActualizarMaterialEnDisolucion(float DisolucionValor) {
+	if(InstanciaMaterialDinamicoParaDisolucion) {
+		InstanciaMaterialDinamicoParaDisolucion->SetScalarParameterValue(TEXT("Disolucion"), DisolucionValor);
 	}
 }
 
@@ -654,8 +639,8 @@ void ADispareitorPersonaje::TemporizadorEliminadoFinalizado() {
 void ADispareitorPersonaje::Destroyed() {
 	Super::Destroyed();
 
-	if(RobotEliminacionComponente) {
-		RobotEliminacionComponente->DestroyComponent();
+	if(ComponenteSistemaParticulasRobotEliminacion) {
+		ComponenteSistemaParticulasRobotEliminacion->DestroyComponent();
 	}
 
 	ADispareitorModoJuego* DispareitorModoJuego = Cast<ADispareitorModoJuego>(UGameplayStatics::GetGameMode(this));
@@ -664,7 +649,20 @@ void ADispareitorPersonaje::Destroyed() {
 	}
 }
 
-EEstadosCombate ADispareitorPersonaje::EstadoCombateObtener() const {
+EEstadosCombate ADispareitorPersonaje::ObtenerEstadoCombate() const {
 	return CombateComponente == nullptr ? EEstadosCombate::EEC_Maximo : CombateComponente->EstadoCombate;
 }
 
+bool ADispareitorPersonaje::HayArmaEquipada() {
+	return CombateComponente && CombateComponente->ArmaEquipada;
+}
+
+bool ADispareitorPersonaje::EstaApuntando() {
+	return CombateComponente && CombateComponente->bApuntando;
+}
+
+float ADispareitorPersonaje::CalcularVelocidad() {
+	FVector VelocidadTemporal = GetVelocity();
+    VelocidadTemporal.Z = 0.f;
+    return VelocidadTemporal.Size();
+}

@@ -28,13 +28,13 @@ AProyectil::AProyectil() {
 void AProyectil::BeginPlay() {
 	Super::BeginPlay();
 
-	if(Traza) {
-		TrazaComponente = UGameplayStatics::SpawnEmitterAttached(Traza, CajaColision, FName(), GetActorLocation(), GetActorRotation(), EAttachLocation::KeepWorldPosition);
+	if(SistemaParticulasTraza) {
+		ComponenteSistemaParticulasTraza = UGameplayStatics::SpawnEmitterAttached(SistemaParticulasTraza, CajaColision, FName(), GetActorLocation(), GetActorRotation(), EAttachLocation::KeepWorldPosition);
 	}
 
 	// El servidor es el que se encarga de manejar la colision
 	if(HasAuthority()) {
-		CajaColision->OnComponentHit.AddDynamic(this, &AProyectil::CallbackAlImpactar);
+		CajaColision->OnComponentHit.AddDynamic(this, &AProyectil::Callback_AlImpactar);
 	}
 }
 
@@ -42,7 +42,7 @@ void AProyectil::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 }
 
-void AProyectil::CallbackAlImpactar(UPrimitiveComponent* ComponenteImpactante, AActor* ActorImpactado, UPrimitiveComponent* ComponenteImpactado, FVector ImpulsoNormal, const FHitResult& ImpactoResultado) {
+void AProyectil::Callback_AlImpactar(UPrimitiveComponent* ComponenteImpactante, AActor* ActorImpactado, UPrimitiveComponent* ComponenteImpactado, FVector ImpulsoNormal, const FHitResult& ImpactoResultado) {
 	// Al llamar a este metodo se propaga a todos los clientes y se invoca a Destroyed, y es ahí donde realizamos el efecto de particulas y sonido
 	Destroy();
 }
@@ -50,36 +50,35 @@ void AProyectil::CallbackAlImpactar(UPrimitiveComponent* ComponenteImpactante, A
 void AProyectil::Destroyed() {
 	Super::Destroyed();
 
-	if(ImpactoParticulas) {
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactoParticulas, GetActorTransform());
+	if(SistemaParticulasAlImpactar) {
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SistemaParticulasAlImpactar, GetActorTransform());
 	}
-	if(ImpactoSonido) {
-		UGameplayStatics::PlaySoundAtLocation(this, ImpactoSonido, GetActorLocation());
+	if(SonidoAlImpactar) {
+		UGameplayStatics::PlaySoundAtLocation(this, SonidoAlImpactar, GetActorLocation());
 	}
 }
 
-void AProyectil::HumoTrazaCrear() {
-	if(HumoTraza) {
-        HumoTrazaComponente = UNiagaraFunctionLibrary::SpawnSystemAttached(HumoTraza, GetRootComponent(), FName(), GetActorLocation(), GetActorRotation(), EAttachLocation::KeepWorldPosition, false);
+void AProyectil::CrearTrazaDeHumo() {
+	if(SistemaNiagaraTrazaDeHumo) {
+        ComponenteNiagaraTrazaDeHumo = UNiagaraFunctionLibrary::SpawnSystemAttached(SistemaNiagaraTrazaDeHumo, GetRootComponent(), FName(), GetActorLocation(), GetActorRotation(), EAttachLocation::KeepWorldPosition, false);
     }
 }
 
-
-void AProyectil::IniciarTemporizadorDeFin() {
-	GetWorldTimerManager().SetTimer(DestruirTemporizador, this, &AProyectil::DestruirTemporizadorDeFin, DestruirTiempo);
+void AProyectil::IniciarTemporizadorExplosion() {
+	GetWorldTimerManager().SetTimer(TemporizadorExplosion, this, &AProyectil::EjecutarExplosion, TiempoParaExplosion);
 }
 
-void AProyectil::DestruirTemporizadorDeFin() {
-    ExplosionDanioAplicar();
+void AProyectil::EjecutarExplosion() {
+    AplicarDanioDeExplosion();
     Destroy();
 }
 
-void AProyectil::ExplosionDanioAplicar() {  
+void AProyectil::AplicarDanioDeExplosion() {  
     APawn* PeonQueDispara = GetInstigator();  
     if(PeonQueDispara && HasAuthority()) {
         AController* ControladorDeQuienDispara = PeonQueDispara->GetController();
         if(ControladorDeQuienDispara) {
-            UGameplayStatics::ApplyRadialDamageWithFalloff(this, Dano, 10.f, GetActorLocation(), DanioRadioInterno, DanioRadioExterno, 1.f, UDamageType::StaticClass(), TArray<AActor*>(), this, ControladorDeQuienDispara);
+            UGameplayStatics::ApplyRadialDamageWithFalloff(this, Danio, 10.f, GetActorLocation(), RadioInternoDeDanio, RadioExternoDeDanio, 1.f, UDamageType::StaticClass(), TArray<AActor*>(), this, ControladorDeQuienDispara);
         }
     }
 }

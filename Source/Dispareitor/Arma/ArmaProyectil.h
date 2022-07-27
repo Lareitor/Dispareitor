@@ -12,6 +12,5 @@ public:
 	virtual void Disparar(const FVector& Objetivo) override;
 	
 private:
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<class AProyectil> Proyectil;	
+	UPROPERTY(EditAnywhere)	TSubclassOf<class AProyectil> ClaseProyectil;	//rifle: BP_ProyectilBala, lanzagranadas: BP_ProyectilGranada, lanzacohetes: BP_ProyectilCohete
 };

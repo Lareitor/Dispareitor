@@ -17,186 +17,91 @@ public:
 	friend class ADispareitorPersonaje;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;			
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
 	void EquiparArma(class AArma* ArmaAEquipar);
 	void Recargar();
-
-	UFUNCTION(BluePrintCallable)
-	void RecargarFinalizado();
-
-	UFUNCTION(BluePrintCallable)
-	void RecargarCartuchoEscopeta();
-	
+	UFUNCTION(BluePrintCallable) void RecargarFinalizado();
+	UFUNCTION(BluePrintCallable) void RecargarCartuchoEscopeta();
 	void DispararPresionado(bool bPresionado);
-
-	void EscopetaFinAnimacionSaltar();
-
-	UFUNCTION(BluePrintCallable)
-	void GranadaArrojarFinalizado();
-
-	UFUNCTION(BluePrintCallable)
-	void GranadaArrojada();
-
-	UFUNCTION(Server, Reliable)
-	void GranadaArrojada_EnServidor(const FVector_NetQuantize& Objetivo);
+	void SaltarAFinAnimacionEscopeta();
+	UFUNCTION(BluePrintCallable) void ArrojarGranadaFinalizado();
+	UFUNCTION(BluePrintCallable) void GranadaArrojada();
+	UFUNCTION(Server, Reliable)	void GranadaArrojada_EnServidor(const FVector_NetQuantize& Objetivo);
 
 protected:	
 	virtual void BeginPlay() override;
 	void ActualizarApuntando(bool Apuntado);
-
-	UFUNCTION(Server, Reliable)
-	void ServidorActualizarApuntando(bool Apuntando);
-
-	UFUNCTION()
-	void AlReplicarArmaEquipada();	
-
-	UFUNCTION(Server, Reliable)
-	void ServidorDisparar(const FVector_NetQuantize& Objetivo);
-
-	UFUNCTION(Server, Reliable)
-	void RecargarServidor();
-
+	UFUNCTION(Server, Reliable)	void ActualizarApuntando_EnServidor(bool Apuntando);
+	UFUNCTION() void AlReplicar_ArmaEquipada();	
+	UFUNCTION(Server, Reliable)	void Disparar_EnServidor(const FVector_NetQuantize& Objetivo);
+	UFUNCTION(Server, Reliable)	void Recargar_EnServidor();
 	// RPC Multicast. Si se invoca en el servidor, se ejecuta en el servidor + clientes, si se invoca en el cliente solo se ejecuta en ese cliente
-	UFUNCTION(NetMulticast, Reliable)
-	void MulticastDisparar(const FVector_NetQuantize& Objetivo);
-
+	UFUNCTION(NetMulticast, Reliable) void Disparar_Multicast(const FVector_NetQuantize& Objetivo);
 	void CalcularRayoDesdeCruceta(FHitResult& RayoResultado);
-
-	void ActualizarHUDCruceta(float DeltaTime);
-
-	void RecargarManejador();
-
-	int32 RecargarCantidad();
-
-	UPROPERTY(EditAnywhere)
-	class USoundCue* FrancotiradorCrucetaZoomIn;
-
-	UPROPERTY(EditAnywhere)
-	USoundCue* FrancotiradorCrucetaZoomOut;
-
-	void GranadaArrojar();
-
-	UFUNCTION(Server, Reliable)
-	void GranadaArrojarServidor();
-
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<class AProyectil> GranadaClase;
-
-	void ArmaEquipadaSoltar();
-	void ManoDerechaUnirActor(AActor* Actor);
-	void ManoIzquierdaUnirActor(AActor* Actor);
-	void MunicionPersonajeActualizar();
-	void ArmaVaciaRecargar();
-	void GranadaMostrar(bool bMostrar);
+	void ActualizarCrucetaHUD(float DeltaTime);
+	void EjecutarMontajeRecargar();
+	int32 CalcularCantidadARecargar();
+	UPROPERTY(EditAnywhere)	class USoundCue* SonidoFrancotiradorCrucetaZoomIn; //SniperRifle
+	UPROPERTY(EditAnywhere)	USoundCue* SonidoFrancotiradorCrucetaZoomOut;
+	void ArrojarGranada();
+	UFUNCTION(Server, Reliable)	void ArrojarGranada_EnServidor();
+	UPROPERTY(EditAnywhere)	TSubclassOf<class AProyectil> GranadaClase;
+	void SoltarArmaEquipada();
+	void ManoDerechaUnirAActor(AActor* Actor);
+	void ManoIzquierdaUnirAActor(AActor* Actor);
+	void ActualizarMunicionPersonaje();
+	void RecargarArmaVacia();
+	void MostrarGranada(bool bMostrar);
 
 private:
-	UPROPERTY()
-	class ADispareitorPersonaje* DispareitorPersonaje;
-	
-	UPROPERTY()
-	class ADispareitorControladorJugador* DispareitorControladorJugador;
-	
-	UPROPERTY()
-	class ADispareitorHUD* DispareitorHUD;
-
-	UPROPERTY(ReplicatedUsing = AlReplicarArmaEquipada)
-	AArma* ArmaEquipada;
-
-	UPROPERTY(Replicated)
-	bool bApuntando;
-
-	UPROPERTY(EditAnywhere)
-	float VelocidadCaminarBase;
-
-	UPROPERTY(EditAnywhere)
-	float VelocidadCaminarApuntando;
-
+	UPROPERTY()	class ADispareitorPersonaje* DispareitorPersonaje;
+	UPROPERTY()	class ADispareitorControladorJugador* DispareitorControladorJugador;
+	UPROPERTY()	class ADispareitorHUD* DispareitorHUD;
+	UPROPERTY(ReplicatedUsing = AlReplicar_ArmaEquipada) AArma* ArmaEquipada;
+	UPROPERTY(Replicated) bool bApuntando;
+	UPROPERTY(EditAnywhere)	float VelocidadCaminarBase;
+	UPROPERTY(EditAnywhere)	float VelocidadCaminarApuntando;
 	bool bDispararPresionado;
-
 	float CrucetaFactorVelocidad;
 	float CrucetaFactorEnAire;
 	float CrucetaFactorApuntado;
 	float CrucetaFactorDisparo;
-
 	FVector ObjetoAlcanzado;
-
 	FHUDCruceta HUDCruceta;
-
-	float PorDefectoFOV;
-
-	UPROPERTY(EditAnywhere, Category = Combate)
-	float ZoomFOV =  30.f;
-
+	float FOVPorDefecto;
+	UPROPERTY(EditAnywhere, Category = Combate)	float ZoomFOV =  30.f;
 	float ActualFOV;
-
-	UPROPERTY(EditAnywhere, Category = Combate)
-	float ZoomVelocidadInterpolacion = 20.f;
-
+	UPROPERTY(EditAnywhere, Category = Combate)	float ZoomVelocidadInterpolacion = 20.f;
 	void InterpolarFOV(float DeltaTime);
-
-	FTimerHandle DisparoTemporizador;
+	FTimerHandle TemporizadorDisparo;
 	bool bPuedoDisparar = true;
-
 	void Disparar();
-	void EmpezarDisparoTemporizador();
+	void EmpezarTemporizadorDisparo();
 	void TerminadoDisparoTemporizador();
-
 	bool PuedoDisparar();
-
 	// Municion del personaje para el arma actualmente equipada
-	UPROPERTY(ReplicatedUsing = MunicionPersonajeAlReplicar)
-	int32 MunicionPersonaje;
-
+	UPROPERTY(ReplicatedUsing = AlReplicar_MunicionPersonaje) int32 MunicionPersonaje;
 	UFUNCTION()
-	void MunicionPersonajeAlReplicar();
-
+	void AlReplicar_MunicionPersonaje();
 	// TMap no puede replicarse
-	TMap<ETipoArma, int32> MunicionPersonajeMapa;
-
-	UPROPERTY(EditAnywhere)
-	int32 MunicionPersonajeInicialRifleAsalto = 30;
-
-	UPROPERTY(EditAnywhere)
-	int32 MunicionPersonajeInicialLanzaCohetes = 0;
-
-	UPROPERTY(EditAnywhere)
-	int32 MunicionPersonajeInicialPistola = 0;
-
-	UPROPERTY(EditAnywhere)
-	int32 MunicionPersonajeInicialSubfusil = 0;
-	
-	UPROPERTY(EditAnywhere)
-	int32 MunicionPersonajeInicialEscopeta = 0;
-
-	UPROPERTY(EditAnywhere)
-	int32 MunicionPersonajeInicialFrancotirador = 0;
-
-	UPROPERTY(EditAnywhere)
-	int32 MunicionPersonajeInicialLanzaGranadas = 0;
-
-	void MunicionPersonajeInicializar();
-
-	UPROPERTY(ReplicatedUsing = EstadoCombateAlReplicar)
-	EEstadosCombate EstadoCombate = EEstadosCombate::EEC_Desocupado;
-
-	UFUNCTION()
-	void EstadoCombateAlReplicar();
-
-	void MunicionActualizarValores();
-	void MunicionEscopetaActualizarValores();
-	void EquiparSonidoEjecutar();
-
-	UPROPERTY(ReplicatedUsing = GranadasActuales_AlReplicar)
-	int32 GranadasActuales = 4;
-
-	UFUNCTION()
-	void GranadasActuales_AlReplicar();
-
-	UPROPERTY(EditAnywhere)
-	int32 GranadasMaximo = 4;
-
-	void HUDGranadasActualizar();
+	TMap<ETipoArma, int32> MapaMunicionPersonaje;
+	UPROPERTY(EditAnywhere)	int32 MunicionPersonajeInicialRifleAsalto = 30;
+	UPROPERTY(EditAnywhere)	int32 MunicionPersonajeInicialLanzaCohetes = 0;
+	UPROPERTY(EditAnywhere)	int32 MunicionPersonajeInicialPistola = 0;
+	UPROPERTY(EditAnywhere)	int32 MunicionPersonajeInicialSubfusil = 0;
+	UPROPERTY(EditAnywhere)	int32 MunicionPersonajeInicialEscopeta = 0;
+	UPROPERTY(EditAnywhere)	int32 MunicionPersonajeInicialFrancotirador = 0;
+	UPROPERTY(EditAnywhere)	int32 MunicionPersonajeInicialLanzaGranadas = 0;
+	void InicializarMunicionPersonaje();
+	UPROPERTY(ReplicatedUsing = AlReplicar_EstadoCombate) EEstadosCombate EstadoCombate = EEstadosCombate::EEC_Desocupado;
+	UFUNCTION()	void AlReplicar_EstadoCombate();
+	void ActualizarValoresMunicion();
+	void ActualizarValoresMunicionEscopeta();
+	void EjecutarSonidoAlEquipar();
+	UPROPERTY(ReplicatedUsing = AlReplicar_GranadasActuales) int32 GranadasActuales = 4;
+	UFUNCTION()	void AlReplicar_GranadasActuales();
+	UPROPERTY(EditAnywhere)	int32 GranadasMaximo = 4;
+	void ActualizarGranadasHUD();
 	
 public:		
-	FORCEINLINE int32 GranadasActualesObtener() const { return GranadasActuales; }
+	FORCEINLINE int32 ObtenerGranadasActuales() const { return GranadasActuales; }
 };

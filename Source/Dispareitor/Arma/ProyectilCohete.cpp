@@ -22,46 +22,63 @@ void AProyectilCohete::BeginPlay() {
 
     // Para el proyectil cohete, tambien los clientes se encarga de manejar la colision
     if(!HasAuthority()) {
-		CajaColision->OnComponentHit.AddDynamic(this, &AProyectilCohete::CallbackAlImpactar);
+		CajaColision->OnComponentHit.AddDynamic(this, &AProyectilCohete::Callback_AlImpactar);
 	}
 
-    HumoTrazaCrear();
+    CrearTrazaDeHumo();
 
-    if(SonidoMientraVuela && SonidoMientraVuelaAtenuacion) {
-        SonidoMientraVuelaComponente = UGameplayStatics::SpawnSoundAttached(SonidoMientraVuela, GetRootComponent(), FName(), GetActorLocation(), EAttachLocation::KeepWorldPosition, false, 1.f, 1.f, 0.f, 
-                                                                            SonidoMientraVuelaAtenuacion, (USoundConcurrency *)nullptr, false);
+    if(SonidoMientraVuela && AtenuacionSonidoMientraVuela) {
+        ComponenteSonidoMientraVuela = UGameplayStatics::SpawnSoundAttached(SonidoMientraVuela, GetRootComponent(), FName(), GetActorLocation(), EAttachLocation::KeepWorldPosition, false, 1.f, 1.f, 0.f, 
+                                                                            AtenuacionSonidoMientraVuela, (USoundConcurrency *)nullptr, false);
     }
+
+    // Si no ha chocado con nada en 10 sg provocamos su autodestruccion. Este metodo llamará de forma indirecta a Destroyed
+    SetLifeSpan(10.f); 
 }
 
-void AProyectilCohete::CallbackAlImpactar(UPrimitiveComponent* ComponenteImpactante, AActor* ActorImpactado, UPrimitiveComponent* ComponenteImpactado, FVector ImpulsoNormal, const FHitResult& ImpactoResultado) {
+void AProyectilCohete::Callback_AlImpactar(UPrimitiveComponent* ComponenteImpactante, AActor* ActorImpactado, UPrimitiveComponent* ComponenteImpactado, FVector ImpulsoNormal, const FHitResult& ImpactoResultado) {
     if(ActorImpactado == GetOwner()) { // Se ha creado UCoheteMovimientoComponente para gestionar esta casuistica
         return;
     }
-   
-    ExplosionDanioAplicar();
-    
-    IniciarTemporizadorDeFin();
 
-    if(ImpactoParticulas) {
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactoParticulas, GetActorTransform());
-	}
-	if(ImpactoSonido) {
-		UGameplayStatics::PlaySoundAtLocation(this, ImpactoSonido, GetActorLocation());
-	}
+    bHaImpactado = true;
+   
+    AplicarDanioDeExplosion();
+    FinalizarFXDeVuelo();
+    IniciarFXDeExplosion();
+}
+
+void AProyectilCohete::Destroyed() {
+    AActor::Destroyed();
+
+    if(!bHaImpactado) {
+        FinalizarFXDeVuelo();
+        IniciarFXDeExplosion();
+    }
+}
+
+void AProyectilCohete::FinalizarFXDeVuelo() {
     if(Malla) {
         Malla->SetVisibility(false);
     }
     if(CajaColision) {
         CajaColision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     }
-    if(HumoTrazaComponente && HumoTrazaComponente->GetSystemInstance()) {
-        HumoTrazaComponente->GetSystemInstance()->Deactivate();
+    if(ComponenteNiagaraTrazaDeHumo && ComponenteNiagaraTrazaDeHumo->GetSystemInstanceController()) {
+        ComponenteNiagaraTrazaDeHumo->GetSystemInstanceController()->Deactivate();
     }
-    if(SonidoMientraVuelaComponente && SonidoMientraVuelaComponente->IsPlaying()) {
-        SonidoMientraVuelaComponente->Stop();
+    if(ComponenteSonidoMientraVuela && ComponenteSonidoMientraVuela->IsPlaying()) {
+        ComponenteSonidoMientraVuela->Stop();
     }
 }
 
-// Para evitar que se llame a Proyectil::Destroyed sobreescribimos este metodo a vacio
-void AProyectilCohete::Destroyed() {
+void AProyectilCohete::IniciarFXDeExplosion() {
+    if(SistemaParticulasAlImpactar) {
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SistemaParticulasAlImpactar, GetActorTransform());
+	}
+	if(SonidoAlImpactar) {
+		UGameplayStatics::PlaySoundAtLocation(this, SonidoAlImpactar, GetActorLocation());
+	}
 }
+
+

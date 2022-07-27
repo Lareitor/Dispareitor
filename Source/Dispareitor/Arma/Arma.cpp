@@ -21,9 +21,9 @@ AArma::AArma() {
 	Malla->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 	Malla->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	Malla->SetCustomDepthStencilValue(PROFUNDIDAD_PERSONALIZADA_AZUL);
+	Malla->SetCustomDepthStencilValue(PROFUNDIDAD_PERSONALIZADA_AL_RENDERIZAR_AZUL);
 	Malla->MarkRenderStateDirty(); // Para obligar a refrescar el render
-	ProfundidadPersonalizadaPermitir(true);
+	PermitirProfundidadPersonalizadaAlRenderizar(true);
 
 	Esfera = CreateDefaultSubobject<USphereComponent>(TEXT("Esfera"));
 	Esfera->SetupAttachment(RootComponent);
@@ -44,8 +44,8 @@ void AArma::BeginPlay() {
 	if(HasAuthority()) { // Somos el servidor. Es lo mismo que GetLocalRole() == ENetRole::ROLE_Authority
 		Esfera->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		Esfera->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
-		Esfera->OnComponentBeginOverlap.AddDynamic(this, &AArma::CallbackEsferaSolapadaInicio);		
-		Esfera->OnComponentEndOverlap.AddDynamic(this, &AArma::CallbackEsferaSolapadaFin);
+		Esfera->OnComponentBeginOverlap.AddDynamic(this, &AArma::Callback_EsferaSolapadaInicio);		
+		Esfera->OnComponentEndOverlap.AddDynamic(this, &AArma::Callback_EsferaSolapadaFin);
 	}
 
 	if(LeyendaSobreArma) {
@@ -61,21 +61,21 @@ void AArma::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimePro
 }
 
 
-void AArma::CallbackEsferaSolapadaInicio(UPrimitiveComponent* ComponenteSolapado, AActor* OtroActor, UPrimitiveComponent* OtroComponente, int32 OtroIndice, bool bFromSweep, const FHitResult& SweepResult) { 
+void AArma::Callback_EsferaSolapadaInicio(UPrimitiveComponent* ComponenteSolapado, AActor* OtroActor, UPrimitiveComponent* OtroComponente, int32 OtroIndice, bool bFromSweep, const FHitResult& SweepResult) { 
 	ADispareitorPersonaje* DispareitorPersonajeEntraEnEsfera = Cast<ADispareitorPersonaje>(OtroActor);
 	if(DispareitorPersonajeEntraEnEsfera) {
 		DispareitorPersonajeEntraEnEsfera->ActivarArmaSolapada(this);
 	}
 }
 
-void AArma::CallbackEsferaSolapadaFin(UPrimitiveComponent* ComponenteSolapado, AActor* OtroActor, UPrimitiveComponent* OtroComponente, int32 OtroIndice) {
+void AArma::Callback_EsferaSolapadaFin(UPrimitiveComponent* ComponenteSolapado, AActor* OtroActor, UPrimitiveComponent* OtroComponente, int32 OtroIndice) {
 	ADispareitorPersonaje* DispareitorPersonajeSaleEsfera = Cast<ADispareitorPersonaje>(OtroActor);
 	if(DispareitorPersonajeSaleEsfera) {
 		DispareitorPersonajeSaleEsfera->ActivarArmaSolapada(nullptr);
 	}
 }
 
-// Llamado por Soltar, UCombateComponente::EquiparArma, UCombateComponente::AlReplicarArmaEquipada
+// Llamado por Soltar, UCombateComponente::EquiparArma, UCombateComponente::AlReplicar_ArmaEquipada
 void AArma::ActualizarEstado(EEstado EstadoAActualizar) {
 	Estado = EstadoAActualizar;
 
@@ -92,7 +92,7 @@ void AArma::ActualizarEstado(EEstado EstadoAActualizar) {
 				Malla->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 			}
 
-			ProfundidadPersonalizadaPermitir(false);
+			PermitirProfundidadPersonalizadaAlRenderizar(false);
 		break;
 		case EEstado::EEA_Desequipada:
 			if(HasAuthority()) {
@@ -105,14 +105,14 @@ void AArma::ActualizarEstado(EEstado EstadoAActualizar) {
 			Malla->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 			Malla->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 			
-			Malla->SetCustomDepthStencilValue(PROFUNDIDAD_PERSONALIZADA_AZUL);
+			Malla->SetCustomDepthStencilValue(PROFUNDIDAD_PERSONALIZADA_AL_RENDERIZAR_AZUL);
 			Malla->MarkRenderStateDirty();
-			ProfundidadPersonalizadaPermitir(true);
+			PermitirProfundidadPersonalizadaAlRenderizar(true);
 		break;
 	}	
 }
 
-void AArma::AlReplicarEstado() {
+void AArma::AlReplicar_Estado() {
 	switch(Estado) {
 		case EEstado::EEA_Equipada:
 			MostrarLeyendaSobreArma(false);	
@@ -125,7 +125,7 @@ void AArma::AlReplicarEstado() {
 				Malla->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 			}	
 
-			ProfundidadPersonalizadaPermitir(false);
+			PermitirProfundidadPersonalizadaAlRenderizar(false);
 		break;
 		case EEstado::EEA_Desequipada:
 			Malla->SetSimulatePhysics(true);
@@ -135,9 +135,9 @@ void AArma::AlReplicarEstado() {
 			Malla->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 			Malla->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 
-			Malla->SetCustomDepthStencilValue(PROFUNDIDAD_PERSONALIZADA_AZUL);
+			Malla->SetCustomDepthStencilValue(PROFUNDIDAD_PERSONALIZADA_AL_RENDERIZAR_AZUL);
 			Malla->MarkRenderStateDirty();
-			ProfundidadPersonalizadaPermitir(true);
+			PermitirProfundidadPersonalizadaAlRenderizar(true);
 		break;
 	}
 }
@@ -148,18 +148,18 @@ void AArma::MostrarLeyendaSobreArma(bool bMostrarLeyendaSobreArma) {
 	}
 }
 
-// Llamado por UCombateComponente::MulticastDisparar_Implementation y por sus clases hijas
+// Llamado por UCombateComponente::Disparar_Multicast_Implementation y por sus clases hijas
 void AArma::Disparar(const FVector& Objetivo) {
 	if(AnimacionDisparar) {
 		Malla->PlayAnimation(AnimacionDisparar, false);
 	}
-	if(Casquillo) {
+	if(ClaseCasquillo) {
 		const USkeletalMeshSocket* CasquilloSocket = Malla->GetSocketByName(FName("AmmoEject"));
 		if(CasquilloSocket) {
 			FTransform CasquilloSocketTransform = CasquilloSocket->GetSocketTransform(Malla);
 			UWorld* Mundo = GetWorld();
 			if(Mundo) {
-				Mundo->SpawnActor<ACasquillo>(Casquillo, CasquilloSocketTransform.GetLocation(), CasquilloSocketTransform.GetRotation().Rotator());
+				Mundo->SpawnActor<ACasquillo>(ClaseCasquillo, CasquilloSocketTransform.GetLocation(), CasquilloSocketTransform.GetRotation().Rotator());
 			}
 		}
 	}
@@ -179,17 +179,17 @@ void AArma::Soltar() {
 
 // Llamado por Disparar
 void AArma::GastarMunicion() {
-	Municion = FMath::Clamp(Municion -1, 0, CargadorCapacidad);
-	ActualizarHUDMunicion();
+	Municion = FMath::Clamp(Municion -1, 0, CapacidadCargador);
+	ActualizarMunicionHUD();
 }
 
-void AArma::AlReplicarMunicion() {
+void AArma::AlReplicar_Municion() {
 	DispareitorPersonaje = DispareitorPersonaje != nullptr ? DispareitorPersonaje : Cast<ADispareitorPersonaje>(GetOwner());
-	if(DispareitorPersonaje && DispareitorPersonaje->CombateComponenteObtener() && EstaConMunicionLlena()) {
-		DispareitorPersonaje->CombateComponenteObtener()->EscopetaFinAnimacionSaltar();
+	if(DispareitorPersonaje && DispareitorPersonaje->ObtenerCombateComponente() && EstaConMunicionLlena()) {
+		DispareitorPersonaje->ObtenerCombateComponente()->SaltarAFinAnimacionEscopeta();
 	}
 
-	ActualizarHUDMunicion();
+	ActualizarMunicionHUD();
 }
 
 void AArma::OnRep_Owner() {
@@ -198,16 +198,16 @@ void AArma::OnRep_Owner() {
 		DispareitorPersonaje = nullptr;
 		DispareitorControladorJugador = nullptr;
 	} else {
-		ActualizarHUDMunicion();
+		ActualizarMunicionHUD();
 	}
 }
 
-void AArma::ActualizarHUDMunicion() {
+void AArma::ActualizarMunicionHUD() {
 	DispareitorPersonaje = DispareitorPersonaje != nullptr ? DispareitorPersonaje : Cast<ADispareitorPersonaje>(GetOwner());
 	if(DispareitorPersonaje) {
 		DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller);
 		if(DispareitorControladorJugador) {
-			DispareitorControladorJugador->HUDArmaMunicionActualizar(Municion);
+			DispareitorControladorJugador->ActualizarMunicionArmaHUD(Municion);
 		}
 	}
 }
@@ -217,18 +217,18 @@ bool AArma::EstaSinMunicion() {
 }
 
 bool AArma::EstaConMunicionLlena() {
-	return Municion == CargadorCapacidad;
+	return Municion == CapacidadCargador;
 }
 
-// Llamado por UCombateComponente::MunicionActualizarValores
-void AArma::MunicionAniadir(int32 Cantidad) {
-	Municion = FMath::Clamp(Municion + Cantidad, 0, CargadorCapacidad);
-	ActualizarHUDMunicion();
+// Llamado por UCombateComponente::ActualizarValoresMunicion
+void AArma::AniadirMunicion(int32 Cantidad) {
+	Municion = FMath::Clamp(Municion + Cantidad, 0, CapacidadCargador);
+	ActualizarMunicionHUD();
 }
 
 
 // Habilitar o deshabilitar custom depth para el outline en las armas
-void AArma::ProfundidadPersonalizadaPermitir(bool bPermitir) {
+void AArma::PermitirProfundidadPersonalizadaAlRenderizar(bool bPermitir) {
 	if(Malla) {
 		Malla->SetRenderCustomDepth(bPermitir);
 	}
