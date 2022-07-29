@@ -566,5 +566,14 @@ void UCombateComponente::ArrojarGranadaFinalizado() {
 	ManoDerechaUnirAActor(ArmaEquipada);
 }
 
+void UCombateComponente::CogerMunicion(ETipoArma TipoArma, int32 IncrementoMunicion) {
+	if(MapaMunicionPersonaje.Contains(TipoArma)) {
+		MapaMunicionPersonaje[TipoArma] = FMath::Clamp(MapaMunicionPersonaje[TipoArma] + IncrementoMunicion, 0, MaximaMunicionPersonaje);	
+		ActualizarMunicionPersonaje();
+	}	
+	if(ArmaEquipada && ArmaEquipada->EstaSinMunicion() && ArmaEquipada->ObtenerTipoArma() == TipoArma) {
+		Recargar();
+	}
+}
 
 

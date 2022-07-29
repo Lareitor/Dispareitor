@@ -130,10 +130,10 @@ void ADispareitorPersonaje::SondearInicializacion() {
 		}
 	}
 
-	if(HUDSobreLaCabeza) {
+	/*if(HUDSobreLaCabeza) {
 		HUDSobreLaCabezaReal = HUDSobreLaCabezaReal != nullptr ? HUDSobreLaCabezaReal : Cast<UHUDSobreLaCabeza>(HUDSobreLaCabeza->GetUserWidgetObject());
 		HUDSobreLaCabezaReal->MostrarJugadorNombre(this);
-	}
+	}*/
 }
 
 // Cada vez que el personaje se mueve llama a esta funcion, asi que la podemos usar en lugar del tick para calcular el giro en los proxies simulados

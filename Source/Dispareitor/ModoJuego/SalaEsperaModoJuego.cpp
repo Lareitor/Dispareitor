@@ -16,7 +16,7 @@ void ASalaEsperaModoJuego::PostLogin(APlayerController* ControladorJugador) {
         UWorld* Mundo = GetWorld();
         if(Mundo) {
             bUseSeamlessTravel = true;
-            Mundo->ServerTravel(FString("/Game/Mapas/Dispareitor?listen"));
+            Mundo->ServerTravel(FString("/Game/Mapas/ChateauGillard?listen"));
         }
     }
 }	

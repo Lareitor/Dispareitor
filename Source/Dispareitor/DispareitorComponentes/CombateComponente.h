@@ -26,6 +26,7 @@ public:
 	UFUNCTION(BluePrintCallable) void ArrojarGranadaFinalizado();
 	UFUNCTION(BluePrintCallable) void GranadaArrojada();
 	UFUNCTION(Server, Reliable)	void GranadaArrojada_EnServidor(const FVector_NetQuantize& Objetivo);
+	void CogerMunicion(ETipoArma TipoArma, int32 IncrementoMunicion);
 
 protected:	
 	virtual void BeginPlay() override;
@@ -84,6 +85,7 @@ private:
 	void AlReplicar_MunicionPersonaje();
 	// TMap no puede replicarse
 	TMap<ETipoArma, int32> MapaMunicionPersonaje;
+	UPROPERTY(EditAnywhere)	int32 MaximaMunicionPersonaje = 500;
 	UPROPERTY(EditAnywhere)	int32 MunicionPersonajeInicialRifleAsalto = 30;
 	UPROPERTY(EditAnywhere)	int32 MunicionPersonajeInicialLanzaCohetes = 0;
 	UPROPERTY(EditAnywhere)	int32 MunicionPersonajeInicialPistola = 0;

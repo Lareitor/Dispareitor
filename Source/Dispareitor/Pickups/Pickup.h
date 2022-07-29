@@ -16,7 +16,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	UFUNCTION()	virtual void Callback_ComponenteEsferaSolapadaInicio(UPrimitiveComponent* ComponenteSolapado, AActor* OtroActor, UPrimitiveComponent* OtroComponente, int32 OtroIndice, bool bFromSweep, const FHitResult& SweepResult);
-	
+	UPROPERTY(EditAnywhere) float RatioDeGiro = 45.f;
 
 private:
 	UPROPERTY(EditAnywhere) class USphereComponent* ComponenteEsfera;
