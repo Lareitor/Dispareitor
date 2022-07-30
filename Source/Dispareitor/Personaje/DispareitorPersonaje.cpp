@@ -6,6 +6,7 @@
 #include "Net/UnrealNetwork.h"
 #include "Dispareitor/Arma/Arma.h"
 #include "Dispareitor/DispareitorComponentes/CombateComponente.h"
+#include "Dispareitor/DispareitorComponentes/BuffComponente.h"
 #include "Components/CapsuleComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "DispareitorInstanciaAnimacion.h"
@@ -43,6 +44,9 @@ ADispareitorPersonaje::ADispareitorPersonaje() {
 	CombateComponente = CreateDefaultSubobject<UCombateComponente>(TEXT("CombateComponente"));
 	// No necesitamos registrar los componentes en GetLifetimeReplicatedProps, solo necesitamos activarles esta propiedad
 	CombateComponente->SetIsReplicated(true);
+
+	BuffComponente = CreateDefaultSubobject<UBuffComponente>(TEXT("BuffComponente"));
+	BuffComponente->SetIsReplicated(true);
 
 	// Activar que se pueda agachar (esta propiedad tambien existe en el BP)
 	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
@@ -168,6 +172,9 @@ void ADispareitorPersonaje::PostInitializeComponents() {
 	Super::PostInitializeComponents();
 	if(CombateComponente) {
 		CombateComponente->DispareitorPersonaje = this;
+	}
+	if(BuffComponente) {
+		BuffComponente->DispareitorPersonaje = this;
 	}
 }
 
