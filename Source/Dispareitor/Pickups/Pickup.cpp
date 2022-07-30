@@ -17,7 +17,7 @@ APickup::APickup() {
 	ComponenteEsfera->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	ComponenteEsfera->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	ComponenteEsfera->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
-	ComponenteEsfera->AddLocalOffset(FVector(0.f, 0.f, 50.f));
+	ComponenteEsfera->AddLocalOffset(FVector(0.f, 0.f, 70.f));
 
 	ComponenteMallaEstatica = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ComponenteMallaEstatica"));
 	ComponenteMallaEstatica->SetupAttachment(ComponenteEsfera);
