@@ -563,9 +563,11 @@ void ADispareitorPersonaje::RecibirDanio(AActor* ActorDaniado, float Danio, cons
 }
 
 // Se ejecuta en los clientes
-void ADispareitorPersonaje::AlReplicar_Vida() {
+void ADispareitorPersonaje::AlReplicar_Vida(float VidaAnterior) {
 	ActualizarVidaHUD();
-	EjecutarMontajeReaccionAImpacto();
+	if(Vida < VidaAnterior) { // Solo ejecutamos el montaje cuando nuestra vida se decrementa porque estamos recibiendo daño
+		EjecutarMontajeReaccionAImpacto();
+	}
 }
 
 void ADispareitorPersonaje::ActualizarVidaHUD() {

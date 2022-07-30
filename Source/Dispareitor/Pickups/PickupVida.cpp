@@ -16,7 +16,10 @@ void APickupVida::Callback_ComponenteEsferaSolapadaInicio(UPrimitiveComponent* C
 
     ADispareitorPersonaje* DispareitorPersonaje = Cast<ADispareitorPersonaje>(OtroActor);
     if(DispareitorPersonaje) {
-        
+        UBuffComponente* BuffComponente = DispareitorPersonaje->ObtenerBuffComponente();
+        if(BuffComponente) {
+            BuffComponente->Sanar(IncrementoVida, TiempoIncrementoVida);
+        }
     }
     Destroy();
 }

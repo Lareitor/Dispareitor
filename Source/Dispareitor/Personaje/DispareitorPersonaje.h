@@ -32,6 +32,7 @@ public:
 	virtual void Destroyed() override;
 	void SondearInicializacion();
 	UPROPERTY(Replicated) bool bSoloGirarCamara = false;
+	void ActualizarVidaHUD();
 
 protected:
 	virtual void BeginPlay() override;
@@ -54,7 +55,6 @@ protected:
 	void CalcularGiroParadoYArmadoEnProxiesSimulados();
 	void EjecutarMontajeReaccionAImpacto();
 	UFUNCTION() void RecibirDanio(AActor* ActorDaniado, float Danio, const UDamageType* TipoDanio, class AController* ControladorInstigador, AActor* ActorCausante);
-	void ActualizarVidaHUD();
 
 private:
 	// Inicializa la variable a nullptr, en otro caso tendria basura y podría producir errores de codigo como crasheos. Otra forma de hacerlo seria usando directamente = nullptr;
@@ -104,7 +104,7 @@ private:
 	 */
 	UPROPERTY(EditAnywhere, Category = "Estadisticas") float VidaMaxima = 100.f;
 	UPROPERTY(ReplicatedUsing = AlReplicar_Vida, VisibleAnywhere, Category = "Estadisticas") float Vida = 100.f;
-	UFUNCTION()	void AlReplicar_Vida();
+	UFUNCTION()	void AlReplicar_Vida(float VidaAnterior);
 	bool bEliminado = false;
 	FTimerHandle TemporizadorEliminado;
 	// Solo editable en la clase Character?¿ para que no se pueda editar en las hijas y que puedan poner distintos retardos lo cual no sería justo
@@ -144,9 +144,12 @@ public:
 	FORCEINLINE bool DeboRotarHuesoRaiz() const { return bRotarHuesoRaiz; }
 	FORCEINLINE bool EstaEliminado() const { return bEliminado; }
 	FORCEINLINE float ObtenerVida() const { return Vida; }
+	FORCEINLINE void ActualizarVida(float _Vida) { Vida = _Vida; }
 	FORCEINLINE float ObtenerVidaMaxima() const { return VidaMaxima; }
-	FORCEINLINE UCombateComponente* ObtenerCombateComponente() const { return CombateComponente; }
 	FORCEINLINE bool DeboSoloGirarCamara() const { return bSoloGirarCamara; }
 	FORCEINLINE UAnimMontage* ObtenerMontajeRecargar() const { return MontajeRecargar; } 
 	FORCEINLINE UStaticMeshComponent* ObtenerGranada() const { return Granada; } 
+	FORCEINLINE UCombateComponente* ObtenerCombateComponente() const { return CombateComponente; }
+	FORCEINLINE UBuffComponente* ObtenerBuffComponente() const { return BuffComponente; } 
+
 };
