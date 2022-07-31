@@ -66,8 +66,39 @@ void UBuffComponente::ResetearVelocidades() {
 }
 
 void UBuffComponente::AumentarVelocidad_Multicast_Implementation(float VelocidadDePieNueva, float VelocidadAgachadoNueva) {	
+	if(DispareitorPersonaje == nullptr || DispareitorPersonaje->GetCharacterMovement() == nullptr) {
+		return;
+	}
 	DispareitorPersonaje->GetCharacterMovement()->MaxWalkSpeed = VelocidadDePieNueva;
 	DispareitorPersonaje->GetCharacterMovement()->MaxWalkSpeedCrouched = VelocidadAgachadoNueva;
-
 }
 
+void UBuffComponente::InicializarSaltoOriginal(float _SaltoOriginal) {
+	SaltoOriginal = _SaltoOriginal;
+}
+
+void UBuffComponente::AumentarSalto(float SaltoAumentando, float Duracion) {
+	if(DispareitorPersonaje == nullptr || DispareitorPersonaje->GetCharacterMovement() == nullptr) {
+		return;
+	}
+
+	DispareitorPersonaje->GetWorldTimerManager().SetTimer(TemporizadorAumentoSalto, this, &UBuffComponente::ResetearSalto, Duracion);
+	DispareitorPersonaje->GetCharacterMovement()->JumpZVelocity = SaltoAumentando;
+	AumentarSalto_Multicast(SaltoAumentando);
+}
+
+void UBuffComponente::ResetearSalto() {
+	if(DispareitorPersonaje == nullptr || DispareitorPersonaje->GetCharacterMovement() == nullptr) {
+		return;
+	}
+
+	DispareitorPersonaje->GetCharacterMovement()->JumpZVelocity = SaltoOriginal;
+	AumentarSalto_Multicast(SaltoOriginal);
+}
+
+void UBuffComponente::AumentarSalto_Multicast_Implementation(float SaltoNuevo) {
+	if(DispareitorPersonaje == nullptr || DispareitorPersonaje->GetCharacterMovement() == nullptr) {
+		return;
+	}
+	DispareitorPersonaje->GetCharacterMovement()->JumpZVelocity = SaltoNuevo;
+}

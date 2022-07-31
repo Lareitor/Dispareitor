@@ -176,6 +176,7 @@ void ADispareitorPersonaje::PostInitializeComponents() {
 	if(BuffComponente) {
 		BuffComponente->DispareitorPersonaje = this;
 		BuffComponente->InicializarVelocidadesOriginales(GetCharacterMovement()->MaxWalkSpeed, GetCharacterMovement()->MaxWalkSpeedCrouched);
+		BuffComponente->InicializarSaltoOriginal(GetCharacterMovement()->JumpZVelocity);
 	}
 }
 
