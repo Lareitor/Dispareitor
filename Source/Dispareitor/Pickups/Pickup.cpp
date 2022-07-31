@@ -3,6 +3,8 @@
 #include "Sound/SoundCue.h"
 #include "Components/SphereComponent.h"
 #include "Dispareitor/Tipos/TiposArma.h"
+#include "NiagaraComponent.h"
+#include "NiagaraFunctionLibrary.h"
 
 APickup::APickup() {
  	PrimaryActorTick.bCanEverTick = true;
@@ -25,6 +27,9 @@ APickup::APickup() {
 	ComponenteMallaEstatica->SetRelativeScale3D(FVector(2.f, 2.f, 2.f));
 	ComponenteMallaEstatica->SetRenderCustomDepth(true);
 	ComponenteMallaEstatica->SetCustomDepthStencilValue(PROFUNDIDAD_PERSONALIZADA_AL_RENDERIZAR_MORADO);
+
+	ComponenteNiagaraFX = CreateDefaultSubobject<UNiagaraComponent>(TEXT("ComponenteNiagaraFX"));
+    ComponenteNiagaraFX->SetupAttachment(RootComponent);
 }
 
 void APickup::BeginPlay(){
@@ -52,6 +57,9 @@ void APickup::Destroyed() {
 	if(Sonido) {
 		UGameplayStatics::PlaySoundAtLocation(this, Sonido, GetActorLocation());
 	}
+	if(SistemaNiagaraFX) {
+        UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, SistemaNiagaraFX, GetActorLocation(), GetActorRotation());
+    }
 }
 	
 

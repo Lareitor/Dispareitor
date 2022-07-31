@@ -22,4 +22,6 @@ private:
 	UPROPERTY(EditAnywhere) class USphereComponent* ComponenteEsfera;
 	UPROPERTY(EditAnywhere) class USoundCue* Sonido;	
 	UPROPERTY(EditAnywhere) UStaticMeshComponent* ComponenteMallaEstatica;
+	UPROPERTY(VisibleAnywhere) class UNiagaraComponent* ComponenteNiagaraFX; // FX principal
+	UPROPERTY(EditAnywhere) class UNiagaraSystem* SistemaNiagaraFX; // FX despues de coger el FX principal
 };
