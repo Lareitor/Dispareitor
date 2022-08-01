@@ -153,6 +153,8 @@ public:
 	FORCEINLINE float ObtenerVida() const { return Vida; }
 	FORCEINLINE void ActualizarVida(float _Vida) { Vida = _Vida; }
 	FORCEINLINE float ObtenerVidaMaxima() const { return VidaMaxima; }
+	FORCEINLINE float ObtenerEscudo() const { return Escudo; }
+	FORCEINLINE float ObtenerEscudoMaximo() const { return EscudoMaximo; }
 	FORCEINLINE bool DeboSoloGirarCamara() const { return bSoloGirarCamara; }
 	FORCEINLINE UAnimMontage* ObtenerMontajeRecargar() const { return MontajeRecargar; } 
 	FORCEINLINE UStaticMeshComponent* ObtenerGranada() const { return Granada; } 

@@ -53,13 +53,17 @@ private:
 	UPROPERTY(ReplicatedUsing = AlReplicar_EstadoPartida) FName EstadoPartida;
 	UFUNCTION()	void AlReplicar_EstadoPartida();
 	UPROPERTY() class UPantallaDelPersonaje* PantallaDelPersonaje;
-	bool bPantallaDelPersonajeInicializada = false;
 	// Variables cache usadas durante el proceso de Sondeo
 	float VidaHUD;
+	bool bInicializadaVida = false;
 	float VidaMaximaHUD;
 	float EscudoHUD;
+	bool bInicializadoEscudo = false;
 	float EscudoMaximoHUD;
 	float MuertosHUD;
+	bool bInicializadoMuertos = false;
 	int32 MuertesHUD; 
+	bool bInicializadoMuertes = false;
 	int32 GranadasActualesHUD;
+	bool bInicializadaGranadas = false;
 };

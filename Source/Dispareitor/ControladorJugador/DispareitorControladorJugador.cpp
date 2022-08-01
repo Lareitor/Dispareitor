@@ -41,15 +41,24 @@ void ADispareitorControladorJugador::SondearInicio() {
         if(DispareitorHUD && DispareitorHUD->PantallaDelPersonaje) {
             PantallaDelPersonaje = DispareitorHUD->PantallaDelPersonaje;  
             if(PantallaDelPersonaje) {
-                ActualizarVidaHUD(VidaHUD, VidaMaximaHUD);
-                ActualizarEscudoHUD(EscudoHUD, EscudoMaximoHUD);
-                ActualizarMuertosHUD(MuertosHUD);
-                ActualizarMuertesHUD(MuertesHUD);
-
+                if(bInicializadaVida) {
+                    ActualizarVidaHUD(VidaHUD, VidaMaximaHUD);
+                }
+                if(bInicializadoEscudo) {
+                    ActualizarEscudoHUD(EscudoHUD, EscudoMaximoHUD);
+                }
+                if(bInicializadoMuertos) {
+                    ActualizarMuertosHUD(MuertosHUD);
+                }
+                if(bInicializadoMuertes) {
+                    ActualizarMuertesHUD(MuertesHUD);
+                }
                 ADispareitorPersonaje* DispareitorPersonaje = Cast<ADispareitorPersonaje>(GetPawn());
                 if(DispareitorPersonaje && DispareitorPersonaje->ObtenerCombateComponente()) {
                     //ActualizarGranadasHUD(GranadasActualesHUD);
-                    ActualizarGranadasHUD(DispareitorPersonaje->ObtenerCombateComponente()->ObtenerGranadasActuales());
+                    if(bInicializadaGranadas) {
+                        ActualizarGranadasHUD(DispareitorPersonaje->ObtenerCombateComponente()->ObtenerGranadasActuales());
+                    }
                 }
             }
         }
@@ -63,6 +72,8 @@ void ADispareitorControladorJugador::OnPossess(APawn* Peon) {
     ADispareitorPersonaje* DispareitorPersonaje = Cast<ADispareitorPersonaje>(Peon);
     if(DispareitorPersonaje) {
         ActualizarVidaHUD(DispareitorPersonaje->ObtenerVida(), DispareitorPersonaje->ObtenerVidaMaxima());
+        ActualizarEscudoHUD(DispareitorPersonaje->ObtenerEscudo(), DispareitorPersonaje->ObtenerEscudoMaximo());
+
     }
 }
 
@@ -75,7 +86,7 @@ void ADispareitorControladorJugador::ActualizarVidaHUD(float Vida, float VidaMax
         FString TextoVida = FString::Printf(TEXT("%d/%d"), FMath::CeilToInt(Vida), FMath::CeilToInt(VidaMaxima));
         DispareitorHUD->PantallaDelPersonaje->TextoVida->SetText(FText::FromString(TextoVida)); 
     } else {
-        bPantallaDelPersonajeInicializada = true;
+        bInicializadaVida = true;
         VidaHUD = Vida;
         VidaMaximaHUD = VidaMaxima;
 
@@ -90,7 +101,7 @@ void ADispareitorControladorJugador::ActualizarEscudoHUD(float Escudo, float Esc
         FString TextoEscudo = FString::Printf(TEXT("%d/%d"), FMath::CeilToInt(Escudo), FMath::CeilToInt(EscudoMaximo));
         DispareitorHUD->PantallaDelPersonaje->TextoEscudo->SetText(FText::FromString(TextoEscudo)); 
     } else {
-        bPantallaDelPersonajeInicializada = true;
+        bInicializadoEscudo = true;
         EscudoHUD = Escudo;
         EscudoMaximoHUD = EscudoMaximo;
 
@@ -133,7 +144,7 @@ void ADispareitorControladorJugador::ActualizarMuertosHUD(float Muertos) {
         FString MuertosTexto = FString::Printf(TEXT("%d"), FMath::FloorToInt(Muertos));
         DispareitorHUD->PantallaDelPersonaje->Muertos->SetText(FText::FromString(MuertosTexto));   
     } else {
-        bPantallaDelPersonajeInicializada = true;
+        bInicializadoMuertos = true;
         MuertosHUD = Muertos;
     }
 }
@@ -146,7 +157,7 @@ void ADispareitorControladorJugador::ActualizarMuertesHUD(int32 Muertes) {
         FString MuertesTexto = FString::Printf(TEXT("%d"), Muertes);
         DispareitorHUD->PantallaDelPersonaje->Muertes->SetText(FText::FromString(MuertesTexto));   
     } else {
-        bPantallaDelPersonajeInicializada = true;
+        bInicializadoMuertes = true;
         MuertesHUD = Muertes;
     }
 }
@@ -222,6 +233,7 @@ void ADispareitorControladorJugador::ActualizarGranadasHUD(int32 CantidadGranada
         FString TextoCantidadGranadas = FString::Printf(TEXT("%d"), CantidadGranadas);
         DispareitorHUD->PantallaDelPersonaje->CantidadGranadas->SetText(FText::FromString(TextoCantidadGranadas));   
     } else {
+        bInicializadaGranadas = true;
         GranadasActualesHUD = CantidadGranadas;
     }
 }

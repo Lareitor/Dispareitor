@@ -87,6 +87,7 @@ void ADispareitorPersonaje::BeginPlay() {
 	Super::BeginPlay();	
 
 	ActualizarVidaHUD();
+	ActualizarEscudoHUD();
 	if(HasAuthority()) {
 		// Enlazamos nuestro metodo de recibir daño al delegado, para que se invoque cuando ProyectilBala llame a ApplyDamage
 		OnTakeAnyDamage.AddDynamic(this, &ADispareitorPersonaje::RecibirDanio);
@@ -551,8 +552,20 @@ void ADispareitorPersonaje::RecibirDanio(AActor* ActorDaniado, float Danio, cons
 		return;
 	}
 
-	Vida = FMath::Clamp(Vida - Danio, 0.f, VidaMaxima);
+	float DanioAVida = Danio;
+	if(Escudo > 0.f) {
+		if(Escudo >= Danio) {
+			Escudo = FMath::Clamp(Escudo - Danio, 0.f, EscudoMaximo);
+			DanioAVida = 0.f;
+		} else {
+			DanioAVida = FMath::Clamp(Danio - Escudo, 0.f, Danio);
+			Escudo = 0.f;
+		}
+	}
+
+	Vida = FMath::Clamp(Vida - DanioAVida, 0.f, VidaMaxima);
 	ActualizarVidaHUD();
+	ActualizarEscudoHUD();
 	EjecutarMontajeReaccionAImpacto();
 
 	if(Vida == 0.f) {
