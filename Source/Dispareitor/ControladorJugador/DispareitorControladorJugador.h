@@ -10,6 +10,7 @@ class DISPAREITOR_API ADispareitorControladorJugador : public APlayerController 
 
 public:
 	void ActualizarVidaHUD(float Vida, float VidaMaxima);
+	void ActualizarEscudoHUD(float Escudo, float EscudoMaximo);
 	void ActualizarMuertosHUD(float Muertos);
 	void ActualizarMuertesHUD(int32 Muertes);
 	void ActualizarMunicionArmaHUD(int32 MunicionArma);
@@ -56,6 +57,8 @@ private:
 	// Variables cache usadas durante el proceso de Sondeo
 	float VidaHUD;
 	float VidaMaximaHUD;
+	float EscudoHUD;
+	float EscudoMaximoHUD;
 	float MuertosHUD;
 	int32 MuertesHUD; 
 	int32 GranadasActualesHUD;

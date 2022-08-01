@@ -12,6 +12,8 @@ class DISPAREITOR_API UPantallaDelPersonaje : public UUserWidget {
 public:
 	UPROPERTY(meta = (BindWidget)) class UProgressBar* BarraVida;
 	UPROPERTY(meta = (BindWidget)) class UTextBlock* TextoVida;
+	UPROPERTY(meta = (BindWidget)) class UProgressBar* BarraEscudo;
+	UPROPERTY(meta = (BindWidget)) class UTextBlock* TextoEscudo;
 	UPROPERTY(meta = (BindWidget)) UTextBlock* Muertos;
 	UPROPERTY(meta = (BindWidget)) UTextBlock* Muertes;
 	UPROPERTY(meta = (BindWidget)) UTextBlock* MunicionArma;

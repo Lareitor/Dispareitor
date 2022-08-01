@@ -42,6 +42,7 @@ void ADispareitorControladorJugador::SondearInicio() {
             PantallaDelPersonaje = DispareitorHUD->PantallaDelPersonaje;  
             if(PantallaDelPersonaje) {
                 ActualizarVidaHUD(VidaHUD, VidaMaximaHUD);
+                ActualizarEscudoHUD(EscudoHUD, EscudoMaximoHUD);
                 ActualizarMuertosHUD(MuertosHUD);
                 ActualizarMuertesHUD(MuertesHUD);
 
@@ -80,6 +81,22 @@ void ADispareitorControladorJugador::ActualizarVidaHUD(float Vida, float VidaMax
 
     }
 }
+
+void ADispareitorControladorJugador::ActualizarEscudoHUD(float Escudo, float EscudoMaximo) {
+    DispareitorHUD = DispareitorHUD != nullptr ? DispareitorHUD : Cast<ADispareitorHUD>(GetHUD());
+
+    if(DispareitorHUD && DispareitorHUD->PantallaDelPersonaje && DispareitorHUD->PantallaDelPersonaje->BarraEscudo && DispareitorHUD->PantallaDelPersonaje->TextoEscudo) {
+        DispareitorHUD->PantallaDelPersonaje->BarraEscudo->SetPercent(Escudo / EscudoMaximo); 
+        FString TextoEscudo = FString::Printf(TEXT("%d/%d"), FMath::CeilToInt(Escudo), FMath::CeilToInt(EscudoMaximo));
+        DispareitorHUD->PantallaDelPersonaje->TextoEscudo->SetText(FText::FromString(TextoEscudo)); 
+    } else {
+        bPantallaDelPersonajeInicializada = true;
+        EscudoHUD = Escudo;
+        EscudoMaximoHUD = EscudoMaximo;
+
+    }
+}
+
 
 // Llamado por BeginPlay
 void ADispareitorControladorJugador::ComprobarEstadoPartida_EnServidor_Implementation() {

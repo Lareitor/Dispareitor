@@ -33,6 +33,7 @@ public:
 	void SondearInicializacion();
 	UPROPERTY(Replicated) bool bSoloGirarCamara = false;
 	void ActualizarVidaHUD();
+	void ActualizarEscudoHUD();
 
 protected:
 	virtual void BeginPlay() override;
@@ -105,6 +106,12 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Estadisticas") float VidaMaxima = 100.f;
 	UPROPERTY(ReplicatedUsing = AlReplicar_Vida, VisibleAnywhere, Category = "Estadisticas") float Vida = 100.f;
 	UFUNCTION()	void AlReplicar_Vida(float VidaAnterior);
+	/**
+	 * Escudo 
+	 */
+	UPROPERTY(EditAnywhere, Category = "Estadisticas") float EscudoMaximo = 100.f;
+	UPROPERTY(ReplicatedUsing = AlReplicar_Escudo, VisibleAnywhere, Category = "Estadisticas") float Escudo = 100.f;
+	UFUNCTION()	void AlReplicar_Escudo(float EscudoAnterior);
 	bool bEliminado = false;
 	FTimerHandle TemporizadorEliminado;
 	// Solo editable en la clase Character?¿ para que no se pueda editar en las hijas y que puedan poner distintos retardos lo cual no sería justo

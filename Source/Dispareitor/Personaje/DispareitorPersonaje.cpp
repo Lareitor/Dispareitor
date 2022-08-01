@@ -79,6 +79,7 @@ void ADispareitorPersonaje::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 	// Solo se replica el ArmaSolapada en el cliente que posee ADispareitorPersonaje
 	DOREPLIFETIME_CONDITION(ADispareitorPersonaje, ArmaSolapada, COND_OwnerOnly);
 	DOREPLIFETIME(ADispareitorPersonaje, Vida);
+	DOREPLIFETIME(ADispareitorPersonaje, Escudo);
 	DOREPLIFETIME(ADispareitorPersonaje, bSoloGirarCamara);
 }
 
@@ -572,10 +573,24 @@ void ADispareitorPersonaje::AlReplicar_Vida(float VidaAnterior) {
 	}
 }
 
+void ADispareitorPersonaje::AlReplicar_Escudo(float EscudoAnterior) {
+	ActualizarEscudoHUD();
+	if(Escudo < EscudoAnterior) { // Solo ejecutamos el montaje cuando nuestra vida se decrementa porque estamos recibiendo daño
+		EjecutarMontajeReaccionAImpacto();
+	}
+}
+
 void ADispareitorPersonaje::ActualizarVidaHUD() {
 	DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(Controller);
 	if(DispareitorControladorJugador) {
 		DispareitorControladorJugador->ActualizarVidaHUD(Vida, VidaMaxima);
+	}
+}
+
+void ADispareitorPersonaje::ActualizarEscudoHUD() {
+	DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(Controller);
+	if(DispareitorControladorJugador) {
+		DispareitorControladorJugador->ActualizarEscudoHUD(Escudo, EscudoMaximo);
 	}
 }
 
