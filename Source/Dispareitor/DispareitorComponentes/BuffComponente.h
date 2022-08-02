@@ -13,6 +13,7 @@ public:
 	UBuffComponente();
 	friend class ADispareitorPersonaje;
 	void Sanar(float IncrementoVida, float TiempoIncrementoVida);
+	void Escudar(float IncrementoEscudo, float TiempoIncrementoEscudo);
 	void AumentarVelocidad(float VelocidadDePieAumentada, float VelocidadAgachadoAumentada, float Duracion);
 	void InicializarVelocidadesOriginales(float _VelocidadDePieOriginal, float _VelocidadAgachadoOriginal);
 	void AumentarSalto(float SaltoAumentando, float Duracion);
@@ -21,6 +22,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	void SanarProgreso(float DeltaTime);
+	void EscudarProgreso(float DeltaTime);
 
 private:
 	UPROPERTY()	class ADispareitorPersonaje* DispareitorPersonaje;
@@ -30,6 +32,12 @@ private:
 	bool bSanando = false;
 	float RatioSanacion = 0.f;
 	float IncrementoASanar = 0.f;
+	/**
+	 * Escudo buff
+	 */
+	bool bEscudando = false;
+	float RatioEscudacion = 0.f;
+	float IncrementoAEscudar = 0.f;
 	/**
 	 * Velocidad buff
 	 */

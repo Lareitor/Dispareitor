@@ -19,12 +19,19 @@ void UBuffComponente::InicializarVelocidadesOriginales(float _VelocidadDePieOrig
 void UBuffComponente::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	SanarProgreso(DeltaTime);
+	EscudarProgreso(DeltaTime);
 }
 
 void UBuffComponente::Sanar(float IncrementoVida, float TiempoIncrementoVida) {
 	bSanando = true;
 	RatioSanacion = IncrementoVida / TiempoIncrementoVida;
 	IncrementoASanar += IncrementoVida;
+}
+
+void UBuffComponente::Escudar(float IncrementoEscudo, float TiempoIncrementoEscudo) {
+	bEscudando = true;
+	RatioEscudacion = IncrementoEscudo / TiempoIncrementoEscudo;
+	IncrementoAEscudar += IncrementoEscudo;
 }
 
 void UBuffComponente::SanarProgreso(float DeltaTime) {
@@ -42,6 +49,23 @@ void UBuffComponente::SanarProgreso(float DeltaTime) {
 		IncrementoASanar = 0.f;
 	}
 }
+
+void UBuffComponente::EscudarProgreso(float DeltaTime) {
+	if(!bEscudando || DispareitorPersonaje == nullptr || DispareitorPersonaje->EstaEliminado()) {
+		return;
+	}
+
+	const float EscudacionEsteFrame = RatioEscudacion * DeltaTime;
+	DispareitorPersonaje->ActualizarEscudo(FMath::Clamp(DispareitorPersonaje->ObtenerEscudo() + EscudacionEsteFrame, 0, DispareitorPersonaje->ObtenerEscudoMaximo()));
+	DispareitorPersonaje->ActualizarEscudoHUD();
+	IncrementoAEscudar -=EscudacionEsteFrame;
+	
+	if(IncrementoAEscudar <= 0.f || DispareitorPersonaje->ObtenerEscudo() >= DispareitorPersonaje->ObtenerEscudoMaximo()) {
+		bEscudando = false;
+		IncrementoAEscudar = 0.f;
+	}
+}
+
 
 void UBuffComponente::AumentarVelocidad(float VelocidadDePieAumentada, float VelocidadAgachadoAumentada, float Duracion) {
 	if(DispareitorPersonaje == nullptr || DispareitorPersonaje->GetCharacterMovement() == nullptr) {

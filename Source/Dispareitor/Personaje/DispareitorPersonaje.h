@@ -8,7 +8,7 @@
 #include "Dispareitor/Tipos/EstadosCombate.h"
 #include "DispareitorPersonaje.generated.h"
 
-// TODO Hacer que el cohete se elimine pasados 10 sg ya que si lo tiras contra el cielo dura forever
+// TODO Las granadas iniciales no se muestran en ADispareitorControladorJugador::SondearInicio
 // Si la cruceta no se pone roja al pasar sobre un enemigo, activar manualmente el check Trace Responses a Block en la malla del personaje
 // Si los disparos no son precisos a la malla comprobar que en la malla el tipo de canal es MallaDelEsqueleto
 UCLASS()
@@ -110,7 +110,7 @@ private:
 	 * Escudo 
 	 */
 	UPROPERTY(EditAnywhere, Category = "Estadisticas") float EscudoMaximo = 100.f;
-	UPROPERTY(ReplicatedUsing = AlReplicar_Escudo, VisibleAnywhere, Category = "Estadisticas") float Escudo = 100.f;
+	UPROPERTY(ReplicatedUsing = AlReplicar_Escudo, EditAnywhere, Category = "Estadisticas") float Escudo = 0.f;
 	UFUNCTION()	void AlReplicar_Escudo(float EscudoAnterior);
 	bool bEliminado = false;
 	FTimerHandle TemporizadorEliminado;
@@ -154,6 +154,7 @@ public:
 	FORCEINLINE void ActualizarVida(float _Vida) { Vida = _Vida; }
 	FORCEINLINE float ObtenerVidaMaxima() const { return VidaMaxima; }
 	FORCEINLINE float ObtenerEscudo() const { return Escudo; }
+	FORCEINLINE void ActualizarEscudo(float _Escudo) { Escudo = _Escudo; }
 	FORCEINLINE float ObtenerEscudoMaximo() const { return EscudoMaximo; }
 	FORCEINLINE bool DeboSoloGirarCamara() const { return bSoloGirarCamara; }
 	FORCEINLINE UAnimMontage* ObtenerMontajeRecargar() const { return MontajeRecargar; } 

@@ -42,22 +42,28 @@ void ADispareitorControladorJugador::SondearInicio() {
             PantallaDelPersonaje = DispareitorHUD->PantallaDelPersonaje;  
             if(PantallaDelPersonaje) {
                 if(bInicializadaVida) {
+                    UE_LOG(LogTemp, Warning, TEXT("bInicializadaVida"));
                     ActualizarVidaHUD(VidaHUD, VidaMaximaHUD);
                 }
                 if(bInicializadoEscudo) {
+                    UE_LOG(LogTemp, Warning, TEXT("bInicializadoEscudo"));
                     ActualizarEscudoHUD(EscudoHUD, EscudoMaximoHUD);
                 }
                 if(bInicializadoMuertos) {
+                    UE_LOG(LogTemp, Warning, TEXT("bInicializadoMuertos"));
                     ActualizarMuertosHUD(MuertosHUD);
                 }
                 if(bInicializadoMuertes) {
+                    UE_LOG(LogTemp, Warning, TEXT("bInicializadoMuertes"));
                     ActualizarMuertesHUD(MuertesHUD);
                 }
                 ADispareitorPersonaje* DispareitorPersonaje = Cast<ADispareitorPersonaje>(GetPawn());
                 if(DispareitorPersonaje && DispareitorPersonaje->ObtenerCombateComponente()) {
-                    //ActualizarGranadasHUD(GranadasActualesHUD);
+                    UE_LOG(LogTemp, Warning, TEXT("CombateComponente"));
                     if(bInicializadaGranadas) {
-                        ActualizarGranadasHUD(DispareitorPersonaje->ObtenerCombateComponente()->ObtenerGranadasActuales());
+                        UE_LOG(LogTemp, Warning, TEXT("bInicializadaGranadas"));
+                        ActualizarGranadasHUD(GranadasActualesHUD);
+                        //ActualizarGranadasHUD(DispareitorPersonaje->ObtenerCombateComponente()->ObtenerGranadasActuales());
                     }
                 }
             }
@@ -162,6 +168,19 @@ void ADispareitorControladorJugador::ActualizarMuertesHUD(int32 Muertes) {
     }
 }
 
+// Llamado por SondearInicio y UCombateComponente::ActualizarGranadasHUD
+void ADispareitorControladorJugador::ActualizarGranadasHUD(int32 CantidadGranadas) {
+    DispareitorHUD = DispareitorHUD != nullptr ? DispareitorHUD : Cast<ADispareitorHUD>(GetHUD());
+
+    if(DispareitorHUD && DispareitorHUD->PantallaDelPersonaje && DispareitorHUD->PantallaDelPersonaje->CantidadGranadas) {
+        FString TextoCantidadGranadas = FString::Printf(TEXT("%d"), CantidadGranadas);
+        DispareitorHUD->PantallaDelPersonaje->CantidadGranadas->SetText(FText::FromString(TextoCantidadGranadas));   
+    } else {
+        bInicializadaGranadas = true;
+        GranadasActualesHUD = CantidadGranadas;
+    }
+}
+
 void ADispareitorControladorJugador::ActualizarMunicionArmaHUD(int32 MunicionArma) {
     DispareitorHUD = DispareitorHUD != nullptr ? DispareitorHUD : Cast<ADispareitorHUD>(GetHUD());
 
@@ -224,18 +243,6 @@ void ADispareitorControladorJugador::ActualizarCrucetaFrancotiradorHUD(bool bEst
 			DispareitorHUD->FrancotiradorCruceta->PlayAnimation(DispareitorHUD->FrancotiradorCruceta->AnimacionZoomIn, 0.f, 1, EUMGSequencePlayMode::Reverse);
 		}
 	}
-}
-
-void ADispareitorControladorJugador::ActualizarGranadasHUD(int32 CantidadGranadas) {
-    DispareitorHUD = DispareitorHUD != nullptr ? DispareitorHUD : Cast<ADispareitorHUD>(GetHUD());
-
-    if(DispareitorHUD && DispareitorHUD->PantallaDelPersonaje && DispareitorHUD->PantallaDelPersonaje->CantidadGranadas) {
-        FString TextoCantidadGranadas = FString::Printf(TEXT("%d"), CantidadGranadas);
-        DispareitorHUD->PantallaDelPersonaje->CantidadGranadas->SetText(FText::FromString(TextoCantidadGranadas));   
-    } else {
-        bInicializadaGranadas = true;
-        GranadasActualesHUD = CantidadGranadas;
-    }
 }
 
 void ADispareitorControladorJugador::ActivarTiempoHUD() {
