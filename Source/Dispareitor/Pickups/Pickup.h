@@ -24,4 +24,7 @@ private:
 	UPROPERTY(EditAnywhere) UStaticMeshComponent* ComponenteMallaEstatica;
 	UPROPERTY(VisibleAnywhere) class UNiagaraComponent* ComponenteNiagaraFX; // FX principal
 	UPROPERTY(EditAnywhere) class UNiagaraSystem* SistemaNiagaraFX; // FX despues de coger el FX principal
+	FTimerHandle TemporizadorSolapamiento;
+	float TiempoSolapamiento = 0.25f;
+	void Callback_TemporizadorSolapamientoFinalizado();
 };

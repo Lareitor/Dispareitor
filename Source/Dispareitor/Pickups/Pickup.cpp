@@ -34,9 +34,9 @@ APickup::APickup() {
 
 void APickup::BeginPlay(){
 	Super::BeginPlay();
-
+	// Para evitar que si el jugador se queda sobre el pickup no vuelva a aparecer nuevos pickups realizamos este fix
 	if(HasAuthority()) {
-		ComponenteEsfera->OnComponentBeginOverlap.AddDynamic(this, &APickup::Callback_ComponenteEsferaSolapadaInicio);
+		GetWorldTimerManager().SetTimer(TemporizadorSolapamiento, this, &APickup::Callback_TemporizadorSolapamientoFinalizado, TiempoSolapamiento);
 	}
 }
 
@@ -62,4 +62,7 @@ void APickup::Destroyed() {
     }
 }
 	
+void APickup::Callback_TemporizadorSolapamientoFinalizado() {
+	ComponenteEsfera->OnComponentBeginOverlap.AddDynamic(this, &APickup::Callback_ComponenteEsferaSolapadaInicio);
+}	
 
