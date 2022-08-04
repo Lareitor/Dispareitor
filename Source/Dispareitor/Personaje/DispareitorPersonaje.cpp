@@ -86,6 +86,8 @@ void ADispareitorPersonaje::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 void ADispareitorPersonaje::BeginPlay() {
 	Super::BeginPlay();	
 
+	ReaparecerArmaPorDefecto();
+	ActualizarMunicionHUD();
 	ActualizarVidaHUD();
 	ActualizarEscudoHUD();
 	if(HasAuthority()) {
@@ -607,11 +609,25 @@ void ADispareitorPersonaje::ActualizarEscudoHUD() {
 	}
 }
 
+void ADispareitorPersonaje::ActualizarMunicionHUD() {
+	DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(Controller);
+	if(DispareitorControladorJugador && CombateComponente && CombateComponente->ArmaEquipada) {
+		DispareitorControladorJugador->ActualizarMunicionPersonajeHUD(CombateComponente->MunicionPersonaje);
+		DispareitorControladorJugador->ActualizarMunicionArmaHUD(CombateComponente->ArmaEquipada->ObtenerMunicion());
+	} 
+}
+
+
 // Llamado por DispareitorModoJuego::JugadorEliminado 
 // Ejecutado en el server ya que DispareitorModoJuego solo existe en el server
 void ADispareitorPersonaje::Eliminado() {
 	if(CombateComponente && CombateComponente->ArmaEquipada) {
-		CombateComponente->ArmaEquipada->Soltar();
+		if(CombateComponente->ArmaEquipada->bDestruirArma) { // Destruir el arma solo si es el arma por defecto
+			CombateComponente->ArmaEquipada->Destroy();
+		} else {
+			CombateComponente->ArmaEquipada->Soltar();
+
+		}
 	}
 	Eliminado_Multicast();
 	GetWorldTimerManager().SetTimer(TemporizadorEliminado, this, &ADispareitorPersonaje::TemporizadorEliminadoFinalizado, RetardoDeEliminacion);
@@ -704,4 +720,16 @@ float ADispareitorPersonaje::CalcularVelocidad() {
 	FVector VelocidadTemporal = GetVelocity();
     VelocidadTemporal.Z = 0.f;
     return VelocidadTemporal.Size();
+}
+
+void ADispareitorPersonaje::ReaparecerArmaPorDefecto() {
+	ADispareitorModoJuego* DispareitorModoJuego = Cast<ADispareitorModoJuego>(UGameplayStatics::GetGameMode(this));
+	UWorld* Mundo = GetWorld();
+	if(DispareitorModoJuego && Mundo && !bEliminado && ClaseArmaPorDefecto) {
+		AArma* ArmaPorDefecto = Mundo->SpawnActor<AArma>(ClaseArmaPorDefecto);
+		ArmaPorDefecto->bDestruirArma = true;
+		if(CombateComponente) {
+			CombateComponente->EquiparArma(ArmaPorDefecto);
+		}
+	}
 }

@@ -66,4 +66,8 @@ private:
 	bool bInicializadoMuertes = false;
 	int32 GranadasActualesHUD;
 	bool bInicializadaGranadas = false;
+	float MunicionPersonajeHUD;
+	bool bInicializadaMunicionPersonaje = false;
+	float MunicionArmaHUD;
+	bool bInicializadaMunicionArma = false;
 };

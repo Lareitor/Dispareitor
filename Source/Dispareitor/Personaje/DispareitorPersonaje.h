@@ -34,6 +34,8 @@ public:
 	UPROPERTY(Replicated) bool bSoloGirarCamara = false;
 	void ActualizarVidaHUD();
 	void ActualizarEscudoHUD();
+	void ActualizarMunicionHUD();
+	void ReaparecerArmaPorDefecto();
 
 protected:
 	virtual void BeginPlay() override;
@@ -136,6 +138,8 @@ private:
 	UPROPERTY(VisibleAnywhere) UParticleSystemComponent* ComponenteSistemaParticulasRobotEliminacion;
 	UPROPERTY(EditAnywhere)	class USoundCue* SonidoRobotEliminacion; //roboteliminacion_cue
 	UPROPERTY(VisibleAnywhere) UStaticMeshComponent* Granada;
+	// Arma por defecto
+	UPROPERTY(EditAnywhere) TSubclassOf<AArma> ClaseArmaPorDefecto;
 
 public:	
 	void ActivarArmaSolapada(AArma* Arma);

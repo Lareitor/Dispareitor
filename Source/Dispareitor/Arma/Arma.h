@@ -38,6 +38,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = Combate)	bool bAutomatica = true;
 	UPROPERTY(EditAnywhere)	class USoundCue* SonidoEquipar; 
 	void PermitirProfundidadPersonalizadaAlRenderizar(bool bPermitir);
+	bool bDestruirArma = false;
 
 protected:	
 	virtual void BeginPlay() override;

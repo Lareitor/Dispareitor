@@ -57,6 +57,12 @@ void ADispareitorControladorJugador::SondearInicio() {
                     UE_LOG(LogTemp, Warning, TEXT("bInicializadoMuertes"));
                     ActualizarMuertesHUD(MuertesHUD);
                 }
+                if(bInicializadaMunicionPersonaje) {
+                    ActualizarMunicionPersonajeHUD(MunicionPersonajeHUD);
+                }
+                if(bInicializadaMunicionArma) {
+                    ActualizarMunicionArmaHUD(MunicionArmaHUD);
+                }
                 ADispareitorPersonaje* DispareitorPersonaje = Cast<ADispareitorPersonaje>(GetPawn());
                 if(DispareitorPersonaje && DispareitorPersonaje->ObtenerCombateComponente()) {
                     UE_LOG(LogTemp, Warning, TEXT("CombateComponente"));
@@ -187,6 +193,9 @@ void ADispareitorControladorJugador::ActualizarMunicionArmaHUD(int32 MunicionArm
     if(DispareitorHUD && DispareitorHUD->PantallaDelPersonaje && DispareitorHUD->PantallaDelPersonaje->MunicionArma) {
         FString TextoMunicionArma = FString::Printf(TEXT("%d"), MunicionArma);
         DispareitorHUD->PantallaDelPersonaje->MunicionArma->SetText(FText::FromString(TextoMunicionArma));   
+    } else {
+        MunicionArmaHUD = MunicionArma;
+        bInicializadaMunicionArma = true;
     }
 }
 
@@ -196,6 +205,9 @@ void ADispareitorControladorJugador::ActualizarMunicionPersonajeHUD(int32 Munici
     if(DispareitorHUD && DispareitorHUD->PantallaDelPersonaje && DispareitorHUD->PantallaDelPersonaje->MunicionPersonaje) {
         FString TextoMunicionPersonaje = FString::Printf(TEXT("%d"), MunicionPersonaje);
         DispareitorHUD->PantallaDelPersonaje->MunicionPersonaje->SetText(FText::FromString(TextoMunicionPersonaje));   
+    } else {
+        MunicionPersonajeHUD = MunicionPersonaje; 
+        bInicializadaMunicionPersonaje = true;
     }
 }
 
