@@ -42,6 +42,7 @@ void UCombateComponente::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(UCombateComponente, ArmaEquipada);
+	DOREPLIFETIME(UCombateComponente, ArmaSecundariaEquipada);
 	DOREPLIFETIME(UCombateComponente, bApuntando);
 	DOREPLIFETIME_CONDITION(UCombateComponente, MunicionPersonaje, COND_OwnerOnly);
 	DOREPLIFETIME(UCombateComponente, EstadoCombate);
@@ -169,18 +170,43 @@ void UCombateComponente::EquiparArma(class AArma* ArmaAEquipar) {
 		return;
 	}
 
-	SoltarArmaEquipada();
-	ArmaEquipada = ArmaAEquipar;
-	ArmaEquipada->ActualizarEstado(EEstado::EEA_Equipada); // Se propaga al cliente
-	ManoDerechaUnirAActor(ArmaEquipada);
-	ArmaEquipada->SetOwner(DispareitorPersonaje);	
-	ArmaEquipada->ActualizarMunicionHUD();
-	ActualizarMunicionPersonaje();
-	EjecutarSonidoAlEquipar();
-	RecargarArmaVacia();
+	if(ArmaEquipada != nullptr && ArmaSecundariaEquipada == nullptr) {
+		EquiparArmaSecundaria(ArmaAEquipar);
+	} else {
+		EquiparArmaPrimaria(ArmaAEquipar);
+	}
+
 
 	DispareitorPersonaje->GetCharacterMovement()->bOrientRotationToMovement = false;
 	DispareitorPersonaje->bUseControllerRotationYaw = true;
+}
+
+void UCombateComponente::EquiparArmaPrimaria(AArma* ArmaAEquipar) {
+	if(ArmaAEquipar == nullptr) {
+		return; 
+	}
+
+	SoltarArmaEquipada();
+	ArmaEquipada = ArmaAEquipar;
+	ArmaEquipada->ActualizarEstado(EEstado::EEA_Equipada); // Se propaga al cliente
+	UnirActorAManoDerecha(ArmaEquipada);
+	ArmaEquipada->SetOwner(DispareitorPersonaje);	
+	ArmaEquipada->ActualizarMunicionHUD();
+	ActualizarMunicionPersonaje();
+	EjecutarSonidoAlEquipar(ArmaAEquipar);
+	RecargarArmaVacia();
+}
+
+void UCombateComponente::EquiparArmaSecundaria(AArma* ArmaAEquipar) {
+	if(ArmaAEquipar == nullptr) {
+		return; 
+	}
+
+	ArmaSecundariaEquipada = ArmaAEquipar;
+	ArmaSecundariaEquipada->ActualizarEstado(EEstado::EEA_Equipada); 
+	UnirActorAMochila(ArmaAEquipar);
+	ArmaSecundariaEquipada->SetOwner(DispareitorPersonaje);	
+	EjecutarSonidoAlEquipar(ArmaAEquipar);
 }
 
 void UCombateComponente::SoltarArmaEquipada() {
@@ -189,7 +215,7 @@ void UCombateComponente::SoltarArmaEquipada() {
 	}
 }
 
-void UCombateComponente::ManoDerechaUnirAActor(AActor* Actor) {
+void UCombateComponente::UnirActorAManoDerecha(AActor* Actor) {
 	if(DispareitorPersonaje == nullptr || DispareitorPersonaje->GetMesh() == nullptr || Actor == nullptr) {
 		return;	
 	}  
@@ -200,7 +226,7 @@ void UCombateComponente::ManoDerechaUnirAActor(AActor* Actor) {
 	}
 }
 
-void UCombateComponente::ManoIzquierdaUnirAActor(AActor* Actor) {
+void UCombateComponente::UnirActorAManoIzquierda(AActor* Actor) {
 	if(DispareitorPersonaje == nullptr || DispareitorPersonaje->GetMesh() == nullptr || Actor == nullptr) {
 		return;	
 	}  
@@ -208,6 +234,17 @@ void UCombateComponente::ManoIzquierdaUnirAActor(AActor* Actor) {
 	const USkeletalMeshSocket* ManoIzquierdaSocket = DispareitorPersonaje->GetMesh()->GetSocketByName(FName("ManoIzquierdaSocket"));
 	if(ManoIzquierdaSocket) {
 		ManoIzquierdaSocket->AttachActor(Actor, DispareitorPersonaje->GetMesh()); // Tambien se propaga a los clientes, pero no hay garantias de cual se propaga antes 
+	}
+}
+
+void UCombateComponente::UnirActorAMochila(AActor* Actor) {
+	if(DispareitorPersonaje == nullptr || DispareitorPersonaje->GetMesh() == nullptr || Actor == nullptr) {
+		return;	
+	}  
+
+	const USkeletalMeshSocket* MochilaSocket = DispareitorPersonaje->GetMesh()->GetSocketByName(FName("MochilaSocket"));
+	if(MochilaSocket) {
+		MochilaSocket->AttachActor(Actor, DispareitorPersonaje->GetMesh()); 
 	}
 }
 
@@ -237,16 +274,24 @@ void UCombateComponente::AlReplicar_ArmaEquipada() {
 	if(ArmaEquipada && DispareitorPersonaje) {
 		// Para garantizar que se ejecutan en orden las ejecutamos en los clientes en el orden correcto
 		ArmaEquipada->ActualizarEstado(EEstado::EEA_Equipada); 
-		ManoDerechaUnirAActor(ArmaEquipada);
+		UnirActorAManoDerecha(ArmaEquipada);
 		DispareitorPersonaje->GetCharacterMovement()->bOrientRotationToMovement = false;
 		DispareitorPersonaje->bUseControllerRotationYaw = true;
-		EjecutarSonidoAlEquipar();
+		EjecutarSonidoAlEquipar(ArmaEquipada);
 	}
 }
 
-void UCombateComponente::EjecutarSonidoAlEquipar() {
-	if(DispareitorPersonaje && ArmaEquipada && ArmaEquipada->SonidoEquipar) {
-		UGameplayStatics::PlaySoundAtLocation(this, ArmaEquipada->SonidoEquipar, DispareitorPersonaje->GetActorLocation());
+void UCombateComponente::AlReplicar_ArmaSecundariaEquipada() {
+	if(ArmaSecundariaEquipada && DispareitorPersonaje) {
+		ArmaSecundariaEquipada->ActualizarEstado(EEstado::EEA_Equipada); 
+		UnirActorAMochila(ArmaSecundariaEquipada);
+		EjecutarSonidoAlEquipar(ArmaSecundariaEquipada);
+	}
+}
+
+void UCombateComponente::EjecutarSonidoAlEquipar(AArma* ArmaAEquipar) {
+	if(DispareitorPersonaje && ArmaAEquipar && ArmaAEquipar->SonidoEquipar) {
+		UGameplayStatics::PlaySoundAtLocation(this, ArmaAEquipar->SonidoEquipar, DispareitorPersonaje->GetActorLocation());
 	}
 }
 
@@ -376,7 +421,7 @@ void UCombateComponente::AlReplicar_EstadoCombate() {
 		case EEstadosCombate::EEC_LanzandoGranada:
 			if(DispareitorPersonaje && !DispareitorPersonaje->IsLocallyControlled()) {
 				DispareitorPersonaje->EjecutarMontajeArrojarGranada();
-				ManoIzquierdaUnirAActor(ArmaEquipada);
+				UnirActorAManoIzquierda(ArmaEquipada);
 				MostrarGranada(true);
 			}
 			break;	
@@ -495,7 +540,7 @@ void UCombateComponente::ArrojarGranada() {
 	EstadoCombate = EEstadosCombate::EEC_LanzandoGranada;
 	if(DispareitorPersonaje) {
 		DispareitorPersonaje->EjecutarMontajeArrojarGranada();
-		ManoIzquierdaUnirAActor(ArmaEquipada);
+		UnirActorAManoIzquierda(ArmaEquipada);
 		MostrarGranada(true);
 
 		if(!DispareitorPersonaje->HasAuthority()) {
@@ -515,7 +560,7 @@ void UCombateComponente::ArrojarGranada_EnServidor_Implementation() {
 	EstadoCombate = EEstadosCombate::EEC_LanzandoGranada;
 	if(DispareitorPersonaje) {
 		DispareitorPersonaje->EjecutarMontajeArrojarGranada();
-		ManoIzquierdaUnirAActor(ArmaEquipada);
+		UnirActorAManoIzquierda(ArmaEquipada);
 		MostrarGranada(true);
 	}
 
@@ -563,7 +608,7 @@ void UCombateComponente::GranadaArrojada_EnServidor_Implementation(const FVector
 
 void UCombateComponente::ArrojarGranadaFinalizado() {
 	EstadoCombate = EEstadosCombate::EEC_Desocupado;
-	ManoDerechaUnirAActor(ArmaEquipada);
+	UnirActorAManoDerecha(ArmaEquipada);
 }
 
 void UCombateComponente::CogerMunicion(ETipoArma TipoArma, int32 IncrementoMunicion) {

@@ -33,6 +33,7 @@ protected:
 	void ActualizarApuntando(bool Apuntado);
 	UFUNCTION(Server, Reliable)	void ActualizarApuntando_EnServidor(bool Apuntando);
 	UFUNCTION() void AlReplicar_ArmaEquipada();	
+	UFUNCTION() void AlReplicar_ArmaSecundariaEquipada();
 	UFUNCTION(Server, Reliable)	void Disparar_EnServidor(const FVector_NetQuantize& Objetivo);
 	UFUNCTION(Server, Reliable)	void Recargar_EnServidor();
 	// RPC Multicast. Si se invoca en el servidor, se ejecuta en el servidor + clientes, si se invoca en el cliente solo se ejecuta en ese cliente
@@ -47,17 +48,21 @@ protected:
 	UFUNCTION(Server, Reliable)	void ArrojarGranada_EnServidor();
 	UPROPERTY(EditAnywhere)	TSubclassOf<class AProyectil> GranadaClase;
 	void SoltarArmaEquipada();
-	void ManoDerechaUnirAActor(AActor* Actor);
-	void ManoIzquierdaUnirAActor(AActor* Actor);
+	void UnirActorAManoDerecha(AActor* Actor);
+	void UnirActorAManoIzquierda(AActor* Actor);
+	void UnirActorAMochila(AActor* Actor);
 	void ActualizarMunicionPersonaje();
 	void RecargarArmaVacia();
 	void MostrarGranada(bool bMostrar);
+	void EquiparArmaPrimaria(AArma* ArmaAEquipar);
+	void EquiparArmaSecundaria(AArma* ArmaAEquipar);
 
 private:
 	UPROPERTY()	class ADispareitorPersonaje* DispareitorPersonaje;
 	UPROPERTY()	class ADispareitorControladorJugador* DispareitorControladorJugador;
 	UPROPERTY()	class ADispareitorHUD* DispareitorHUD;
 	UPROPERTY(ReplicatedUsing = AlReplicar_ArmaEquipada) AArma* ArmaEquipada;
+	UPROPERTY(ReplicatedUsing = AlReplicar_ArmaSecundariaEquipada) AArma* ArmaSecundariaEquipada;
 	UPROPERTY(Replicated) bool bApuntando;
 	UPROPERTY(EditAnywhere)	float VelocidadCaminarBase;
 	UPROPERTY(EditAnywhere)	float VelocidadCaminarApuntando;
@@ -98,7 +103,7 @@ private:
 	UFUNCTION()	void AlReplicar_EstadoCombate();
 	void ActualizarValoresMunicion();
 	void ActualizarValoresMunicionEscopeta();
-	void EjecutarSonidoAlEquipar();
+	void EjecutarSonidoAlEquipar(AArma* ArmaAEquipar);
 	UPROPERTY(ReplicatedUsing = AlReplicar_GranadasActuales) int32 GranadasActuales = 4;
 	UFUNCTION()	void AlReplicar_GranadasActuales();
 	UPROPERTY(EditAnywhere)	int32 GranadasMaximo = 4;

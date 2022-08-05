@@ -302,11 +302,7 @@ void ADispareitorPersonaje::EquiparPulsado() {
 	}
 
 	if(CombateComponente) {
-		if(HasAuthority()) { // Estamos en el servidor
-			CombateComponente->EquiparArma(ArmaSolapada);
-		} else { // Estamos en un cliente
-			Equipar_EnServidor();
-		}		
+		Equipar_EnServidor();		
 	}
 }
 

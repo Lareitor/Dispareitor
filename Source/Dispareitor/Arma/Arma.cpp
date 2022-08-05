@@ -91,7 +91,6 @@ void AArma::ActualizarEstado(EEstado EstadoAActualizar) {
 				Malla->SetEnableGravity(true);
 				Malla->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 			}
-
 			PermitirProfundidadPersonalizadaAlRenderizar(false);
 		break;
 		case EEstado::EEA_Desequipada:
@@ -124,7 +123,6 @@ void AArma::AlReplicar_Estado() {
 				Malla->SetEnableGravity(true);
 				Malla->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 			}	
-
 			PermitirProfundidadPersonalizadaAlRenderizar(false);
 		break;
 		case EEstado::EEA_Desequipada:
@@ -198,7 +196,10 @@ void AArma::OnRep_Owner() {
 		DispareitorPersonaje = nullptr;
 		DispareitorControladorJugador = nullptr;
 	} else {
-		ActualizarMunicionHUD();
+		DispareitorPersonaje = DispareitorPersonaje == nullptr ? Cast<ADispareitorPersonaje>(Owner) : DispareitorPersonaje;
+		if(DispareitorPersonaje && DispareitorPersonaje->ObtenerArmaEquipada() && DispareitorPersonaje->ObtenerArmaEquipada() == this) {
+			ActualizarMunicionHUD();
+		}
 	}
 }
 
