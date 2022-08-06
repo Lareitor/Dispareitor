@@ -8,7 +8,8 @@
 #include "Dispareitor/Tipos/EstadosCombate.h"
 #include "DispareitorPersonaje.generated.h"
 
-// TODO Las granadas iniciales no se muestran en ADispareitorControladorJugador::SondearInicio
+// TODO Las granadas iniciales no se muestran en ADispareitorControladorJugador::SondearInicio, 
+// Al saltar avanzado y disparar en el aire parece como que el jugador se tropezara con el casquillo de la bala y se detuviera en el aire
 // Si la cruceta no se pone roja al pasar sobre un enemigo, activar manualmente el check Trace Responses a Block en la malla del personaje
 // Si los disparos no son precisos a la malla comprobar que en la malla el tipo de canal es MallaDelEsqueleto
 UCLASS()
@@ -35,6 +36,7 @@ public:
 	void ActualizarVidaHUD();
 	void ActualizarEscudoHUD();
 	void ActualizarMunicionHUD();
+	void ActualizarGranadasHUD();
 	void ReaparecerArmaPorDefecto();
 
 protected:
@@ -58,6 +60,8 @@ protected:
 	void CalcularGiroParadoYArmadoEnProxiesSimulados();
 	void EjecutarMontajeReaccionAImpacto();
 	UFUNCTION() void RecibirDanio(AActor* ActorDaniado, float Danio, const UDamageType* TipoDanio, class AController* ControladorInstigador, AActor* ActorCausante);
+	void SoltarODestruirArma(AArma* Arma);
+	void SoltarODestruirArmas();
 
 private:
 	// Inicializa la variable a nullptr, en otro caso tendria basura y podría producir errores de codigo como crasheos. Otra forma de hacerlo seria usando directamente = nullptr;

@@ -90,6 +90,7 @@ void ADispareitorPersonaje::BeginPlay() {
 	ActualizarMunicionHUD();
 	ActualizarVidaHUD();
 	ActualizarEscudoHUD();
+	ActualizarGranadasHUD();
 	if(HasAuthority()) {
 		// Enlazamos nuestro metodo de recibir daño al delegado, para que se invoque cuando ProyectilBala llame a ApplyDamage
 		OnTakeAnyDamage.AddDynamic(this, &ADispareitorPersonaje::RecibirDanio);
@@ -609,6 +610,13 @@ void ADispareitorPersonaje::ActualizarEscudoHUD() {
 	}
 }
 
+void ADispareitorPersonaje::ActualizarGranadasHUD() {
+	DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(Controller);
+	if(DispareitorControladorJugador && CombateComponente) {
+		DispareitorControladorJugador->ActualizarGranadasHUD(CombateComponente->ObtenerGranadasActuales());
+	}
+}
+
 void ADispareitorPersonaje::ActualizarMunicionHUD() {
 	DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(Controller);
 	if(DispareitorControladorJugador && CombateComponente && CombateComponente->ArmaEquipada) {
@@ -617,18 +625,10 @@ void ADispareitorPersonaje::ActualizarMunicionHUD() {
 	} 
 }
 
-
 // Llamado por DispareitorModoJuego::JugadorEliminado 
 // Ejecutado en el server ya que DispareitorModoJuego solo existe en el server
 void ADispareitorPersonaje::Eliminado() {
-	if(CombateComponente && CombateComponente->ArmaEquipada) {
-		if(CombateComponente->ArmaEquipada->bDestruirArma) { // Destruir el arma solo si es el arma por defecto
-			CombateComponente->ArmaEquipada->Destroy();
-		} else {
-			CombateComponente->ArmaEquipada->Soltar();
-
-		}
-	}
+	SoltarODestruirArmas();
 	Eliminado_Multicast();
 	GetWorldTimerManager().SetTimer(TemporizadorEliminado, this, &ADispareitorPersonaje::TemporizadorEliminadoFinalizado, RetardoDeEliminacion);
 }
@@ -666,6 +666,29 @@ void ADispareitorPersonaje::Eliminado_Multicast_Implementation() {
 	}
 	if(DispareitorControladorJugador) {
 		DispareitorControladorJugador->ActualizarMunicionArmaHUD(0);
+	}
+}
+
+void ADispareitorPersonaje::SoltarODestruirArmas() {
+	if(CombateComponente) {
+		if(CombateComponente->ArmaEquipada) {
+			SoltarODestruirArma(CombateComponente->ArmaEquipada);
+		}
+		if(CombateComponente->ArmaSecundariaEquipada) {
+			SoltarODestruirArma(CombateComponente->ArmaSecundariaEquipada);
+		}
+	}
+}
+
+void ADispareitorPersonaje::SoltarODestruirArma(AArma* Arma) {
+	if(Arma == nullptr) {
+		return;
+	}
+
+	if(Arma->bDestruirArma) { // Destruir el arma solo si es el arma por defecto
+		Arma->Destroy();
+	} else {
+		Arma->Soltar();
 	}
 }
 
