@@ -18,6 +18,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;			
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	void EquiparArma(class AArma* ArmaAEquipar);
+	void IntercambiarArmas();
 	void Recargar();
 	UFUNCTION(BluePrintCallable) void RecargarFinalizado();
 	UFUNCTION(BluePrintCallable) void RecargarCartuchoEscopeta();
@@ -111,4 +112,5 @@ private:
 	
 public:		
 	FORCEINLINE int32 ObtenerGranadasActuales() const { return GranadasActuales; }
+	bool PuedoIntercambiarArmas();
 };

@@ -78,66 +78,69 @@ void AArma::Callback_EsferaSolapadaFin(UPrimitiveComponent* ComponenteSolapado, 
 // Llamado por Soltar, UCombateComponente::EquiparArma, UCombateComponente::AlReplicar_ArmaEquipada
 void AArma::ActualizarEstado(EEstado EstadoAActualizar) {
 	Estado = EstadoAActualizar;
+	ManejarActualizacionEstado();
+}
 
+void AArma::AlReplicar_Estado() {
+	ManejarActualizacionEstado();
+}
+
+void AArma::ManejarActualizacionEstado() {
 	switch(Estado) {
 		case EEstado::EEA_Equipada:
-			MostrarLeyendaSobreArma(false);
-			Esfera->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-			Malla->SetSimulatePhysics(false);
-			Malla->SetEnableGravity(false);
-			Malla->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-			if(TipoArma == ETipoArma::ETA_Subfusil) { //Para permitir las fisicas en la correa
-				Malla->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-				Malla->SetEnableGravity(true);
-				Malla->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-			}
-			PermitirProfundidadPersonalizadaAlRenderizar(false);
+			ManejarActualizacionEstadoAlEquipar();
+		break;
+		case EEstado::EEA_EquipadaSecundaria:
+			ManejarActualizacionEstadoAlEquiparSecundaria();
 		break;
 		case EEstado::EEA_Desequipada:
-			if(HasAuthority()) {
-				Esfera->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-			}
-			Malla->SetSimulatePhysics(true);
-			Malla->SetEnableGravity(true);
-			Malla->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-			Malla->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
-			Malla->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
-			Malla->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
-			
-			Malla->SetCustomDepthStencilValue(PROFUNDIDAD_PERSONALIZADA_AL_RENDERIZAR_AZUL);
-			Malla->MarkRenderStateDirty();
-			PermitirProfundidadPersonalizadaAlRenderizar(true);
+			ManejarActualizacionEstadoAlSoltar();
 		break;
 	}	
 }
 
-void AArma::AlReplicar_Estado() {
-	switch(Estado) {
-		case EEstado::EEA_Equipada:
-			MostrarLeyendaSobreArma(false);	
-			Malla->SetSimulatePhysics(false);
-			Malla->SetEnableGravity(false);
-			Malla->SetCollisionEnabled(ECollisionEnabled::NoCollision);	
-			if(TipoArma == ETipoArma::ETA_Subfusil) { //Para permitir las fisicas en la correa
-				Malla->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-				Malla->SetEnableGravity(true);
-				Malla->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-			}	
-			PermitirProfundidadPersonalizadaAlRenderizar(false);
-		break;
-		case EEstado::EEA_Desequipada:
-			Malla->SetSimulatePhysics(true);
-			Malla->SetEnableGravity(true);
-			Malla->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-			Malla->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
-			Malla->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
-			Malla->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
-
-			Malla->SetCustomDepthStencilValue(PROFUNDIDAD_PERSONALIZADA_AL_RENDERIZAR_AZUL);
-			Malla->MarkRenderStateDirty();
-			PermitirProfundidadPersonalizadaAlRenderizar(true);
-		break;
+void AArma::ManejarActualizacionEstadoAlEquipar() {
+	MostrarLeyendaSobreArma(false);
+	Esfera->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Malla->SetSimulatePhysics(false);
+	Malla->SetEnableGravity(false);
+	Malla->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	if(TipoArma == ETipoArma::ETA_Subfusil) { //Para permitir las fisicas en la correa
+		Malla->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		Malla->SetEnableGravity(true);
+		Malla->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	}
+	PermitirProfundidadPersonalizadaAlRenderizar(false);
+}
+
+void AArma::ManejarActualizacionEstadoAlEquiparSecundaria() {
+	MostrarLeyendaSobreArma(false);
+	Esfera->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Malla->SetSimulatePhysics(false);
+	Malla->SetEnableGravity(false);
+	Malla->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	if(TipoArma == ETipoArma::ETA_Subfusil) { 
+		Malla->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		Malla->SetEnableGravity(true);
+		Malla->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	}
+	PermitirProfundidadPersonalizadaAlRenderizar(false);
+}
+
+void AArma::ManejarActualizacionEstadoAlSoltar() {
+	if(HasAuthority()) {
+		Esfera->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	}
+	Malla->SetSimulatePhysics(true);
+	Malla->SetEnableGravity(true);
+	Malla->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	Malla->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
+	Malla->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+	Malla->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+			
+	Malla->SetCustomDepthStencilValue(PROFUNDIDAD_PERSONALIZADA_AL_RENDERIZAR_AZUL);
+	Malla->MarkRenderStateDirty();
+	PermitirProfundidadPersonalizadaAlRenderizar(true);	
 }
 
 void AArma::MostrarLeyendaSobreArma(bool bMostrarLeyendaSobreArma) {

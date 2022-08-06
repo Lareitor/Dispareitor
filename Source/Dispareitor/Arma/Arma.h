@@ -9,6 +9,7 @@ UENUM(BlueprintType)
 enum class EEstado : uint8 {
 	EEA_Inicial UMETA(DisplayName = "Inicial"),
 	EEA_Equipada UMETA(DisplayName = "Equipada"),
+	EEA_EquipadaSecundaria UMETA(DisplayName = "Equipada Secundaria"),
 	EEA_Desequipada UMETA(DisplayName = "Desequipada"),
 	EEA_Maximo UMETA(DisplayName = "Maximo") // Para saber cuantos valores hay almacenados. Bastaría con obtener el valor numerico de este
 };
@@ -42,6 +43,10 @@ public:
 
 protected:	
 	virtual void BeginPlay() override;
+	virtual void ManejarActualizacionEstado();
+	virtual void ManejarActualizacionEstadoAlEquipar();
+	virtual void ManejarActualizacionEstadoAlSoltar();
+	virtual void ManejarActualizacionEstadoAlEquiparSecundaria();
 	UFUNCTION()	virtual void Callback_EsferaSolapadaInicio(UPrimitiveComponent* ComponenteSolapado, AActor* OtroActor, UPrimitiveComponent* OtroComponente, int32 OtroIndice, bool bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION()	virtual void Callback_EsferaSolapadaFin(UPrimitiveComponent* ComponenteSolapado, AActor* OtroActor, UPrimitiveComponent* OtroComponente, int32 OtroIndice);
 

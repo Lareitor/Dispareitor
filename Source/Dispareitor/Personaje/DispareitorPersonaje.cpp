@@ -309,7 +309,11 @@ void ADispareitorPersonaje::EquiparPulsado() {
 // Aunque la definicion de la funcion es Equipar_EnServidor hay que añadirle _Implementation, ya que UE creará Equipar_EnServidor y nosotros _Implementation que incluirá el codigo que se ejecuta en el servidor  
 void ADispareitorPersonaje::Equipar_EnServidor_Implementation() {
 	if(CombateComponente) {
-		CombateComponente->EquiparArma(ArmaSolapada);
+		if(ArmaSolapada) {
+			CombateComponente->EquiparArma(ArmaSolapada);
+		} else if(CombateComponente->PuedoIntercambiarArmas()) {
+			CombateComponente->IntercambiarArmas();
+		}
 	}
 }
 

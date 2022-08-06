@@ -197,16 +197,52 @@ void UCombateComponente::EquiparArmaPrimaria(AArma* ArmaAEquipar) {
 	RecargarArmaVacia();
 }
 
+void UCombateComponente::AlReplicar_ArmaEquipada() {
+	if(ArmaEquipada && DispareitorPersonaje) {
+		// Para garantizar que se ejecutan en orden las ejecutamos en los clientes en el orden correcto
+		ArmaEquipada->ActualizarEstado(EEstado::EEA_Equipada); 
+		UnirActorAManoDerecha(ArmaEquipada);
+		DispareitorPersonaje->GetCharacterMovement()->bOrientRotationToMovement = false;
+		DispareitorPersonaje->bUseControllerRotationYaw = true;
+		EjecutarSonidoAlEquipar(ArmaEquipada);
+		ArmaEquipada->ActualizarMunicionHUD();
+	}
+}
+
 void UCombateComponente::EquiparArmaSecundaria(AArma* ArmaAEquipar) {
 	if(ArmaAEquipar == nullptr) {
 		return; 
 	}
 
 	ArmaSecundariaEquipada = ArmaAEquipar;
-	ArmaSecundariaEquipada->ActualizarEstado(EEstado::EEA_Equipada); 
+	ArmaSecundariaEquipada->ActualizarEstado(EEstado::EEA_EquipadaSecundaria); 
 	UnirActorAMochila(ArmaAEquipar);
 	ArmaSecundariaEquipada->SetOwner(DispareitorPersonaje);	
 	EjecutarSonidoAlEquipar(ArmaAEquipar);
+}
+
+void UCombateComponente::AlReplicar_ArmaSecundariaEquipada() {
+	if(ArmaSecundariaEquipada && DispareitorPersonaje) {
+		ArmaSecundariaEquipada->ActualizarEstado(EEstado::EEA_EquipadaSecundaria); 
+		UnirActorAMochila(ArmaSecundariaEquipada);
+		EjecutarSonidoAlEquipar(ArmaSecundariaEquipada);
+	}
+}
+
+void UCombateComponente::IntercambiarArmas() {
+	AArma* ArmaTemporal = ArmaEquipada;
+	ArmaEquipada = ArmaSecundariaEquipada;
+	ArmaSecundariaEquipada = ArmaTemporal;
+
+	ArmaEquipada->ActualizarEstado(EEstado::EEA_Equipada); 
+	UnirActorAManoDerecha(ArmaEquipada);
+	ArmaEquipada->ActualizarMunicionHUD();
+	ActualizarMunicionPersonaje();
+	EjecutarSonidoAlEquipar(ArmaEquipada);
+	RecargarArmaVacia();
+
+	ArmaSecundariaEquipada->ActualizarEstado(EEstado::EEA_EquipadaSecundaria); 
+	UnirActorAMochila(ArmaSecundariaEquipada);
 }
 
 void UCombateComponente::SoltarArmaEquipada() {
@@ -266,26 +302,6 @@ void UCombateComponente::ActualizarMunicionPersonaje() {
 	DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller);
 	if(DispareitorControladorJugador) {
 		DispareitorControladorJugador->ActualizarMunicionPersonajeHUD(MunicionPersonaje);
-	}
-}
-
-
-void UCombateComponente::AlReplicar_ArmaEquipada() {
-	if(ArmaEquipada && DispareitorPersonaje) {
-		// Para garantizar que se ejecutan en orden las ejecutamos en los clientes en el orden correcto
-		ArmaEquipada->ActualizarEstado(EEstado::EEA_Equipada); 
-		UnirActorAManoDerecha(ArmaEquipada);
-		DispareitorPersonaje->GetCharacterMovement()->bOrientRotationToMovement = false;
-		DispareitorPersonaje->bUseControllerRotationYaw = true;
-		EjecutarSonidoAlEquipar(ArmaEquipada);
-	}
-}
-
-void UCombateComponente::AlReplicar_ArmaSecundariaEquipada() {
-	if(ArmaSecundariaEquipada && DispareitorPersonaje) {
-		ArmaSecundariaEquipada->ActualizarEstado(EEstado::EEA_Equipada); 
-		UnirActorAMochila(ArmaSecundariaEquipada);
-		EjecutarSonidoAlEquipar(ArmaSecundariaEquipada);
 	}
 }
 
@@ -621,4 +637,6 @@ void UCombateComponente::CogerMunicion(ETipoArma TipoArma, int32 IncrementoMunic
 	}
 }
 
-
+bool UCombateComponente::PuedoIntercambiarArmas() {
+	return ArmaEquipada != nullptr && ArmaSecundariaEquipada != nullptr;
+}
