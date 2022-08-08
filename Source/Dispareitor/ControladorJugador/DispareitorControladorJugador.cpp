@@ -12,6 +12,7 @@
 #include "Dispareitor/DispareitorComponentes/CombateComponente.h"
 #include "Dispareitor/EstadoJuego/DispareitorEstadoJuego.h"
 #include "Dispareitor/EstadoJugador/DispareitorEstadoJugador.h"
+#include "Dispareitor/Arma/Arma.h"
 
 // APlayerController solo existe en el servidor y en el cliente propietario. Permite el acceso al HUD: vida, muertos, muertes, municion...
 
@@ -41,20 +42,17 @@ void ADispareitorControladorJugador::SondearInicio() {
         if(DispareitorHUD && DispareitorHUD->PantallaDelPersonaje) {
             PantallaDelPersonaje = DispareitorHUD->PantallaDelPersonaje;  
             if(PantallaDelPersonaje) {
+                ADispareitorPersonaje* DispareitorPersonaje = Cast<ADispareitorPersonaje>(GetPawn());
                 if(bInicializadaVida) {
-                    UE_LOG(LogTemp, Warning, TEXT("bInicializadaVida"));
                     ActualizarVidaHUD(VidaHUD, VidaMaximaHUD);
                 }
                 if(bInicializadoEscudo) {
-                    UE_LOG(LogTemp, Warning, TEXT("bInicializadoEscudo"));
                     ActualizarEscudoHUD(EscudoHUD, EscudoMaximoHUD);
                 }
                 if(bInicializadoMuertos) {
-                    UE_LOG(LogTemp, Warning, TEXT("bInicializadoMuertos"));
                     ActualizarMuertosHUD(MuertosHUD);
                 }
                 if(bInicializadoMuertes) {
-                    UE_LOG(LogTemp, Warning, TEXT("bInicializadoMuertes"));
                     ActualizarMuertesHUD(MuertesHUD);
                 }
                 if(bInicializadaMunicionPersonaje) {
@@ -63,63 +61,15 @@ void ADispareitorControladorJugador::SondearInicio() {
                 if(bInicializadaMunicionArma) {
                     ActualizarMunicionArmaHUD(MunicionArmaHUD);
                 }
-                ADispareitorPersonaje* DispareitorPersonaje = Cast<ADispareitorPersonaje>(GetPawn());
                 if(DispareitorPersonaje && DispareitorPersonaje->ObtenerCombateComponente()) {
-                    UE_LOG(LogTemp, Warning, TEXT("CombateComponente"));
                     if(bInicializadaGranadas) {
-                        UE_LOG(LogTemp, Warning, TEXT("bInicializadaGranadas"));
                         ActualizarGranadasHUD(GranadasActualesHUD);
-                        //ActualizarGranadasHUD(DispareitorPersonaje->ObtenerCombateComponente()->ObtenerGranadasActuales());
                     }
                 }
             }
         }
     }
 }
-
-// ¿Llamado de forma indirecta por ADispareitorModoJuego::PeticionReaparecer?
-void ADispareitorControladorJugador::OnPossess(APawn* Peon) {
-    Super::OnPossess(Peon);
-
-    ADispareitorPersonaje* DispareitorPersonaje = Cast<ADispareitorPersonaje>(Peon);
-    if(DispareitorPersonaje) {
-        ActualizarVidaHUD(DispareitorPersonaje->ObtenerVida(), DispareitorPersonaje->ObtenerVidaMaxima());
-        ActualizarEscudoHUD(DispareitorPersonaje->ObtenerEscudo(), DispareitorPersonaje->ObtenerEscudoMaximo());
-
-    }
-}
-
-// Llamado por OnPossess y ADispareitorPersonaje::ActualizarVidaHUD 
-void ADispareitorControladorJugador::ActualizarVidaHUD(float Vida, float VidaMaxima) {
-    DispareitorHUD = DispareitorHUD != nullptr ? DispareitorHUD : Cast<ADispareitorHUD>(GetHUD());
-
-    if(DispareitorHUD && DispareitorHUD->PantallaDelPersonaje && DispareitorHUD->PantallaDelPersonaje->BarraVida && DispareitorHUD->PantallaDelPersonaje->TextoVida) {
-        DispareitorHUD->PantallaDelPersonaje->BarraVida->SetPercent(Vida / VidaMaxima); 
-        FString TextoVida = FString::Printf(TEXT("%d/%d"), FMath::CeilToInt(Vida), FMath::CeilToInt(VidaMaxima));
-        DispareitorHUD->PantallaDelPersonaje->TextoVida->SetText(FText::FromString(TextoVida)); 
-    } else {
-        bInicializadaVida = true;
-        VidaHUD = Vida;
-        VidaMaximaHUD = VidaMaxima;
-
-    }
-}
-
-void ADispareitorControladorJugador::ActualizarEscudoHUD(float Escudo, float EscudoMaximo) {
-    DispareitorHUD = DispareitorHUD != nullptr ? DispareitorHUD : Cast<ADispareitorHUD>(GetHUD());
-
-    if(DispareitorHUD && DispareitorHUD->PantallaDelPersonaje && DispareitorHUD->PantallaDelPersonaje->BarraEscudo && DispareitorHUD->PantallaDelPersonaje->TextoEscudo) {
-        DispareitorHUD->PantallaDelPersonaje->BarraEscudo->SetPercent(Escudo / EscudoMaximo); 
-        FString TextoEscudo = FString::Printf(TEXT("%d/%d"), FMath::CeilToInt(Escudo), FMath::CeilToInt(EscudoMaximo));
-        DispareitorHUD->PantallaDelPersonaje->TextoEscudo->SetText(FText::FromString(TextoEscudo)); 
-    } else {
-        bInicializadoEscudo = true;
-        EscudoHUD = Escudo;
-        EscudoMaximoHUD = EscudoMaximo;
-
-    }
-}
-
 
 // Llamado por BeginPlay
 void ADispareitorControladorJugador::ComprobarEstadoPartida_EnServidor_Implementation() {
@@ -145,6 +95,41 @@ void ADispareitorControladorJugador::ComprobarEstadoPartida_EnCliente_Implementa
     // Si nos unimos cuando la partida ya esté empezada no veremos este anuncio
     if(DispareitorHUD && EstadoPartida == MatchState::WaitingToStart) {
         DispareitorHUD->MostrarAnunciosWidget();
+    }
+}
+
+// Llamado de forma indirecta por ADispareitorModoJuego::PeticionReaparecer y al inicio de la partida, ¿se ejecuta solo en el server?
+void ADispareitorControladorJugador::OnPossess(APawn* Peon) {
+    Super::OnPossess(Peon);
+}
+
+// Llamado por OnPossess y ADispareitorPersonaje::ActualizarVidaHUD 
+void ADispareitorControladorJugador::ActualizarVidaHUD(float Vida, float VidaMaxima) {
+    DispareitorHUD = DispareitorHUD != nullptr ? DispareitorHUD : Cast<ADispareitorHUD>(GetHUD());
+
+    if(DispareitorHUD && DispareitorHUD->PantallaDelPersonaje && DispareitorHUD->PantallaDelPersonaje->BarraVida && DispareitorHUD->PantallaDelPersonaje->TextoVida) {
+        DispareitorHUD->PantallaDelPersonaje->BarraVida->SetPercent(Vida / VidaMaxima); 
+        FString TextoVida = FString::Printf(TEXT("%d/%d"), FMath::CeilToInt(Vida), FMath::CeilToInt(VidaMaxima));
+        DispareitorHUD->PantallaDelPersonaje->TextoVida->SetText(FText::FromString(TextoVida)); 
+    } else {
+        bInicializadaVida = true;
+        VidaHUD = Vida;
+        VidaMaximaHUD = VidaMaxima;
+    }
+}
+
+void ADispareitorControladorJugador::ActualizarEscudoHUD(float Escudo, float EscudoMaximo) {
+    DispareitorHUD = DispareitorHUD != nullptr ? DispareitorHUD : Cast<ADispareitorHUD>(GetHUD());
+
+    if(DispareitorHUD && DispareitorHUD->PantallaDelPersonaje && DispareitorHUD->PantallaDelPersonaje->BarraEscudo && DispareitorHUD->PantallaDelPersonaje->TextoEscudo) {
+        DispareitorHUD->PantallaDelPersonaje->BarraEscudo->SetPercent(Escudo / EscudoMaximo); 
+        FString TextoEscudo = FString::Printf(TEXT("%d/%d"), FMath::CeilToInt(Escudo), FMath::CeilToInt(EscudoMaximo));
+        DispareitorHUD->PantallaDelPersonaje->TextoEscudo->SetText(FText::FromString(TextoEscudo)); 
+    } else {
+        bInicializadoEscudo = true;
+        EscudoHUD = Escudo;
+        EscudoMaximoHUD = EscudoMaximo;
+
     }
 }
 

@@ -70,4 +70,5 @@ private:
 	bool bInicializadaMunicionPersonaje = false;
 	float MunicionArmaHUD;
 	bool bInicializadaMunicionArma = false;
+	bool bSondearInicio = false;
 };

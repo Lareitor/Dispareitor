@@ -112,5 +112,7 @@ private:
 	
 public:		
 	FORCEINLINE int32 ObtenerGranadasActuales() const { return GranadasActuales; }
+	FORCEINLINE int32 ObtenerMunicionPersonaje() const { return MunicionPersonaje; }
+	FORCEINLINE AArma* ObtenerArmaEquipada() const { return ArmaEquipada; }
 	bool PuedoIntercambiarArmas();
 };

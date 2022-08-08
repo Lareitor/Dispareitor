@@ -86,11 +86,6 @@ void ADispareitorPersonaje::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 void ADispareitorPersonaje::BeginPlay() {
 	Super::BeginPlay();	
 
-	ReaparecerArmaPorDefecto();
-	ActualizarMunicionHUD();
-	ActualizarVidaHUD();
-	ActualizarEscudoHUD();
-	ActualizarGranadasHUD();
 	if(HasAuthority()) {
 		// Enlazamos nuestro metodo de recibir daño al delegado, para que se invoque cuando ProyectilBala llame a ApplyDamage
 		OnTakeAnyDamage.AddDynamic(this, &ADispareitorPersonaje::RecibirDanio);
@@ -138,6 +133,17 @@ void ADispareitorPersonaje::SondearInicializacion() {
 			DispareitorEstadoJugador->IncrementarMuertes(0);
 		}
 	}
+
+	if(DispareitorControladorJugador == nullptr) {
+		DispareitorControladorJugador = Cast<ADispareitorControladorJugador>(Controller);
+		if(DispareitorControladorJugador) {
+			ReaparecerArmaPorDefecto();
+			ActualizarMunicionHUD();
+			ActualizarVidaHUD();
+			ActualizarEscudoHUD();
+			ActualizarGranadasHUD();
+		} 
+	}	
 
 	/*if(HUDSobreLaCabeza) {
 		HUDSobreLaCabezaReal = HUDSobreLaCabezaReal != nullptr ? HUDSobreLaCabezaReal : Cast<UHUDSobreLaCabeza>(HUDSobreLaCabeza->GetUserWidgetObject());
