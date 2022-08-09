@@ -1,6 +1,8 @@
 #include "Casquillo.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
+#include "Dispareitor/Dispareitor.h"
+
 
 ACasquillo::ACasquillo() {
 	PrimaryActorTick.bCanEverTick = false;
@@ -8,6 +10,10 @@ ACasquillo::ACasquillo() {
 	Malla = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Malla"));
 	SetRootComponent(Malla);
 	Malla->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+	// Si el casquillo choca contra el propio personaje cuando esta saltando hacia adelante, es como si chocara contra una pared y no continua avanzado
+	Malla->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+	Malla->SetCollisionResponseToChannel(ECC_MallaDelEsqueleto, ECollisionResponse::ECR_Ignore);
+	
 	Malla->SetSimulatePhysics(true);
 	Malla->SetEnableGravity(true);
 	//Para que se generen eventos al golpear algo, en el BP se llama Simulation Generates Hit Events
@@ -27,6 +33,8 @@ void ACasquillo::Callback_AlGolpear(UPrimitiveComponent* ComponenteGolpeante, AA
 	if(Sonido) {
 		UGameplayStatics::PlaySoundAtLocation(this, Sonido, GetActorLocation());
 	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Actor golpeado: %s"), *ActorGolpeado->GetName());
 	
 	// Desactivar las siguientes colisiones contra el suelo para que no generen mas sonidos
 	Malla->SetNotifyRigidBodyCollision(false);
