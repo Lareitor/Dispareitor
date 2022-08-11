@@ -32,10 +32,7 @@ void ACasquillo::BeginPlay() {
 void ACasquillo::Callback_AlGolpear(UPrimitiveComponent* ComponenteGolpeante, AActor* ActorGolpeado, UPrimitiveComponent* ComponenteGolpeado, FVector ImpulsoNormal, const FHitResult& GolpeResultado) {
 	if(Sonido) {
 		UGameplayStatics::PlaySoundAtLocation(this, Sonido, GetActorLocation());
-	}
-
-	UE_LOG(LogTemp, Warning, TEXT("Actor golpeado: %s"), *ActorGolpeado->GetName());
-	
+	}	
 	// Desactivar las siguientes colisiones contra el suelo para que no generen mas sonidos
 	Malla->SetNotifyRigidBodyCollision(false);
 }

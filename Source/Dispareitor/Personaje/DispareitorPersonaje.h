@@ -8,8 +8,7 @@
 #include "Dispareitor/Tipos/EstadosCombate.h"
 #include "DispareitorPersonaje.generated.h"
 
-// TODO Las granadas iniciales no se muestran en ADispareitorControladorJugador::SondearInicio, 
-// Al saltar avanzado y disparar en el aire parece como que el jugador se tropezara con el casquillo de la bala y se detuviera en el aire
+// TODO Cuando las armas se caen al vacio volver a reponerlas 
 // Si la cruceta no se pone roja al pasar sobre un enemigo, activar manualmente el check Trace Responses a Block en la malla del personaje
 // Si los disparos no son precisos a la malla comprobar que en la malla el tipo de canal es MallaDelEsqueleto
 UCLASS()
@@ -45,7 +44,6 @@ protected:
 	void MoverIzquierdaDerechaPulsado(float Valor);
 	void GirarIzquierdaDerechaPulsado(float Valor);
 	void GirarArribaAbajoPulsado(float Valor);
-	virtual void Jump() override;
 	void AgacharPulsado();
 	void EquiparPulsado();
 	void ApuntarPulsado();
@@ -146,6 +144,7 @@ private:
 	UPROPERTY(EditAnywhere) TSubclassOf<AArma> ClaseArmaPorDefecto;
 
 public:	
+	virtual void Jump() override;
 	void ActivarArmaSolapada(AArma* Arma);
 	bool HayArmaEquipada();
 	bool EstaApuntando();

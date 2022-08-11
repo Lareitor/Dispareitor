@@ -12,6 +12,6 @@ protected:
 	virtual void Callback_ComponenteEsferaSolapadaInicio(UPrimitiveComponent* ComponenteSolapado, AActor* OtroActor, UPrimitiveComponent* OtroComponente, int32 OtroIndice, bool bFromSweep, const FHitResult& SweepResult);
 		
 private:
-	UPROPERTY(EditAnywhere) float IncrementoSalto = 3000.f;
+	UPROPERTY(EditAnywhere) float IncrementoSalto = 2500.f;
 	UPROPERTY(EditAnywhere) float Duracion = 15.f;
 };
