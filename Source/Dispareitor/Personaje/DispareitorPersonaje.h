@@ -8,7 +8,8 @@
 #include "Dispareitor/Tipos/EstadosCombate.h"
 #include "DispareitorPersonaje.generated.h"
 
-// TODO Cuando las armas se caen al vacio volver a reponerlas 
+// TODO Plataformas moviles
+// Cuando las armas se caen al vacio volver a reponerlas 
 // Si la cruceta no se pone roja al pasar sobre un enemigo, activar manualmente el check Trace Responses a Block en la malla del personaje
 // Si los disparos no son precisos a la malla comprobar que en la malla el tipo de canal es MallaDelEsqueleto
 UCLASS()
