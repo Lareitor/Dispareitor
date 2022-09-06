@@ -19,9 +19,7 @@ protected:
 private:
 	UPROPERTY(EditAnywhere) UStaticMeshComponent* ComponenteMallaEstatica;
 	UPROPERTY(EditAnywhere) UInterpToMovementComponent* ComponenteInterpolacionMovimiento;
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ExposeOnSpawn = "true", AllowPrivateAccess = "true")) 
-	FVector PosicionInicial;
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ExposeOnSpawn = "true", AllowPrivateAccess = "true")) 
-	FVector PosicionFinal;
-	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Movimiento, Meta = (ExposeOnSpawn = "true", MakeEditWidget = "true", AllowPrivateAccess = "true")) FVector PosicionInicial;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Movimiento, Meta = (ExposeOnSpawn = "true", MakeEditWidget = "true", AllowPrivateAccess = "true")) FVector PosicionFinal;
+	UPROPERTY(EditAnywhere, Category = Movimiento)	float Duracion = 5.f;	
 };
