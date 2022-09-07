@@ -41,6 +41,10 @@ protected:
 	void ComprobarTiempoSincronizacion(float DeltaTime);
 	UFUNCTION(Server, Reliable)	void ComprobarEstadoPartida_EnServidor();
 	UFUNCTION(Client, Reliable)	void ComprobarEstadoPartida_EnCliente(FName _EstadoPartida, float _TiempoCalentamiento, float _TiempoPartida, float _TiempoEnfriamiento, float _TiempoInicioNivel);
+	
+	void IniciarAnimacionPingAlto();
+	void PararAnimacionPingAlto();
+	void ComprobarPingAlto(float DeltaTime);
 
 private:
 	UPROPERTY() class ADispareitorHUD* DispareitorHUD;	
@@ -71,4 +75,10 @@ private:
 	float MunicionArmaHUD;
 	bool bInicializadaMunicionArma = false;
 	bool bSondearInicio = false;
+
+	float TiempoParaSiguienteComprobacionPingAlto = 0.f;
+	float TiempoEjecutandoseAnimacionPingAlto = 0.f;
+	UPROPERTY(EditAnywhere) float DuracionAnimacionPingAlto = 5.f;
+	UPROPERTY(EditAnywhere) float FrecuenciaChequeoPingAlto = 20.f;
+	UPROPERTY(EditAnywhere) float UmbralPingAlto = 50.f;
 };

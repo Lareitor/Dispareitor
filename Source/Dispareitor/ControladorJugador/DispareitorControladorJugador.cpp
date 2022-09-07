@@ -13,6 +13,7 @@
 #include "Dispareitor/EstadoJuego/DispareitorEstadoJuego.h"
 #include "Dispareitor/EstadoJugador/DispareitorEstadoJugador.h"
 #include "Dispareitor/Arma/Arma.h"
+#include "Components/Image.h"
 
 // APlayerController solo existe en el servidor y en el cliente propietario. Permite el acceso al HUD: vida, muertos, muertes, municion...
 
@@ -35,6 +36,7 @@ void ADispareitorControladorJugador::Tick(float DeltaTime) {
     ActivarTiempoHUD();
     ComprobarTiempoSincronizacion(DeltaTime);
     SondearInicio();
+    ComprobarPingAlto(DeltaTime);
 }
 
 void ADispareitorControladorJugador::SondearInicio() {
@@ -367,4 +369,43 @@ void ADispareitorControladorJugador::ManejarEstadoPartida() {
     }
 }
 
+void ADispareitorControladorJugador::ComprobarPingAlto(float DeltaTime) {
+    TiempoParaSiguienteComprobacionPingAlto += DeltaTime;
+    if(TiempoParaSiguienteComprobacionPingAlto > FrecuenciaChequeoPingAlto) {
+        PlayerState = PlayerState != nullptr ? PlayerState : GetPlayerState<APlayerState>();
+        if(PlayerState) {
+            if(PlayerState->GetCompressedPing() * 4 > UmbralPingAlto) { // ping se guarda comprimido y dividido por 4
+                IniciarAnimacionPingAlto();
+                TiempoEjecutandoseAnimacionPingAlto = 0.f;
+            }
+        }
+        TiempoParaSiguienteComprobacionPingAlto = 0.f;
+    }
+    if(DispareitorHUD && DispareitorHUD->PantallaDelPersonaje && DispareitorHUD->PantallaDelPersonaje->AnimacionPingAlto && DispareitorHUD->PantallaDelPersonaje->IsAnimationPlaying(DispareitorHUD->PantallaDelPersonaje->AnimacionPingAlto)) {
+       TiempoEjecutandoseAnimacionPingAlto += DeltaTime;
+       if(TiempoEjecutandoseAnimacionPingAlto > DuracionAnimacionPingAlto) {
+            PararAnimacionPingAlto();
+       }
+    }
+}
+
+void ADispareitorControladorJugador::IniciarAnimacionPingAlto() {
+    DispareitorHUD = DispareitorHUD != nullptr ? DispareitorHUD : Cast<ADispareitorHUD>(GetHUD());
+
+    if(DispareitorHUD && DispareitorHUD->PantallaDelPersonaje && DispareitorHUD->PantallaDelPersonaje->ImagenPingAlto && DispareitorHUD->PantallaDelPersonaje->AnimacionPingAlto) {
+        DispareitorHUD->PantallaDelPersonaje->ImagenPingAlto->SetOpacity(1.f);
+        DispareitorHUD->PantallaDelPersonaje->PlayAnimation(DispareitorHUD->PantallaDelPersonaje->AnimacionPingAlto, 0.f, 5);
+    } 
+}
+
+void ADispareitorControladorJugador::PararAnimacionPingAlto() {
+    DispareitorHUD = DispareitorHUD != nullptr ? DispareitorHUD : Cast<ADispareitorHUD>(GetHUD());
+
+    if(DispareitorHUD && DispareitorHUD->PantallaDelPersonaje && DispareitorHUD->PantallaDelPersonaje->ImagenPingAlto && DispareitorHUD->PantallaDelPersonaje->AnimacionPingAlto) {
+        DispareitorHUD->PantallaDelPersonaje->ImagenPingAlto->SetOpacity(0.f);
+        if(DispareitorHUD->PantallaDelPersonaje->IsAnimationPlaying(DispareitorHUD->PantallaDelPersonaje->AnimacionPingAlto)) {
+            DispareitorHUD->PantallaDelPersonaje->StopAnimation(DispareitorHUD->PantallaDelPersonaje->AnimacionPingAlto);
+        }
+    } 
+}
 
