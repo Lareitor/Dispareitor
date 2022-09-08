@@ -82,6 +82,7 @@ private:
 	FTimerHandle TemporizadorDisparo;
 	bool bPuedoDisparar = true;
 	void Disparar();
+	void DispararLocalmente(const FVector_NetQuantize& Objetivo);
 	void EmpezarTemporizadorDisparo();
 	void TerminadoDisparoTemporizador();
 	bool PuedoDisparar();

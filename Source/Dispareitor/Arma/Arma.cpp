@@ -165,7 +165,9 @@ void AArma::Disparar(const FVector& Objetivo) {
 		}
 	}
 
-	GastarMunicion();
+	if(HasAuthority()) {
+		GastarMunicion();
+	}
 }
 
 // Llamado por ADispareitorPersonaje::Eliminado

@@ -493,6 +493,7 @@ void UCombateComponente::Disparar() {
 
 		// Si estamos en el server se ejecutar en el server y si estamos en un cliente se ejectura en el server
 		Disparar_EnServidor(ObjetoAlcanzado);
+		DispararLocalmente(ObjetoAlcanzado);
 
 		if(ArmaEquipada) {
 			CrucetaFactorDisparo = 0.75f;
@@ -509,6 +510,13 @@ void UCombateComponente::Disparar_EnServidor_Implementation(const FVector_NetQua
 
 // Esta función se ejecutará en el servidor + clientes
 void UCombateComponente::Disparar_Multicast_Implementation(const FVector_NetQuantize& Objetivo) {
+	if(DispareitorPersonaje && DispareitorPersonaje->IsLocallyControlled() && !DispareitorPersonaje->HasAuthority()) {
+		return;
+	} 
+	DispararLocalmente(Objetivo); // Estamos en el servidor o en un cliente que no controla este personaje
+}
+
+void UCombateComponente::DispararLocalmente(const FVector_NetQuantize& Objetivo) {
 	if(DispareitorPersonaje && ArmaEquipada) {
 		if(EstadoCombate == EEstadosCombate::EEC_Desocupado) {
 			DispareitorPersonaje->EjecutarMontajeDispararArma(bApuntando);
@@ -638,5 +646,5 @@ void UCombateComponente::CogerMunicion(ETipoArma TipoArma, int32 IncrementoMunic
 }
 
 bool UCombateComponente::PuedoIntercambiarArmas() {
-	return ArmaEquipada != nullptr && ArmaSecundariaEquipada != nullptr;
+	return ArmaEquipada != nullptr && ArmaSecundariaEquipada != nullptr && EstadoCombate == EEstadosCombate::EEC_Desocupado;
 }
