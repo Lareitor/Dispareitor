@@ -41,12 +41,10 @@ void AArma::Tick(float DeltaTime) {
 void AArma::BeginPlay() {
 	Super::BeginPlay();	
 	
-	if(HasAuthority()) { // Somos el servidor. Es lo mismo que GetLocalRole() == ENetRole::ROLE_Authority
-		Esfera->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		Esfera->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
-		Esfera->OnComponentBeginOverlap.AddDynamic(this, &AArma::Callback_EsferaSolapadaInicio);		
-		Esfera->OnComponentEndOverlap.AddDynamic(this, &AArma::Callback_EsferaSolapadaFin);
-	}
+	Esfera->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	Esfera->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+	Esfera->OnComponentBeginOverlap.AddDynamic(this, &AArma::Callback_EsferaSolapadaInicio);		
+	Esfera->OnComponentEndOverlap.AddDynamic(this, &AArma::Callback_EsferaSolapadaFin);
 
 	if(LeyendaSobreArma) {
 		LeyendaSobreArma->SetVisibility(false);

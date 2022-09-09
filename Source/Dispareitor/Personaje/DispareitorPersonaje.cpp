@@ -86,7 +86,7 @@ void ADispareitorPersonaje::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 void ADispareitorPersonaje::BeginPlay() {
 	Super::BeginPlay();	
 
-	if(HasAuthority()) {
+	if(HasAuthority()) { // Somos el servidor. Es lo mismo que GetLocalRole() == ENetRole::ROLE_Authority
 		// Enlazamos nuestro metodo de recibir daño al delegado, para que se invoque cuando ProyectilBala llame a ApplyDamage
 		OnTakeAnyDamage.AddDynamic(this, &ADispareitorPersonaje::RecibirDanio);
 	}
