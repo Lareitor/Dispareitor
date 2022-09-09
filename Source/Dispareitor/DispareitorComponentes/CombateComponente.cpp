@@ -490,17 +490,42 @@ void UCombateComponente::DispararPresionado(bool bPresionado) {
 void UCombateComponente::Disparar() {
 	if(PuedoDisparar()) {
 		bPuedoDisparar = false;
-
-		// Si estamos en el server se ejecutar en el server y si estamos en un cliente se ejectura en el server
-		Disparar_EnServidor(ObjetoAlcanzado);
-		DispararLocalmente(ObjetoAlcanzado);
-
+		
 		if(ArmaEquipada) {
 			CrucetaFactorDisparo = 0.75f;
+			switch(ArmaEquipada->TipoDisparo) {
+				case ETipoDisparo::ETD_Proyectil:
+					DispararArmaProyectil();
+				break;
+				case ETipoDisparo::ETD_HitScan:
+					DispararArmaHitScan();
+				break;
+				case ETipoDisparo::ETD_Escopeta:
+					DispararArmaEscopeta();
+				break;
+			}
 		}
 
 		EmpezarTemporizadorDisparo();
 	}  
+}
+
+void UCombateComponente::DispararArmaProyectil() {
+	DispararLocalmente(ObjetoAlcanzado);
+	// Si estamos en el server se ejecutar en el server y si estamos en un cliente se ejectura en el server
+	Disparar_EnServidor(ObjetoAlcanzado);
+}
+
+void UCombateComponente::DispararArmaHitScan() {
+	if(ArmaEquipada) {
+		ObjetoAlcanzado = ArmaEquipada->bUsarDispersion ? ArmaEquipada->CalcularPuntoFinalConDispersion(ObjetoAlcanzado) : ObjetoAlcanzado;
+		DispararLocalmente(ObjetoAlcanzado);
+		Disparar_EnServidor(ObjetoAlcanzado);
+	}
+}
+
+void UCombateComponente::DispararArmaEscopeta() {
+
 }
 
 // Esta funcion solo se ejecutará en el servidor

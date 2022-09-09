@@ -5,9 +5,7 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "Sound/SoundCue.h"
 #include "DrawDebugHelpers.h"
-#include "Kismet/KismetMathLibrary.h"
 #include "Dispareitor/Tipos/TiposArma.h"
-
 
 void AArmaHitScan::Disparar(const FVector& Objetivo) {
     Super::Disparar(Objetivo);
@@ -48,12 +46,15 @@ FHitResult AArmaHitScan::CalcularImpacto(const FVector& Inicio, const FVector& O
     UWorld* Mundo = GetWorld();
     if(Mundo) {
         // Lo incrementamos un poco para pasar el objetivo y garantizar un hit
-        FVector Fin = bUsarDispersion ? CalcularPuntoFinalConDispersion(Inicio, Objetivo) : Inicio + (Objetivo - Inicio) * 1.25f;
+        FVector Fin = Inicio + (Objetivo - Inicio) * 1.25f;
         Mundo->LineTraceSingleByChannel(ImpactoResultado, Inicio, Fin, ECollisionChannel::ECC_Visibility);
         FVector HumoTrazaFinal = Fin; 
         if(ImpactoResultado.bBlockingHit) {
              HumoTrazaFinal = ImpactoResultado.ImpactPoint;
         }
+
+        //DrawDebugSphere(GetWorld(), HumoTrazaFinal, 16.f, 12, FColor::Orange, true);
+
         if(SistemaParticulasTrazaDeHumo) {
             UParticleSystemComponent* ComponenteSistemaParticulasTrazaDeHumo = UGameplayStatics::SpawnEmitterAtLocation(Mundo, SistemaParticulasTrazaDeHumo, Inicio, FRotator::ZeroRotator, true);
             if(ComponenteSistemaParticulasTrazaDeHumo) {
@@ -63,20 +64,6 @@ FHitResult AArmaHitScan::CalcularImpacto(const FVector& Inicio, const FVector& O
     }
 
     return ImpactoResultado;
-}
-
-FVector AArmaHitScan::CalcularPuntoFinalConDispersion(const FVector& PuntoInicial, const FVector& Objetivo) {
-    FVector AObjetivoNormalizado = (Objetivo - PuntoInicial).GetSafeNormal();    
-    FVector EsferaCentro = PuntoInicial + AObjetivoNormalizado * DistanciaAEsferaDeDispersion;
-    FVector VectorAleatorio = UKismetMathLibrary::RandomUnitVector() * FMath::FRandRange(0.f, RadioDeEsferaDeDispersion);
-    FVector LocalizacionFinal = EsferaCentro + VectorAleatorio;
-    FVector ALocalizacionFinal = LocalizacionFinal - PuntoInicial;
-
-    /*DrawDebugSphere(GetWorld(), EsferaCentro, RadioDeEsferaDeDispersion, 12, FColor::Red, true);
-    DrawDebugSphere(GetWorld(), LocalizacionFinal, 4.f, 12, FColor::Orange, true);
-    DrawDebugLine(GetWorld(), PuntoInicial, PuntoInicial + ALocalizacionFinal * RAYO_LONGITUD / ALocalizacionFinal.Size(), FColor::Cyan, true);
-*/
-    return FVector(PuntoInicial + ALocalizacionFinal * RAYO_LONGITUD / ALocalizacionFinal.Size()); // Lo dividimos para no producir un overflow
 }
 
 

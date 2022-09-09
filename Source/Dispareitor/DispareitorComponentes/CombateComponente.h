@@ -82,6 +82,9 @@ private:
 	FTimerHandle TemporizadorDisparo;
 	bool bPuedoDisparar = true;
 	void Disparar();
+	void DispararArmaProyectil();
+	void DispararArmaHitScan();
+	void DispararArmaEscopeta();
 	void DispararLocalmente(const FVector_NetQuantize& Objetivo);
 	void EmpezarTemporizadorDisparo();
 	void TerminadoDisparoTemporizador();

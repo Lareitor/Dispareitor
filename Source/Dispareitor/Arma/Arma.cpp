@@ -9,6 +9,7 @@
 #include "Engine/SkeletalMeshSocket.h"
 #include "Dispareitor/ControladorJugador/DispareitorControladorJugador.h"
 #include "Dispareitor/DispareitorComponentes/CombateComponente.h"
+#include "Kismet/KismetMathLibrary.h"
 
 AArma::AArma() {
 	PrimaryActorTick.bCanEverTick = false;
@@ -236,4 +237,27 @@ void AArma::PermitirProfundidadPersonalizadaAlRenderizar(bool bPermitir) {
 	if(Malla) {
 		Malla->SetRenderCustomDepth(bPermitir);
 	}
+}
+
+FVector AArma::CalcularPuntoFinalConDispersion(const FVector& Objetivo) {
+    const USkeletalMeshSocket* SocketPuntaArma = ObtenerMalla()->GetSocketByName("MuzzleFlash"); 
+    if(SocketPuntaArma) {
+        FTransform TransformSocketPuntaArma = SocketPuntaArma->GetSocketTransform(ObtenerMalla());
+        FVector Inicio = TransformSocketPuntaArma.GetLocation();
+    
+
+        FVector AObjetivoNormalizado = (Objetivo - Inicio).GetSafeNormal();    
+        FVector EsferaCentro = Inicio + AObjetivoNormalizado * DistanciaAEsferaDeDispersion;
+        FVector VectorAleatorio = UKismetMathLibrary::RandomUnitVector() * FMath::FRandRange(0.f, RadioDeEsferaDeDispersion);
+        FVector LocalizacionFinal = EsferaCentro + VectorAleatorio;
+        FVector ALocalizacionFinal = LocalizacionFinal - Inicio;
+
+        /*DrawDebugSphere(GetWorld(), EsferaCentro, RadioDeEsferaDeDispersion, 12, FColor::Red, true);
+        DrawDebugSphere(GetWorld(), LocalizacionFinal, 4.f, 12, FColor::Orange, true);
+        DrawDebugLine(GetWorld(), Inicio, Inicio + ALocalizacionFinal * RAYO_LONGITUD / ALocalizacionFinal.Size(), FColor::Cyan, true);
+    */
+        return FVector(Inicio + ALocalizacionFinal * RAYO_LONGITUD / ALocalizacionFinal.Size()); // Lo dividimos para no producir un overflow
+    } else {
+        return FVector();
+    }
 }

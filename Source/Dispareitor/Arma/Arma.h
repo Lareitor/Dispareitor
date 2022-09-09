@@ -14,6 +14,14 @@ enum class EEstado : uint8 {
 	EEA_Maximo UMETA(DisplayName = "Maximo") // Para saber cuantos valores hay almacenados. Bastaría con obtener el valor numerico de este
 };
 
+UENUM(BlueprintType)
+enum class ETipoDisparo : uint8 {
+	ETD_HitScan UMETA(DisplayName = "Arma HitScan"),
+	ETD_Proyectil UMETA(DisplayName = "Arma Proyectil"),
+	ETD_Escopeta UMETA(DisplayName = "Arma Escopeta"), // Aunque técnicamente la escopeta es hitscan sus caracteristicas especiales la hacen merecedora de un tipo aparte
+	ETD_Maximo UMETA(DisplayName = "Maximo") 
+};
+
 UCLASS()
 class DISPAREITOR_API AArma : public AActor {
 	GENERATED_BODY()
@@ -28,6 +36,8 @@ public:
 	virtual void Disparar(const FVector& Objetivo);
 	void Soltar();
 	void AniadirMunicion(int32 Cantidad);
+	FVector CalcularPuntoFinalConDispersion(const FVector& Objetivo);
+
 	UPROPERTY(EditAnywhere, Category = Cruceta)	class UTexture2D* CrucetaCentro;
 	UPROPERTY(EditAnywhere, Category = Cruceta)	UTexture2D* CrucetaIzquierda;
 	UPROPERTY(EditAnywhere, Category = Cruceta)	UTexture2D* CrucetaDerecha;
@@ -40,6 +50,9 @@ public:
 	UPROPERTY(EditAnywhere)	class USoundCue* SonidoEquipar; 
 	void PermitirProfundidadPersonalizadaAlRenderizar(bool bPermitir);
 	bool bDestruirArma = false;
+	UPROPERTY(EditAnywhere)	ETipoDisparo TipoDisparo;
+	UPROPERTY(EditAnywhere, Category = "Dispersion") bool bUsarDispersion = false; // subfusil y escopeta
+
 
 protected:	
 	virtual void BeginPlay() override;
@@ -65,6 +78,8 @@ private:
 	void GastarMunicion();
 	UPROPERTY(EditAnywhere)	int32 CapacidadCargador;  
 	UPROPERTY(EditAnywhere)	ETipoArma TipoArma;
+	UPROPERTY(EditAnywhere, Category = "Dispersion") float DistanciaAEsferaDeDispersion = 800.f;
+	UPROPERTY(EditAnywhere, Category = "Dispersion") float RadioDeEsferaDeDispersion = 75.f;
 	
 public:		
 	void ActualizarEstado(EEstado EstadoAActualizar);
