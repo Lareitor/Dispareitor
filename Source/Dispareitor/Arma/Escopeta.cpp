@@ -4,6 +4,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Sound/SoundCue.h"
+#include "Kismet/KismetMathLibrary.h"
 
 void AEscopeta::Disparar(const FVector& Objetivo) {
     AArma::Disparar(Objetivo);
@@ -19,7 +20,7 @@ void AEscopeta::Disparar(const FVector& Objetivo) {
         FVector Inicio = PuntaArmaSocketTransform.GetLocation();
         TMap<ADispareitorPersonaje*, uint32> DispareitorPersonajesImpactadosMapa;
 
-        for(uint32 i = 0; i < PerdigonesNumero; i++) {
+        for(uint32 i = 0; i < NumeroPerdigones; i++) {
             FHitResult ImpactoResultado = CalcularImpacto(Inicio, Objetivo);
 
              ADispareitorPersonaje* DispareitorPersonajeImpactado = Cast<ADispareitorPersonaje>(ImpactoResultado.GetActor());
@@ -42,6 +43,25 @@ void AEscopeta::Disparar(const FVector& Objetivo) {
             if(ElementoMapa.Key && HasAuthority() && InstigadorControlador) {
                 UGameplayStatics::ApplyDamage(ElementoMapa.Key, Danio * ElementoMapa.Value, InstigadorControlador, this, UDamageType::StaticClass());
             }
+        }
+    }
+}
+
+void AEscopeta::CalcularPuntoFinalConDispersionParaEscopeta(const FVector& Objetivo, TArray<FVector>& Objetivos) {
+    const USkeletalMeshSocket* SocketPuntaArma = ObtenerMalla()->GetSocketByName("MuzzleFlash"); 
+    
+    if(SocketPuntaArma) {
+        const FTransform TransformSocketPuntaArma = SocketPuntaArma->GetSocketTransform(ObtenerMalla());
+        const FVector Inicio = TransformSocketPuntaArma.GetLocation();
+        const FVector AObjetivoNormalizado = (Objetivo - Inicio).GetSafeNormal();    
+        const FVector EsferaCentro = Inicio + AObjetivoNormalizado * DistanciaAEsferaDeDispersion;
+           
+        for(uint32 i = 0; i < NumeroPerdigones; i++) {
+            const FVector VectorAleatorio = UKismetMathLibrary::RandomUnitVector() * FMath::FRandRange(0.f, RadioDeEsferaDeDispersion);
+            const FVector LocalizacionFinal = EsferaCentro + VectorAleatorio;
+            FVector ALocalizacionFinal = LocalizacionFinal - Inicio;
+            ALocalizacionFinal = Inicio + ALocalizacionFinal * RAYO_LONGITUD / ALocalizacionFinal.Size(); // Lo dividimos para no producir un overflow
+            Objetivos.Add(ALocalizacionFinal);
         }
     }
 }

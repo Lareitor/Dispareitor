@@ -62,6 +62,8 @@ protected:
 	virtual void ManejarActualizacionEstadoAlEquiparSecundaria();
 	UFUNCTION()	virtual void Callback_EsferaSolapadaInicio(UPrimitiveComponent* ComponenteSolapado, AActor* OtroActor, UPrimitiveComponent* OtroComponente, int32 OtroIndice, bool bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION()	virtual void Callback_EsferaSolapadaFin(UPrimitiveComponent* ComponenteSolapado, AActor* OtroActor, UPrimitiveComponent* OtroComponente, int32 OtroIndice);
+	UPROPERTY(EditAnywhere, Category = "Dispersion") float DistanciaAEsferaDeDispersion = 800.f;
+	UPROPERTY(EditAnywhere, Category = "Dispersion") float RadioDeEsferaDeDispersion = 75.f;
 
 private:
 	UPROPERTY()	class ADispareitorPersonaje* DispareitorPersonaje;
@@ -78,8 +80,6 @@ private:
 	void GastarMunicion();
 	UPROPERTY(EditAnywhere)	int32 CapacidadCargador;  
 	UPROPERTY(EditAnywhere)	ETipoArma TipoArma;
-	UPROPERTY(EditAnywhere, Category = "Dispersion") float DistanciaAEsferaDeDispersion = 800.f;
-	UPROPERTY(EditAnywhere, Category = "Dispersion") float RadioDeEsferaDeDispersion = 75.f;
 	
 public:		
 	void ActualizarEstado(EEstado EstadoAActualizar);

@@ -242,15 +242,15 @@ void AArma::PermitirProfundidadPersonalizadaAlRenderizar(bool bPermitir) {
 FVector AArma::CalcularPuntoFinalConDispersion(const FVector& Objetivo) {
     const USkeletalMeshSocket* SocketPuntaArma = ObtenerMalla()->GetSocketByName("MuzzleFlash"); 
     if(SocketPuntaArma) {
-        FTransform TransformSocketPuntaArma = SocketPuntaArma->GetSocketTransform(ObtenerMalla());
-        FVector Inicio = TransformSocketPuntaArma.GetLocation();
+        const FTransform TransformSocketPuntaArma = SocketPuntaArma->GetSocketTransform(ObtenerMalla());
+        const FVector Inicio = TransformSocketPuntaArma.GetLocation();
     
 
-        FVector AObjetivoNormalizado = (Objetivo - Inicio).GetSafeNormal();    
-        FVector EsferaCentro = Inicio + AObjetivoNormalizado * DistanciaAEsferaDeDispersion;
-        FVector VectorAleatorio = UKismetMathLibrary::RandomUnitVector() * FMath::FRandRange(0.f, RadioDeEsferaDeDispersion);
-        FVector LocalizacionFinal = EsferaCentro + VectorAleatorio;
-        FVector ALocalizacionFinal = LocalizacionFinal - Inicio;
+        const FVector AObjetivoNormalizado = (Objetivo - Inicio).GetSafeNormal();    
+        const FVector EsferaCentro = Inicio + AObjetivoNormalizado * DistanciaAEsferaDeDispersion;
+        const FVector VectorAleatorio = UKismetMathLibrary::RandomUnitVector() * FMath::FRandRange(0.f, RadioDeEsferaDeDispersion);
+        const FVector LocalizacionFinal = EsferaCentro + VectorAleatorio;
+        const FVector ALocalizacionFinal = LocalizacionFinal - Inicio;
 
         /*DrawDebugSphere(GetWorld(), EsferaCentro, RadioDeEsferaDeDispersion, 12, FColor::Red, true);
         DrawDebugSphere(GetWorld(), LocalizacionFinal, 4.f, 12, FColor::Orange, true);

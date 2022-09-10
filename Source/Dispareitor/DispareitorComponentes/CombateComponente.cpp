@@ -12,6 +12,7 @@
 #include "Sound/SoundCue.h"
 #include "Dispareitor/Personaje/DispareitorInstanciaAnimacion.h"
 #include "Dispareitor/Arma/Proyectil.h"
+#include "Dispareitor/Arma/Escopeta.h"
 
 UCombateComponente::UCombateComponente() {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -511,9 +512,12 @@ void UCombateComponente::Disparar() {
 }
 
 void UCombateComponente::DispararArmaProyectil() {
-	DispararLocalmente(ObjetoAlcanzado);
-	// Si estamos en el server se ejecutar en el server y si estamos en un cliente se ejectura en el server
-	Disparar_EnServidor(ObjetoAlcanzado);
+	if(ArmaEquipada) {
+		ObjetoAlcanzado = ArmaEquipada->bUsarDispersion ? ArmaEquipada->CalcularPuntoFinalConDispersion(ObjetoAlcanzado) : ObjetoAlcanzado;
+		DispararLocalmente(ObjetoAlcanzado);
+		// Si estamos en el server se ejecutar en el server y si estamos en un cliente se ejectura en el server
+		Disparar_EnServidor(ObjetoAlcanzado);
+	}
 }
 
 void UCombateComponente::DispararArmaHitScan() {
@@ -525,7 +529,11 @@ void UCombateComponente::DispararArmaHitScan() {
 }
 
 void UCombateComponente::DispararArmaEscopeta() {
-
+	AEscopeta* Escopeta = Cast<AEscopeta>(ArmaEquipada); 
+	if(Escopeta) {
+		TArray<FVector> Objetivos;
+		Escopeta->CalcularPuntoFinalConDispersionParaEscopeta(ObjetoAlcanzado, Objetivos);
+	}
 }
 
 // Esta funcion solo se ejecutará en el servidor
