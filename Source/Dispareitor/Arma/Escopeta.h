@@ -9,10 +9,9 @@ class DISPAREITOR_API AEscopeta : public AArmaHitScan {
 	GENERATED_BODY()
 
 public:
-	virtual void Disparar(const FVector& Objetivo) override;	
-	void CalcularPuntoFinalConDispersionParaEscopeta(const FVector& Objetivo, TArray<FVector>& Objetivos);
+	virtual void DispararEscopeta(const TArray<FVector_NetQuantize>& Objetivos);
+	void CalcularPuntosFinalesConDispersionParaEscopeta(const FVector& Objetivo, TArray<FVector_NetQuantize>& Objetivos);
 	
 private:
-	UPROPERTY(EditAnywhere, Category = "Dispersion")
-	uint32 NumeroPerdigones = 10;	
+	UPROPERTY(EditAnywhere, Category = "Dispersion") uint32 NumeroPerdigones = 10;	
 };

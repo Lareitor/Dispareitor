@@ -512,27 +512,35 @@ void UCombateComponente::Disparar() {
 }
 
 void UCombateComponente::DispararArmaProyectil() {
-	if(ArmaEquipada) {
+	if(ArmaEquipada && DispareitorPersonaje) {
 		ObjetoAlcanzado = ArmaEquipada->bUsarDispersion ? ArmaEquipada->CalcularPuntoFinalConDispersion(ObjetoAlcanzado) : ObjetoAlcanzado;
-		DispararLocalmente(ObjetoAlcanzado);
+		if(!DispareitorPersonaje->HasAuthority()) {
+			DispararLocalmente(ObjetoAlcanzado);
+		}
 		// Si estamos en el server se ejecutar en el server y si estamos en un cliente se ejectura en el server
 		Disparar_EnServidor(ObjetoAlcanzado);
 	}
 }
 
 void UCombateComponente::DispararArmaHitScan() {
-	if(ArmaEquipada) {
+	if(ArmaEquipada && DispareitorPersonaje) {
 		ObjetoAlcanzado = ArmaEquipada->bUsarDispersion ? ArmaEquipada->CalcularPuntoFinalConDispersion(ObjetoAlcanzado) : ObjetoAlcanzado;
-		DispararLocalmente(ObjetoAlcanzado);
+		if(!DispareitorPersonaje->HasAuthority()) {
+			DispararLocalmente(ObjetoAlcanzado);
+		}
 		Disparar_EnServidor(ObjetoAlcanzado);
 	}
 }
 
 void UCombateComponente::DispararArmaEscopeta() {
 	AEscopeta* Escopeta = Cast<AEscopeta>(ArmaEquipada); 
-	if(Escopeta) {
-		TArray<FVector> Objetivos;
-		Escopeta->CalcularPuntoFinalConDispersionParaEscopeta(ObjetoAlcanzado, Objetivos);
+	if(Escopeta && DispareitorPersonaje) {
+		TArray<FVector_NetQuantize> Objetivos;
+		Escopeta->CalcularPuntosFinalesConDispersionParaEscopeta(ObjetoAlcanzado, Objetivos);
+		if(!DispareitorPersonaje->HasAuthority()) {
+			DispararEscopetaLocalmente(Objetivos);
+		}
+		DispararEscopeta_EnServidor(Objetivos);
 	}
 }
 
@@ -549,17 +557,35 @@ void UCombateComponente::Disparar_Multicast_Implementation(const FVector_NetQuan
 	DispararLocalmente(Objetivo); // Estamos en el servidor o en un cliente que no controla este personaje
 }
 
+void UCombateComponente::DispararEscopeta_EnServidor_Implementation(const TArray<FVector_NetQuantize>& Objetivos) {
+	DispararEscopeta_Multicast(Objetivos);
+}
+
+void UCombateComponente::DispararEscopeta_Multicast_Implementation(const TArray<FVector_NetQuantize>& Objetivos) {
+	if(DispareitorPersonaje && DispareitorPersonaje->IsLocallyControlled() && !DispareitorPersonaje->HasAuthority()) {
+		return;
+	} 
+	DispararEscopetaLocalmente(Objetivos);
+}
+	
 void UCombateComponente::DispararLocalmente(const FVector_NetQuantize& Objetivo) {
 	if(DispareitorPersonaje && ArmaEquipada) {
 		if(EstadoCombate == EEstadosCombate::EEC_Desocupado) {
 			DispareitorPersonaje->EjecutarMontajeDispararArma(bApuntando);
 			ArmaEquipada->Disparar(Objetivo);
-		} else if(EstadoCombate == EEstadosCombate::EEC_Recargando && ArmaEquipada->ObtenerTipoArma() == ETipoArma::ETA_Escopeta) {
+		} 
+	} 
+}
+
+void UCombateComponente::DispararEscopetaLocalmente(const TArray<FVector_NetQuantize>& Objetivos) {
+	AEscopeta* Escopeta = Cast<AEscopeta>(ArmaEquipada);
+	if(DispareitorPersonaje && Escopeta) {
+		if(EstadoCombate == EEstadosCombate::EEC_Recargando || EstadoCombate == EEstadosCombate::EEC_Desocupado) {
 			DispareitorPersonaje->EjecutarMontajeDispararArma(bApuntando);
-			ArmaEquipada->Disparar(Objetivo);
+			Escopeta->DispararEscopeta(Objetivos);
 			EstadoCombate = EEstadosCombate::EEC_Desocupado;
 		}
-	} 
+	}
 }
 
 void UCombateComponente::EmpezarTemporizadorDisparo() {

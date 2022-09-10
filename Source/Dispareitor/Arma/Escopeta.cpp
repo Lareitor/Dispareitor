@@ -6,8 +6,8 @@
 #include "Sound/SoundCue.h"
 #include "Kismet/KismetMathLibrary.h"
 
-void AEscopeta::Disparar(const FVector& Objetivo) {
-    AArma::Disparar(Objetivo);
+void AEscopeta::DispararEscopeta(const TArray<FVector_NetQuantize>& Objetivos) {
+    AArma::Disparar(FVector());
     APawn* PeonPropietario = Cast<APawn>(GetOwner());
     if(PeonPropietario == nullptr) {
         return;
@@ -16,15 +16,15 @@ void AEscopeta::Disparar(const FVector& Objetivo) {
 
     const USkeletalMeshSocket* PuntaArmaSocket = ObtenerMalla()->GetSocketByName("MuzzleFlash"); 
     if(PuntaArmaSocket) {
-        FTransform PuntaArmaSocketTransform = PuntaArmaSocket->GetSocketTransform(ObtenerMalla());
-        FVector Inicio = PuntaArmaSocketTransform.GetLocation();
+        const FTransform PuntaArmaSocketTransform = PuntaArmaSocket->GetSocketTransform(ObtenerMalla());
+        const FVector Inicio = PuntaArmaSocketTransform.GetLocation();
+
         TMap<ADispareitorPersonaje*, uint32> DispareitorPersonajesImpactadosMapa;
-
-        for(uint32 i = 0; i < NumeroPerdigones; i++) {
+        for(FVector_NetQuantize Objetivo: Objetivos) {
             FHitResult ImpactoResultado = CalcularImpacto(Inicio, Objetivo);
-
-             ADispareitorPersonaje* DispareitorPersonajeImpactado = Cast<ADispareitorPersonaje>(ImpactoResultado.GetActor());
-            if(DispareitorPersonajeImpactado && HasAuthority() && InstigadorControlador) {
+           
+            ADispareitorPersonaje* DispareitorPersonajeImpactado = Cast<ADispareitorPersonaje>(ImpactoResultado.GetActor());
+            if(DispareitorPersonajeImpactado) {
                 if(DispareitorPersonajesImpactadosMapa.Contains(DispareitorPersonajeImpactado)) {
                     DispareitorPersonajesImpactadosMapa[DispareitorPersonajeImpactado]++;
                 } else {
@@ -47,7 +47,8 @@ void AEscopeta::Disparar(const FVector& Objetivo) {
     }
 }
 
-void AEscopeta::CalcularPuntoFinalConDispersionParaEscopeta(const FVector& Objetivo, TArray<FVector>& Objetivos) {
+
+void AEscopeta::CalcularPuntosFinalesConDispersionParaEscopeta(const FVector& Objetivo, TArray<FVector_NetQuantize>& Objetivos) {
     const USkeletalMeshSocket* SocketPuntaArma = ObtenerMalla()->GetSocketByName("MuzzleFlash"); 
     
     if(SocketPuntaArma) {

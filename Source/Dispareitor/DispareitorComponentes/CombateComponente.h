@@ -35,10 +35,20 @@ protected:
 	UFUNCTION(Server, Reliable)	void ActualizarApuntando_EnServidor(bool Apuntando);
 	UFUNCTION() void AlReplicar_ArmaEquipada();	
 	UFUNCTION() void AlReplicar_ArmaSecundariaEquipada();
+
+	void Disparar();
+	void DispararArmaProyectil();
+	void DispararArmaHitScan();
+	void DispararArmaEscopeta();
+	void DispararLocalmente(const FVector_NetQuantize& Objetivo);
+	void DispararEscopetaLocalmente(const TArray<FVector_NetQuantize>& Objetivos);
 	UFUNCTION(Server, Reliable)	void Disparar_EnServidor(const FVector_NetQuantize& Objetivo);
 	UFUNCTION(Server, Reliable)	void Recargar_EnServidor();
 	// RPC Multicast. Si se invoca en el servidor, se ejecuta en el servidor + clientes, si se invoca en el cliente solo se ejecuta en ese cliente
 	UFUNCTION(NetMulticast, Reliable) void Disparar_Multicast(const FVector_NetQuantize& Objetivo);
+	UFUNCTION(Server, Reliable) void DispararEscopeta_EnServidor(const TArray<FVector_NetQuantize>& Objetivos);
+	UFUNCTION(NetMulticast, Reliable) void DispararEscopeta_Multicast(const TArray<FVector_NetQuantize>& Objetivos);
+
 	void CalcularRayoDesdeCruceta(FHitResult& RayoResultado);
 	void ActualizarCrucetaHUD(float DeltaTime);
 	void EjecutarMontajeRecargar();
@@ -81,18 +91,12 @@ private:
 	void InterpolarFOV(float DeltaTime);
 	FTimerHandle TemporizadorDisparo;
 	bool bPuedoDisparar = true;
-	void Disparar();
-	void DispararArmaProyectil();
-	void DispararArmaHitScan();
-	void DispararArmaEscopeta();
-	void DispararLocalmente(const FVector_NetQuantize& Objetivo);
 	void EmpezarTemporizadorDisparo();
 	void TerminadoDisparoTemporizador();
 	bool PuedoDisparar();
 	// Municion del personaje para el arma actualmente equipada
 	UPROPERTY(ReplicatedUsing = AlReplicar_MunicionPersonaje) int32 MunicionPersonaje;
-	UFUNCTION()
-	void AlReplicar_MunicionPersonaje();
+	UFUNCTION()	void AlReplicar_MunicionPersonaje();
 	// TMap no puede replicarse
 	TMap<ETipoArma, int32> MapaMunicionPersonaje;
 	UPROPERTY(EditAnywhere)	int32 MaximaMunicionPersonaje = 500;
