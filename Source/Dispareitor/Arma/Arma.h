@@ -75,8 +75,12 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = Propiedades) class UWidgetComponent* LeyendaSobreArma;
 	UPROPERTY(EditAnywhere, Category = Propiedades)	class UAnimationAsset* AnimacionDisparar;
 	UPROPERTY(EditAnywhere)	TSubclassOf<class ACasquillo> ClaseCasquillo; 
-	UPROPERTY(EditAnywhere, ReplicatedUsing = AlReplicar_Municion) int32 Municion;
-	UFUNCTION()	void AlReplicar_Municion();
+	UPROPERTY(EditAnywhere) int32 Municion;
+	UFUNCTION(Client, Reliable) void ActualizarMunicion_EnCliente(int32 MunicionEnServidor);
+	UFUNCTION(Client, Reliable) void AniadirMunicion_EnCliente(int32 MunicionEnServidor);
+	// El nº de peticiones al servidor no procesadas para la Municion. 
+	// Incrementadas en GastarMunicion, decrementandas en ActualizarMunicion_EnCliente
+	int32 Secuencia = 0; 
 	void GastarMunicion();
 	UPROPERTY(EditAnywhere)	int32 CapacidadCargador;  
 	UPROPERTY(EditAnywhere)	ETipoArma TipoArma;

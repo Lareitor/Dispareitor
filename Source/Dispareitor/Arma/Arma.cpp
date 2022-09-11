@@ -56,7 +56,6 @@ void AArma::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimePro
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AArma, Estado);
-	DOREPLIFETIME(AArma, Municion);
 }
 
 
@@ -164,9 +163,7 @@ void AArma::Disparar(const FVector& Objetivo) {
 		}
 	}
 
-	if(HasAuthority()) {
-		GastarMunicion();
-	}
+	GastarMunicion();
 }
 
 // Llamado por ADispareitorPersonaje::Eliminado
@@ -183,15 +180,38 @@ void AArma::Soltar() {
 void AArma::GastarMunicion() {
 	Municion = FMath::Clamp(Municion -1, 0, CapacidadCargador);
 	ActualizarMunicionHUD();
+	if(HasAuthority()) {
+		ActualizarMunicion_EnCliente(Municion);
+	} else {
+		Secuencia++;
+	}
 }
 
-void AArma::AlReplicar_Municion() {
-	DispareitorPersonaje = DispareitorPersonaje != nullptr ? DispareitorPersonaje : Cast<ADispareitorPersonaje>(GetOwner());
-	if(DispareitorPersonaje && DispareitorPersonaje->ObtenerCombateComponente() && EstaConMunicionLlena()) {
-		DispareitorPersonaje->ObtenerCombateComponente()->SaltarAFinAnimacionEscopeta();
+void AArma::ActualizarMunicion_EnCliente_Implementation(int32 MunicionEnServidor) {
+	if(!HasAuthority()) {
+		Municion = MunicionEnServidor;
+		Secuencia--;
+		Municion -= Secuencia;
+		ActualizarMunicionHUD();
 	}
+}
 
+// Llamado por UCombateComponente::ActualizarValoresMunicion
+void AArma::AniadirMunicion(int32 Cantidad) {
+	Municion = FMath::Clamp(Municion + Cantidad, 0, CapacidadCargador);
 	ActualizarMunicionHUD();
+	AniadirMunicion_EnCliente(Cantidad);
+}
+
+void AArma::AniadirMunicion_EnCliente_Implementation(int32 MunicionEnServidor) {
+	if(!HasAuthority()) {
+		Municion = FMath::Clamp(Municion + MunicionEnServidor, 0, CapacidadCargador);
+		DispareitorPersonaje = DispareitorPersonaje != nullptr ? DispareitorPersonaje : Cast<ADispareitorPersonaje>(Owner);
+		if(DispareitorPersonaje && DispareitorPersonaje->ObtenerCombateComponente() && EstaConMunicionLlena()) {
+			DispareitorPersonaje->ObtenerCombateComponente()->SaltarAFinAnimacionEscopeta();
+		}
+		ActualizarMunicionHUD();
+	}
 }
 
 void AArma::OnRep_Owner() {
@@ -224,13 +244,6 @@ bool AArma::EstaSinMunicion() {
 bool AArma::EstaConMunicionLlena() {
 	return Municion == CapacidadCargador;
 }
-
-// Llamado por UCombateComponente::ActualizarValoresMunicion
-void AArma::AniadirMunicion(int32 Cantidad) {
-	Municion = FMath::Clamp(Municion + Cantidad, 0, CapacidadCargador);
-	ActualizarMunicionHUD();
-}
-
 
 // Habilitar o deshabilitar custom depth para el outline en las armas
 void AArma::PermitirProfundidadPersonalizadaAlRenderizar(bool bPermitir) {
