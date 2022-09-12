@@ -147,7 +147,7 @@ void AArma::MostrarLeyendaSobreArma(bool bMostrarLeyendaSobreArma) {
 	}
 }
 
-// Llamado por UCombateComponente::Disparar_Multicast_Implementation y por sus clases hijas
+// Llamado por UCombateComponente::DispararLocalmente y por sus clases hijas
 void AArma::Disparar(const FVector& Objetivo) {
 	if(AnimacionDisparar) {
 		Malla->PlayAnimation(AnimacionDisparar, false);

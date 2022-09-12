@@ -459,17 +459,26 @@ void UCombateComponente::ActualizarApuntando(bool Apuntando) {
 	if(DispareitorPersonaje) {
 		DispareitorPersonaje->GetCharacterMovement()->MaxWalkSpeed = bApuntando ? VelocidadCaminarApuntando : VelocidadCaminarBase;
 
-		if (DispareitorPersonaje->IsLocallyControlled() && ArmaEquipada->ObtenerTipoArma() == ETipoArma::ETA_Francotirador) {
-			DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador :  Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller);
-			if (DispareitorControladorJugador) {
-				DispareitorControladorJugador->ActualizarCrucetaFrancotiradorHUD(Apuntando);
-				if (Apuntando && SonidoFrancotiradorCrucetaZoomIn) {
-					UGameplayStatics::PlaySound2D(this, SonidoFrancotiradorCrucetaZoomIn);
-				} else if(SonidoFrancotiradorCrucetaZoomOut) {
-					UGameplayStatics::PlaySound2D(this, SonidoFrancotiradorCrucetaZoomOut);
+		if (DispareitorPersonaje->IsLocallyControlled()) {
+			bBotonApuntadoPresionado = bApuntando;
+			if(ArmaEquipada->ObtenerTipoArma() == ETipoArma::ETA_Francotirador) {
+				DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador :  Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller);
+				if (DispareitorControladorJugador) {
+					DispareitorControladorJugador->ActualizarCrucetaFrancotiradorHUD(Apuntando);
+					if (Apuntando && SonidoFrancotiradorCrucetaZoomIn) {
+						UGameplayStatics::PlaySound2D(this, SonidoFrancotiradorCrucetaZoomIn);
+					} else if(SonidoFrancotiradorCrucetaZoomOut) {
+						UGameplayStatics::PlaySound2D(this, SonidoFrancotiradorCrucetaZoomOut);
+					}
 				}
 			}
 		}
+	}
+}
+
+void UCombateComponente::AlReplicar_Apuntando() {
+	if (DispareitorPersonaje && DispareitorPersonaje->IsLocallyControlled()) {
+		bApuntando = bBotonApuntadoPresionado;
 	}
 }
 

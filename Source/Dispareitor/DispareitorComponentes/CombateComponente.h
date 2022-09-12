@@ -74,7 +74,9 @@ private:
 	UPROPERTY()	class ADispareitorHUD* DispareitorHUD;
 	UPROPERTY(ReplicatedUsing = AlReplicar_ArmaEquipada) AArma* ArmaEquipada;
 	UPROPERTY(ReplicatedUsing = AlReplicar_ArmaSecundariaEquipada) AArma* ArmaSecundariaEquipada;
-	UPROPERTY(Replicated) bool bApuntando;
+	UPROPERTY(ReplicatedUsing = AlReplicar_Apuntando) bool bApuntando = false;
+	bool bBotonApuntadoPresionado = false;
+	UFUNCTION() void AlReplicar_Apuntando();
 	UPROPERTY(EditAnywhere)	float VelocidadCaminarBase;
 	UPROPERTY(EditAnywhere)	float VelocidadCaminarApuntando;
 	bool bDispararPresionado;
