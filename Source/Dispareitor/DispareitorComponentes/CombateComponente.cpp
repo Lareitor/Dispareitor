@@ -315,19 +315,22 @@ void UCombateComponente::EjecutarSonidoAlEquipar(AArma* ArmaAEquipar) {
 // Llamado por ADispareitorPersonaje::RecargarPulsado
 // Puede ser llamado tanto en un cliente como en un servidor
 void UCombateComponente::Recargar() {
-	if(ArmaEquipada == nullptr || ArmaEquipada->EstaConMunicionLlena()) {
-		return;
-	}
-
 	// Si lo ejecutamos desde el cliente podemos chequear si tiene municion para evitar llamadas innecesarias al servidor
-	if(MunicionPersonaje > 0 && EstadoCombate == EEstadosCombate::EEC_Desocupado) {
+	if(ArmaEquipada && !ArmaEquipada->EstaConMunicionLlena() && MunicionPersonaje > 0 && EstadoCombate == EEstadosCombate::EEC_Desocupado && !bRecargandoLocalmente) {
 		Recargar_EnServidor();
+		EjecutarMontajeRecargar();
+		bRecargandoLocalmente = true;
 	}
 }
 
 void UCombateComponente::Recargar_EnServidor_Implementation() {
+	if(DispareitorPersonaje == nullptr || ArmaEquipada == nullptr) {
+		return;
+	}
 	EstadoCombate = EEstadosCombate::EEC_Recargando;
-	EjecutarMontajeRecargar();
+	if(!DispareitorPersonaje->IsLocallyControlled()) {
+		EjecutarMontajeRecargar();
+	}
 }
 
 // Llamado por RecargarServidor_Implementation (para el servidor) y AlReplicar_EstadoCombate (para los clientes)
@@ -342,6 +345,8 @@ void UCombateComponente::RecargarFinalizado() {
 	if(DispareitorPersonaje == nullptr) {
 		return;
 	}
+
+	bRecargandoLocalmente = false;
 
 	if(DispareitorPersonaje->HasAuthority()) {
 		EstadoCombate = EEstadosCombate::EEC_Desocupado;
@@ -428,7 +433,9 @@ int32 UCombateComponente::CalcularCantidadARecargar() {
 void UCombateComponente::AlReplicar_EstadoCombate() {
 	switch(EstadoCombate) {
 		case EEstadosCombate::EEC_Recargando:
-			EjecutarMontajeRecargar();
+			if(DispareitorPersonaje && !DispareitorPersonaje->IsLocallyControlled()) {
+				EjecutarMontajeRecargar();
+			}
 			break;
 		case EEstadosCombate::EEC_Desocupado:
 			if(bDispararPresionado) {
@@ -619,7 +626,7 @@ void UCombateComponente::TerminadoDisparoTemporizador() {
 }
 
 bool UCombateComponente::PuedoDisparar() {
-	return ArmaEquipada != nullptr && !ArmaEquipada->EstaSinMunicion() && bPuedoDisparar && 
+	return ArmaEquipada != nullptr && !ArmaEquipada->EstaSinMunicion() && bPuedoDisparar && !bRecargandoLocalmente &&
 			(EstadoCombate == EEstadosCombate::EEC_Desocupado || (EstadoCombate == EEstadosCombate::EEC_Recargando && ArmaEquipada->ObtenerTipoArma() == ETipoArma::ETA_Escopeta));
 }
 

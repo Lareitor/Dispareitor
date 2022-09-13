@@ -28,6 +28,7 @@ public:
 	UFUNCTION(BluePrintCallable) void GranadaArrojada();
 	UFUNCTION(Server, Reliable)	void GranadaArrojada_EnServidor(const FVector_NetQuantize& Objetivo);
 	void CogerMunicion(ETipoArma TipoArma, int32 IncrementoMunicion);
+	bool bRecargandoLocalmente = false;
 
 protected:	
 	virtual void BeginPlay() override;

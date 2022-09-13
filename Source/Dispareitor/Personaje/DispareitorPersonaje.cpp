@@ -762,3 +762,7 @@ void ADispareitorPersonaje::ReaparecerArmaPorDefecto() {
 		}
 	}
 }
+
+bool ADispareitorPersonaje::EstaRecargandoLocalmente() {
+	return CombateComponente != nullptr ? CombateComponente->bRecargandoLocalmente : false;
+}

@@ -169,5 +169,5 @@ public:
 	FORCEINLINE UStaticMeshComponent* ObtenerGranada() const { return Granada; } 
 	FORCEINLINE UCombateComponente* ObtenerCombateComponente() const { return CombateComponente; }
 	FORCEINLINE UBuffComponente* ObtenerBuffComponente() const { return BuffComponente; } 
-
+	bool EstaRecargandoLocalmente();
 };
