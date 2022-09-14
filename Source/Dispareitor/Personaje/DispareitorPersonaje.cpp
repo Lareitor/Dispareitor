@@ -21,6 +21,7 @@
 #include "Dispareitor/Tipos/TiposArma.h"
 #include "Dispareitor/HUD/HUDSobreLaCabeza.h"
 #include "Components/BoxComponent.h"
+#include "Dispareitor/DispareitorComponentes/CompensacionLagComponente.h"
 
 ADispareitorPersonaje::ADispareitorPersonaje() {
 	PrimaryActorTick.bCanEverTick = true;
@@ -48,6 +49,8 @@ ADispareitorPersonaje::ADispareitorPersonaje() {
 
 	BuffComponente = CreateDefaultSubobject<UBuffComponente>(TEXT("BuffComponente"));
 	BuffComponente->SetIsReplicated(true);
+
+	CompensacionLagComponente = CreateDefaultSubobject<UCompensacionLagComponente>(TEXT("CompensacionLagComponente"));
 
 	// Activar que se pueda agachar (esta propiedad tambien existe en el BP)
 	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
@@ -261,6 +264,12 @@ void ADispareitorPersonaje::PostInitializeComponents() {
 		BuffComponente->DispareitorPersonaje = this;
 		BuffComponente->InicializarVelocidadesOriginales(GetCharacterMovement()->MaxWalkSpeed, GetCharacterMovement()->MaxWalkSpeedCrouched);
 		BuffComponente->InicializarSaltoOriginal(GetCharacterMovement()->JumpZVelocity);
+	}
+	if(CompensacionLagComponente) {
+		CompensacionLagComponente->DispareitorPersonaje = this;
+		if(Controller) {
+			CompensacionLagComponente->DispareitorControladorJugador = Cast<ADispareitorControladorJugador>(Controller);
+		}
 	}
 }
 

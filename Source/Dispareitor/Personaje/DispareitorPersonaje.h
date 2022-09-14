@@ -88,6 +88,7 @@ private:
 	UPROPERTY() class ADispareitorControladorJugador* DispareitorControladorJugador; 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true")) class UCombateComponente* CombateComponente;
 	UPROPERTY(VisibleAnywhere) class UBuffComponente* BuffComponente;
+	UPROPERTY(VisibleAnywhere) class UCompensacionLagComponente* CompensacionLagComponente; 
 	UPROPERTY()	class ADispareitorEstadoJugador* DispareitorEstadoJugador;
 	UPROPERTY(VisibleAnywhere, Category = Camara) class USpringArmComponent* BrazoCamara;
 	UPROPERTY(VisibleAnywhere, Category = Camara) class UCameraComponent* Camara;
