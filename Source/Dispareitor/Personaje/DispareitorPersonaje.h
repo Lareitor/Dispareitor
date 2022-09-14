@@ -61,6 +61,27 @@ protected:
 	UFUNCTION() void RecibirDanio(AActor* ActorDaniado, float Danio, const UDamageType* TipoDanio, class AController* ControladorInstigador, AActor* ActorCausante);
 	void SoltarODestruirArma(AArma* Arma);
 	void SoltarODestruirArmas();
+	// Cajas de impacto usadas para server-side rewind
+	UPROPERTY(EditAnywhere)	class UBoxComponent* CajaCabeza;
+	UPROPERTY(EditAnywhere)	class UBoxComponent* CajaPelvis; 
+	UPROPERTY(EditAnywhere)	class UBoxComponent* CajaEspina02;
+	UPROPERTY(EditAnywhere)	class UBoxComponent* CajaEspina03;
+	UPROPERTY(EditAnywhere)	class UBoxComponent* CajaBrazoI;
+	UPROPERTY(EditAnywhere)	class UBoxComponent* CajaBrazoD;
+	UPROPERTY(EditAnywhere)	class UBoxComponent* CajaAntebrazoI;
+	UPROPERTY(EditAnywhere)	class UBoxComponent* CajaAntebrazoD;
+	UPROPERTY(EditAnywhere)	class UBoxComponent* CajaManoI;
+	UPROPERTY(EditAnywhere)	class UBoxComponent* CajaManoD;
+	UPROPERTY(EditAnywhere)	class UBoxComponent* CajaMochila;
+	UPROPERTY(EditAnywhere)	class UBoxComponent* CajaManta;
+	UPROPERTY(EditAnywhere)	class UBoxComponent* CajaMusloI;
+	UPROPERTY(EditAnywhere)	class UBoxComponent* CajaMusloD;
+	UPROPERTY(EditAnywhere)	class UBoxComponent* CajaGemeloI;
+	UPROPERTY(EditAnywhere)	class UBoxComponent* CajaGemeloD;
+	UPROPERTY(EditAnywhere)	class UBoxComponent* CajaPieI;
+	UPROPERTY(EditAnywhere)	class UBoxComponent* CajaPieD;
+
+	
 
 private:
 	// Inicializa la variable a nullptr, en otro caso tendria basura y podría producir errores de codigo como crasheos. Otra forma de hacerlo seria usando directamente = nullptr;
