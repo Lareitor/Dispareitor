@@ -37,9 +37,11 @@ public:
 	UCompensacionLagComponente();
 	friend class ADispareitorPersonaje;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-	
+	void MostrarCajasImpactoFrame(const FCajasImpactoFrame& CajasImpactoFrame, const FColor Color);
+
 protected:
 	virtual void BeginPlay() override;
+	void GuardarCajasImpactoFrame(FCajasImpactoFrame& CajasImpactoFrame);
 
 private:
 	UPROPERTY() ADispareitorPersonaje* DispareitorPersonaje;	

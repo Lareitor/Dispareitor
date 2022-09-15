@@ -38,6 +38,7 @@ public:
 	void ActualizarMunicionHUD();
 	void ActualizarGranadasHUD();
 	void ReaparecerArmaPorDefecto();
+	UPROPERTY() TMap<FName, class UBoxComponent*> CajasColision; 
 
 protected:
 	virtual void BeginPlay() override;
@@ -80,8 +81,6 @@ protected:
 	UPROPERTY(EditAnywhere)	class UBoxComponent* CajaGemeloD;
 	UPROPERTY(EditAnywhere)	class UBoxComponent* CajaPieI;
 	UPROPERTY(EditAnywhere)	class UBoxComponent* CajaPieD;
-
-	
 
 private:
 	// Inicializa la variable a nullptr, en otro caso tendria basura y podría producir errores de codigo como crasheos. Otra forma de hacerlo seria usando directamente = nullptr;

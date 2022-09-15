@@ -78,74 +78,92 @@ ADispareitorPersonaje::ADispareitorPersonaje() {
 	CajaCabeza = CreateDefaultSubobject<UBoxComponent>(TEXT("CajaCabeza"));
 	CajaCabeza->SetupAttachment(GetMesh(), FName("head"));
 	CajaCabeza->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	CajasColision.Add(FName("head"), CajaCabeza);
 
 	CajaPelvis = CreateDefaultSubobject<UBoxComponent>(TEXT("CajaPelvis"));
 	CajaPelvis->SetupAttachment(GetMesh(), FName("pelvis"));
 	CajaPelvis->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	CajasColision.Add(FName("pelvis"), CajaPelvis);
 	
 	CajaEspina02 = CreateDefaultSubobject<UBoxComponent>(TEXT("CajaEspina02"));
 	CajaEspina02->SetupAttachment(GetMesh(), FName("spine_02"));
 	CajaEspina02->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	CajasColision.Add(FName("spine_02"), CajaEspina02);
 
 	CajaEspina03 = CreateDefaultSubobject<UBoxComponent>(TEXT("CajaEspina03"));
 	CajaEspina03->SetupAttachment(GetMesh(), FName("spine_03"));
 	CajaEspina03->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	
+	CajasColision.Add(FName("spine_03"), CajaEspina03);
+
 	CajaBrazoI = CreateDefaultSubobject<UBoxComponent>(TEXT("CajaBrazoI"));
 	CajaBrazoI->SetupAttachment(GetMesh(), FName("upperarm_l"));
 	CajaBrazoI->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	CajasColision.Add(FName("upperarm_l"), CajaBrazoI);
 	
 	CajaBrazoD = CreateDefaultSubobject<UBoxComponent>(TEXT("CajaBrazoD"));
 	CajaBrazoD->SetupAttachment(GetMesh(), FName("upperarm_r"));
 	CajaBrazoD->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	CajasColision.Add(FName("upperarm_r"), CajaBrazoD);
 	
 	CajaAntebrazoI = CreateDefaultSubobject<UBoxComponent>(TEXT("CajaAntebrazoI"));
 	CajaAntebrazoI->SetupAttachment(GetMesh(), FName("lowerarm_l"));
 	CajaAntebrazoI->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	CajasColision.Add(FName("lowerarm_l"), CajaAntebrazoI);
 	
 	CajaAntebrazoD = CreateDefaultSubobject<UBoxComponent>(TEXT("CajaAntebrazoD"));
 	CajaAntebrazoD->SetupAttachment(GetMesh(), FName("lowerarm_r"));
 	CajaAntebrazoD->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	CajasColision.Add(FName("lowerarm_r"), CajaAntebrazoD);
 	
 	CajaManoI = CreateDefaultSubobject<UBoxComponent>(TEXT("CajaManoI"));
 	CajaManoI->SetupAttachment(GetMesh(), FName("hand_l"));
 	CajaManoI->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	CajasColision.Add(FName("hand_l"), CajaManoI);
 	
 	CajaManoD = CreateDefaultSubobject<UBoxComponent>(TEXT("CajaManoD"));
 	CajaManoD->SetupAttachment(GetMesh(), FName("hand_r"));
 	CajaManoD->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	CajasColision.Add(FName("hand_r"), CajaManoD);
 	
 	CajaMochila = CreateDefaultSubobject<UBoxComponent>(TEXT("CajaMochila"));
 	CajaMochila->SetupAttachment(GetMesh(), FName("backpack"));
 	CajaMochila->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	CajasColision.Add(FName("backpack"), CajaMochila);
 	
 	CajaManta = CreateDefaultSubobject<UBoxComponent>(TEXT("CajaManta"));
 	CajaManta->SetupAttachment(GetMesh(), FName("blanket_l"));
 	CajaManta->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	CajasColision.Add(FName("blanket_l"), CajaManta);
 	
 	CajaMusloI = CreateDefaultSubobject<UBoxComponent>(TEXT("CajaMusloI"));
 	CajaMusloI->SetupAttachment(GetMesh(), FName("thigh_l"));
 	CajaMusloI->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	CajasColision.Add(FName("thigh_l"), CajaMusloI);
 	
 	CajaMusloD = CreateDefaultSubobject<UBoxComponent>(TEXT("CajaMusloD"));
 	CajaMusloD->SetupAttachment(GetMesh(), FName("thigh_r"));
 	CajaMusloD->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	CajasColision.Add(FName("thigh_r"), CajaMusloD);
 	
 	CajaGemeloI = CreateDefaultSubobject<UBoxComponent>(TEXT("CajaGemeloI"));
 	CajaGemeloI->SetupAttachment(GetMesh(), FName("calf_l"));
 	CajaGemeloI->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	CajasColision.Add(FName("calf_l"), CajaGemeloI);
 
 	CajaGemeloD = CreateDefaultSubobject<UBoxComponent>(TEXT("CajaGemeloD"));
 	CajaGemeloD->SetupAttachment(GetMesh(), FName("calf_r"));
 	CajaGemeloD->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	CajasColision.Add(FName("calf_r"), CajaGemeloD);
 
 	CajaPieI = CreateDefaultSubobject<UBoxComponent>(TEXT("CajaPieI"));
 	CajaPieI->SetupAttachment(GetMesh(), FName("foot_l"));
 	CajaPieI->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	CajasColision.Add(FName("foot_l"), CajaPieI);
 
 	CajaPieD = CreateDefaultSubobject<UBoxComponent>(TEXT("CajaPieD"));
 	CajaPieD->SetupAttachment(GetMesh(), FName("foot_r"));
 	CajaPieD->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	CajasColision.Add(FName("foot_r"), CajaPieD);
 }
 
 // En esta funcion es donde registramos las variables que queremos replicar
