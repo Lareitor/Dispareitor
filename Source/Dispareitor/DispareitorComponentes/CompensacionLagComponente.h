@@ -46,4 +46,6 @@ protected:
 private:
 	UPROPERTY() ADispareitorPersonaje* DispareitorPersonaje;	
 	UPROPERTY() class ADispareitorControladorJugador* DispareitorControladorJugador;
+	TDoubleLinkedList<FCajasImpactoFrame> CajasImpactoFrames;
+	UPROPERTY(EditAnywhere) float TiempoAlmacenamientoMaximo = 4.f;
 };

@@ -5,20 +5,30 @@
 
 UCompensacionLagComponente::UCompensacionLagComponente() {
 	PrimaryComponentTick.bCanEverTick = true;
-
 }
 
 void UCompensacionLagComponente::BeginPlay() {
 	Super::BeginPlay();
-
-	FCajasImpactoFrame CajasImpactoFrame;
-	GuardarCajasImpactoFrame(CajasImpactoFrame);
-	MostrarCajasImpactoFrame(CajasImpactoFrame, FColor::Orange);
 }
 
 void UCompensacionLagComponente::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	if(CajasImpactoFrames.Num() <= 1) {
+		FCajasImpactoFrame CajasImpactoFrame;
+		GuardarCajasImpactoFrame(CajasImpactoFrame);
+		CajasImpactoFrames.AddHead(CajasImpactoFrame);
+	} else {
+		float TiempoAlmacenado = CajasImpactoFrames.GetHead()->GetValue().Tiempo - CajasImpactoFrames.GetTail()->GetValue().Tiempo; 
+		while(TiempoAlmacenado > TiempoAlmacenamientoMaximo) {
+			CajasImpactoFrames.RemoveNode(CajasImpactoFrames.GetTail());
+			TiempoAlmacenado = CajasImpactoFrames.GetHead()->GetValue().Tiempo - CajasImpactoFrames.GetTail()->GetValue().Tiempo;
+		}
+		FCajasImpactoFrame CajasImpactoFrame;
+		GuardarCajasImpactoFrame(CajasImpactoFrame);
+		CajasImpactoFrames.AddHead(CajasImpactoFrame);
+		MostrarCajasImpactoFrame(CajasImpactoFrame, FColor::Orange);
+	}
 }
 
 void UCompensacionLagComponente::GuardarCajasImpactoFrame(FCajasImpactoFrame& CajasImpactoFrame) {
@@ -37,6 +47,6 @@ void UCompensacionLagComponente::GuardarCajasImpactoFrame(FCajasImpactoFrame& Ca
 
 void UCompensacionLagComponente::MostrarCajasImpactoFrame(const FCajasImpactoFrame& CajasImpactoFrame, const FColor Color) {
 	for(auto& CajaImpacto : CajasImpactoFrame.CajasImpacto) {
-		DrawDebugBox(GetWorld(), CajaImpacto.Value.Posicion, CajaImpacto.Value.CajaExtension, FQuat(CajaImpacto.Value.Rotacion), Color, true);
+		DrawDebugBox(GetWorld(), CajaImpacto.Value.Posicion, CajaImpacto.Value.CajaExtension, FQuat(CajaImpacto.Value.Rotacion), Color, false, 4.f);
 	}
 }
