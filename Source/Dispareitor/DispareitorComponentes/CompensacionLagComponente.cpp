@@ -50,3 +50,50 @@ void UCompensacionLagComponente::MostrarCajasImpactoFrame(const FCajasImpactoFra
 		DrawDebugBox(GetWorld(), CajaImpacto.Value.Posicion, CajaImpacto.Value.CajaExtension, FQuat(CajaImpacto.Value.Rotacion), Color, false, 4.f);
 	}
 }
+
+void UCompensacionLagComponente::RebobinarLadoServidor(class ADispareitorPersonaje* DispareitorPersonajeImpactado, const FVector_NetQuantize& InicioRayo, const FVector_NetQuantize& FinRayo, float TiempoImpacto) {
+	if(DispareitorPersonajeImpactado == nullptr || DispareitorPersonajeImpactado->ObtenerCompensacionLagComponente() == nullptr || 
+			DispareitorPersonajeImpactado->ObtenerCompensacionLagComponente()->CajasImpactoFrames.GetHead() == nullptr || 
+			DispareitorPersonajeImpactado->ObtenerCompensacionLagComponente()->CajasImpactoFrames.GetTail()) {
+		return;
+	}
+
+	FCajasImpactoFrame CajasImpactoFrameAComprobar;
+	bool bDeboInterpolar = true;
+
+	const TDoubleLinkedList<FCajasImpactoFrame>& CajasImpactoFramesDelPersonajeImpactado = DispareitorPersonajeImpactado->ObtenerCompensacionLagComponente()->CajasImpactoFrames;
+	const float TiempoMasAntiguo = CajasImpactoFramesDelPersonajeImpactado.GetTail()->GetValue().Tiempo;
+	const float TiempoMasNuevo = CajasImpactoFramesDelPersonajeImpactado.GetHead()->GetValue().Tiempo;
+	if(TiempoMasAntiguo > TiempoImpacto) { // Demasiado atrás en el tiempo, demasiado lageado para hacer el Server Side Rewind
+		return;
+	}
+	if(TiempoMasAntiguo == TiempoImpacto) { 
+		CajasImpactoFrameAComprobar = CajasImpactoFramesDelPersonajeImpactado.GetTail()->GetValue();
+		bDeboInterpolar = false;
+	}
+	if(TiempoMasNuevo <= TiempoImpacto) {
+		CajasImpactoFrameAComprobar = CajasImpactoFramesDelPersonajeImpactado.GetHead()->GetValue();
+		bDeboInterpolar = false;
+	}
+
+	TDoubleLinkedList<FCajasImpactoFrame>::TDoubleLinkedListNode* CajasImpactoFrameMasJoven = CajasImpactoFramesDelPersonajeImpactado.GetHead();
+	TDoubleLinkedList<FCajasImpactoFrame>::TDoubleLinkedListNode* CajasImpactoFrameMasViejo = CajasImpactoFrameMasJoven;
+	// Nos movemos hacia atras en el tiempo hasta que CajasImpactoFrameMasViejo < TiempoImpacto < CajasImpactoFrameMasJoven
+	while(CajasImpactoFrameMasViejo->GetValue().Tiempo > TiempoImpacto) {
+		if(CajasImpactoFrameMasViejo->GetNextNode() == nullptr) {
+			break;
+		}
+		CajasImpactoFrameMasViejo = CajasImpactoFrameMasViejo->GetNextNode(); // GetNextNode obtiene el nodo anterior de la lista doble enlazada
+		if(CajasImpactoFrameMasViejo->GetValue().Tiempo > TiempoImpacto) {
+			CajasImpactoFrameMasJoven = CajasImpactoFrameMasViejo;
+		}
+	}
+	if(CajasImpactoFrameMasViejo->GetValue().Tiempo == TiempoImpacto) {
+		CajasImpactoFrameAComprobar = CajasImpactoFrameMasViejo->GetValue();
+		bDeboInterpolar = false;
+	}
+
+	if(bDeboInterpolar) {
+
+	}
+}

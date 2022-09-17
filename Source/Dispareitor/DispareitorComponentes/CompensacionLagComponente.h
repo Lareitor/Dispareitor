@@ -38,6 +38,7 @@ public:
 	friend class ADispareitorPersonaje;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	void MostrarCajasImpactoFrame(const FCajasImpactoFrame& CajasImpactoFrame, const FColor Color);
+	void RebobinarLadoServidor(class ADispareitorPersonaje* DispareitorPersonajeImpactado, const FVector_NetQuantize& InicioRayo, const FVector_NetQuantize& FinRayo, float TiempoImpacto);
 
 protected:
 	virtual void BeginPlay() override;
