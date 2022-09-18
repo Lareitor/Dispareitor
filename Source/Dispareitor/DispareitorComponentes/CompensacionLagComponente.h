@@ -29,6 +29,18 @@ struct FCajasImpactoFrame {
 	TMap<FName, FCajaImpacto> CajasImpacto;
 };
 
+
+USTRUCT(BlueprintType)
+struct FResultadoRebobinarLadoServidor {
+	GENERATED_BODY()
+
+	UPROPERTY()
+	bool bImpactoConfirmado;
+
+	UPROPERTY()
+	bool bTiroALaCabeza;
+};
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class DISPAREITOR_API UCompensacionLagComponente : public UActorComponent {
 	GENERATED_BODY()
@@ -38,12 +50,17 @@ public:
 	friend class ADispareitorPersonaje;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	void MostrarCajasImpactoFrame(const FCajasImpactoFrame& CajasImpactoFrame, const FColor Color);
-	void RebobinarLadoServidor(class ADispareitorPersonaje* DispareitorPersonajeImpactado, const FVector_NetQuantize& InicioRayo, const FVector_NetQuantize& FinRayo, float TiempoImpacto);
+	FResultadoRebobinarLadoServidor RebobinarLadoServidor(class ADispareitorPersonaje* DispareitorPersonajeImpactado, const FVector_NetQuantize& InicioRayo, const FVector_NetQuantize& FinRayo, float TiempoImpacto);
 
 protected:
 	virtual void BeginPlay() override;
 	void GuardarCajasImpactoFrame(FCajasImpactoFrame& CajasImpactoFrame);
 	FCajasImpactoFrame InterpolacionEntreFrames(const FCajasImpactoFrame& CajasImpactoFrameMasJoven, const FCajasImpactoFrame& CajasImpactoFrameMasViejo, float TiempoImpacto);
+	FResultadoRebobinarLadoServidor ConfirmarImpacto(const FCajasImpactoFrame& CajasImpactoFrame, ADispareitorPersonaje* DispareitorPersonajeImpactado, const FVector_NetQuantize& InicioRayo, const FVector_NetQuantize& ImpactoRayo);
+	void CachearCajasImpactoFrame(ADispareitorPersonaje* DispareitorPersonajeImpactado, FCajasImpactoFrame& CajasImpactoFrameSalida);
+	void MoverCajasImpactoFrame(ADispareitorPersonaje* DispareitorPersonajeImpactado,const FCajasImpactoFrame& CajasImpactoFrame);
+	void RestaurarCajasImpactoFrame(ADispareitorPersonaje* DispareitorPersonajeImpactado,const FCajasImpactoFrame& CajasImpactoFrame);
+	void ModificarColisionMallaPersonaje(ADispareitorPersonaje* DispareitorPersonajeImpactado, ECollisionEnabled::Type TipoColisionPermitida);
 
 private:
 	UPROPERTY() ADispareitorPersonaje* DispareitorPersonaje;	
