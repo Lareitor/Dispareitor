@@ -97,3 +97,26 @@ void UCompensacionLagComponente::RebobinarLadoServidor(class ADispareitorPersona
 
 	}
 }
+
+FCajasImpactoFrame UCompensacionLagComponente::InterpolacionEntreFrames(const FCajasImpactoFrame& CajasImpactoFrameMasJoven, const FCajasImpactoFrame& CajasImpactoFrameMasViejo, float TiempoImpacto) {
+	const float Distancia = CajasImpactoFrameMasJoven.Tiempo - CajasImpactoFrameMasViejo.Tiempo;
+	const float FraccionDeInterporlacion = FMath::Clamp((TiempoImpacto - CajasImpactoFrameMasViejo.Tiempo) / Distancia, 0.f, 1.f);
+
+	FCajasImpactoFrame CajasImpactoFrameInterpolado;
+	CajasImpactoFrameInterpolado.Tiempo = TiempoImpacto;
+
+	for(auto& CajasImpacto : CajasImpactoFrameMasJoven.CajasImpacto) {
+		const FName& NombreCajaImpacto = CajasImpacto.Key;
+		const FCajaImpacto& CajaImpactoMasVieja = CajasImpactoFrameMasViejo.CajasImpacto[NombreCajaImpacto];
+		const FCajaImpacto& CajaImpactoMasJoven = CajasImpactoFrameMasJoven.CajasImpacto[NombreCajaImpacto];
+
+		FCajaImpacto CajaImpactoInterpolada;
+		CajaImpactoInterpolada.Posicion = FMath::VInterpTo(CajaImpactoMasVieja.Posicion, CajaImpactoMasJoven.Posicion, 1.f, FraccionDeInterporlacion);
+		CajaImpactoInterpolada.Rotacion = FMath::RInterpTo(CajaImpactoMasVieja.Rotacion, CajaImpactoMasJoven.Rotacion, 1.f, FraccionDeInterporlacion);
+		CajaImpactoInterpolada.CajaExtension = CajaImpactoMasJoven.CajaExtension;
+
+		CajasImpactoFrameInterpolado.CajasImpacto.Add(NombreCajaImpacto, CajaImpactoInterpolada);
+	}
+
+	return CajasImpactoFrameInterpolado;
+}

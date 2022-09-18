@@ -43,6 +43,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	void GuardarCajasImpactoFrame(FCajasImpactoFrame& CajasImpactoFrame);
+	FCajasImpactoFrame InterpolacionEntreFrames(const FCajasImpactoFrame& CajasImpactoFrameMasJoven, const FCajasImpactoFrame& CajasImpactoFrameMasViejo, float TiempoImpacto);
 
 private:
 	UPROPERTY() ADispareitorPersonaje* DispareitorPersonaje;	
