@@ -191,5 +191,5 @@ public:
 	FORCEINLINE UCombateComponente* ObtenerCombateComponente() const { return CombateComponente; }
 	FORCEINLINE UBuffComponente* ObtenerBuffComponente() const { return BuffComponente; } 
 	bool EstaRecargandoLocalmente();
-	FORCEINLINE UCompensacionLagComponente* ObtenerCompensacionLagComponente() const { return CompensacionLagComponente}; 
+	FORCEINLINE UCompensacionLagComponente* ObtenerCompensacionLagComponente() const { return CompensacionLagComponente; } 
 };

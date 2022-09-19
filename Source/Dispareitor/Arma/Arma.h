@@ -55,6 +55,8 @@ public:
 
 
 protected:	
+	UPROPERTY()	class ADispareitorPersonaje* DispareitorPersonaje;
+	UPROPERTY()	class ADispareitorControladorJugador* DispareitorControladorJugador;
 	virtual void BeginPlay() override;
 	virtual void ManejarActualizacionEstado();
 	virtual void ManejarActualizacionEstadoAlEquipar();
@@ -64,10 +66,10 @@ protected:
 	UFUNCTION()	virtual void Callback_EsferaSolapadaFin(UPrimitiveComponent* ComponenteSolapado, AActor* OtroActor, UPrimitiveComponent* OtroComponente, int32 OtroIndice);
 	UPROPERTY(EditAnywhere, Category = "Dispersion") float DistanciaAEsferaDeDispersion = 800.f;
 	UPROPERTY(EditAnywhere, Category = "Dispersion") float RadioDeEsferaDeDispersion = 75.f;
+	UPROPERTY(EditAnywhere)	float Danio = 20.f;	
+	UPROPERTY(EditAnywhere)	bool bRebobinarLadoServidor = false;
 
 private:
-	UPROPERTY()	class ADispareitorPersonaje* DispareitorPersonaje;
-	UPROPERTY()	class ADispareitorControladorJugador* DispareitorControladorJugador;
 	UPROPERTY(VisibleAnywhere, Category = Propiedades) USkeletalMeshComponent* Malla;
 	UPROPERTY(VisibleAnywhere, Category = Propiedades) class USphereComponent* Esfera;
 	UPROPERTY(ReplicatedUsing = AlReplicar_Estado, VisibleAnywhere, Category = "Propiedades") EEstado Estado;
@@ -96,4 +98,6 @@ public:
 	FORCEINLINE ETipoArma ObtenerTipoArma() const { return TipoArma; } 
 	FORCEINLINE int32 ObtenerMunicion() const { return Municion; }
 	FORCEINLINE int32 ObtenerCapacidadCargador() const { return CapacidadCargador; }
+	FORCEINLINE float ObtenerDanio() const { return Danio; }
+
 };

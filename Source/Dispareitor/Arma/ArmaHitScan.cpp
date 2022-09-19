@@ -1,11 +1,14 @@
 #include "ArmaHitScan.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Dispareitor/Personaje/DispareitorPersonaje.h"
+#include "Dispareitor/ControladorJugador/DispareitorControladorJugador.h"
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Sound/SoundCue.h"
 #include "DrawDebugHelpers.h"
 #include "Dispareitor/Tipos/TiposArma.h"
+#include "Dispareitor/DispareitorComponentes/CompensacionLagComponente.h"
+
 
 void AArmaHitScan::Disparar(const FVector& Objetivo) {
     Super::Disparar(Objetivo);
@@ -23,8 +26,17 @@ void AArmaHitScan::Disparar(const FVector& Objetivo) {
         FHitResult ImpactoResultado = CalcularImpacto(Inicio, Objetivo);
 
         ADispareitorPersonaje* DispareitorPersonajeImpactado = Cast<ADispareitorPersonaje>(ImpactoResultado.GetActor());
-        if(DispareitorPersonajeImpactado && HasAuthority() && ControladorDelInstigador) {
-            UGameplayStatics::ApplyDamage(DispareitorPersonajeImpactado, Danio, ControladorDelInstigador, this, UDamageType::StaticClass());
+        if(DispareitorPersonajeImpactado && ControladorDelInstigador) {
+            if(HasAuthority() && !bRebobinarLadoServidor) {
+                UGameplayStatics::ApplyDamage(DispareitorPersonajeImpactado, Danio, ControladorDelInstigador, this, UDamageType::StaticClass());
+            } 
+            if (!HasAuthority() && bRebobinarLadoServidor) {
+                DispareitorPersonaje = DispareitorPersonaje != nullptr ? DispareitorPersonaje : Cast<ADispareitorPersonaje>(PeonPropietario);    
+                DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(ControladorDelInstigador);
+                if(DispareitorPersonaje && DispareitorPersonaje->ObtenerCompensacionLagComponente() && DispareitorControladorJugador) {
+                    DispareitorPersonaje->ObtenerCompensacionLagComponente()->PeticionImpacto_EnServidor(DispareitorPersonajeImpactado, Inicio, Objetivo, DispareitorControladorJugador->ObtenerTiempoServidor() - DispareitorControladorJugador->STT, this);
+                }
+            }
         }
         if(SistemaParticulasAlImpactar) {
             UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SistemaParticulasAlImpactar, ImpactoResultado.ImpactPoint, ImpactoResultado.ImpactNormal.Rotation());

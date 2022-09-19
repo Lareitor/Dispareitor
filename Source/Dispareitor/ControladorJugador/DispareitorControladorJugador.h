@@ -27,6 +27,7 @@ public:
 	void ActualizarEstadoPartida(FName Estado);
 	void ManejarEstadoPartida();
 	void ManejarEnfriamiento();
+	float STT = 0.f; // Single Trip Time es la mitad aprox. de RTT
 	
 protected:
 	virtual void BeginPlay() override;

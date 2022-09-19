@@ -280,8 +280,9 @@ void ADispareitorControladorJugador::PedirTiempoServidor_EnServidor_Implementati
 
 // Respuesta tiempo (ejecutada en cliente) servidor -> cliente
 void ADispareitorControladorJugador::DevolverTiempoServidor_EnCliente_Implementation(float TiempoClientePeticion, float TiempoServidorAlRecibirPeticion) {
-    // RoundTripTime
+    // Round Trip Time
     float RTT = GetWorld()->GetTimeSeconds() - TiempoClientePeticion;
+    STT = 0.5f * RTT;
     float TiempoServidorActual = TiempoServidorAlRecibirPeticion + (0.5f * RTT);
     DeltaTiempoServidorCliente = TiempoServidorActual - GetWorld()->GetTimeSeconds();
 }

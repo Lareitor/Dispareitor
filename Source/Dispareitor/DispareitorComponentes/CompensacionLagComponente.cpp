@@ -1,7 +1,10 @@
 #include "CompensacionLagComponente.h"
 #include "Dispareitor/Personaje/DispareitorPersonaje.h"
+#include "Dispareitor/Arma/Arma.h"
 #include "Components/BoxComponent.h"
 #include "DrawDebugHelpers.h"
+#include "Kismet/GameplayStatics.h"
+
 
 UCompensacionLagComponente::UCompensacionLagComponente() {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -13,6 +16,14 @@ void UCompensacionLagComponente::BeginPlay() {
 
 void UCompensacionLagComponente::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	GuardarCajasImpactoFrame();
+}
+
+void UCompensacionLagComponente::GuardarCajasImpactoFrame() {
+	if(DispareitorPersonaje == nullptr || !DispareitorPersonaje->HasAuthority()) {
+		return;
+	}
 
 	if(CajasImpactoFrames.Num() <= 1) {
 		FCajasImpactoFrame CajasImpactoFrame;
@@ -27,7 +38,7 @@ void UCompensacionLagComponente::TickComponent(float DeltaTime, ELevelTick TickT
 		FCajasImpactoFrame CajasImpactoFrame;
 		GuardarCajasImpactoFrame(CajasImpactoFrame);
 		CajasImpactoFrames.AddHead(CajasImpactoFrame);
-		MostrarCajasImpactoFrame(CajasImpactoFrame, FColor::Orange);
+		// MostrarCajasImpactoFrame(CajasImpactoFrame, FColor::Orange);
 	}
 }
 
@@ -54,7 +65,7 @@ void UCompensacionLagComponente::MostrarCajasImpactoFrame(const FCajasImpactoFra
 FResultadoRebobinarLadoServidor UCompensacionLagComponente::RebobinarLadoServidor(class ADispareitorPersonaje* DispareitorPersonajeImpactado, const FVector_NetQuantize& InicioRayo, const FVector_NetQuantize& ImpactoRayo, float TiempoImpacto) {
 	if(DispareitorPersonajeImpactado == nullptr || DispareitorPersonajeImpactado->ObtenerCompensacionLagComponente() == nullptr || 
 			DispareitorPersonajeImpactado->ObtenerCompensacionLagComponente()->CajasImpactoFrames.GetHead() == nullptr || 
-			DispareitorPersonajeImpactado->ObtenerCompensacionLagComponente()->CajasImpactoFrames.GetTail()) {
+			DispareitorPersonajeImpactado->ObtenerCompensacionLagComponente()->CajasImpactoFrames.GetTail() == nullptr ) {
 		return FResultadoRebobinarLadoServidor();
 	}
 
@@ -88,6 +99,7 @@ FResultadoRebobinarLadoServidor UCompensacionLagComponente::RebobinarLadoServido
 			CajasImpactoFrameMasJoven = CajasImpactoFrameMasViejo;
 		}
 	}
+
 	if(CajasImpactoFrameMasViejo->GetValue().Tiempo == TiempoImpacto) {
 		CajasImpactoFrameAComprobar = CajasImpactoFrameMasViejo->GetValue();
 		bDeboInterpolar = false;
@@ -220,3 +232,10 @@ void UCompensacionLagComponente::ModificarColisionMallaPersonaje(ADispareitorPer
 }
 
 
+void UCompensacionLagComponente::PeticionImpacto_EnServidor_Implementation(ADispareitorPersonaje* DispareitorPersonajeImpactado, const FVector_NetQuantize& InicioRayo, const FVector_NetQuantize& ImpactoRayo, float TiempoImpacto, class AArma* ArmaCausanteDanio) {
+	FResultadoRebobinarLadoServidor ResultadoRebobinarLadoServidor = RebobinarLadoServidor(DispareitorPersonajeImpactado, InicioRayo, ImpactoRayo, TiempoImpacto);	
+
+	if(DispareitorPersonaje && DispareitorPersonajeImpactado && ArmaCausanteDanio && ResultadoRebobinarLadoServidor.bImpactoConfirmado) {
+		UGameplayStatics::ApplyDamage(DispareitorPersonajeImpactado, ArmaCausanteDanio->ObtenerDanio(), DispareitorPersonaje->Controller, ArmaCausanteDanio, UDamageType::StaticClass());
+	}
+}
