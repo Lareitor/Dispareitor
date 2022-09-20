@@ -8,37 +8,34 @@ USTRUCT(BlueprintType)
 struct FCajaImpacto {
 	GENERATED_BODY()
 
-	UPROPERTY()
-	FVector Posicion;
-
-	UPROPERTY()
-	FRotator Rotacion;
-
-	UPROPERTY()
-	FVector CajaExtension;
+	UPROPERTY() FVector Posicion;
+	UPROPERTY()	FRotator Rotacion;
+	UPROPERTY()	FVector CajaExtension;
 };
 
 USTRUCT(BlueprintType)
 struct FCajasImpactoFrame {
 	GENERATED_BODY()
 
-	UPROPERTY()
-	float Tiempo;
-
-	UPROPERTY()
-	TMap<FName, FCajaImpacto> CajasImpacto;
+	UPROPERTY() float Tiempo;
+	UPROPERTY()	TMap<FName, FCajaImpacto> CajasImpacto;
+	UPROPERTY() ADispareitorPersonaje* DispareitorPersonaje;
 };
-
 
 USTRUCT(BlueprintType)
 struct FResultadoRebobinarLadoServidor {
 	GENERATED_BODY()
 
-	UPROPERTY()
-	bool bImpactoConfirmado;
+	UPROPERTY() bool bImpactoConfirmado;
+	UPROPERTY() bool bTiroALaCabeza;
+};
 
-	UPROPERTY()
-	bool bTiroALaCabeza;
+USTRUCT(BlueprintType)
+struct FResultadoRebobinarLadoServidorEscopeta {
+	GENERATED_BODY()
+
+	UPROPERTY() TMap<ADispareitorPersonaje*,  uint32> TirosALaCabeza;
+	UPROPERTY() TMap<ADispareitorPersonaje*,  uint32> TirosAlCuerpo;
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -63,6 +60,9 @@ protected:
 	void RestaurarCajasImpactoFrame(ADispareitorPersonaje* DispareitorPersonajeImpactado,const FCajasImpactoFrame& CajasImpactoFrame);
 	void ModificarColisionMallaPersonaje(ADispareitorPersonaje* DispareitorPersonajeImpactado, ECollisionEnabled::Type TipoColisionPermitida);
 	void GuardarCajasImpactoFrame();
+	FCajasImpactoFrame ObtenerCajasImpactoFrameAComprobar(ADispareitorPersonaje* DispareitorPersonajeImpactado, float TiempoImpacto);
+	FResultadoRebobinarLadoServidorEscopeta RebobinarLadoServidorEscopeta(const TArray<ADispareitorPersonaje*>& DispareitorPersonajesImpactados, const FVector_NetQuantize& InicioRayo, const TArray<FVector_NetQuantize>& ImpactosRayos, float TiempoImpacto);
+	FResultadoRebobinarLadoServidorEscopeta ConfirmarImpactoEscopeta(const TArray<FCajasImpactoFrame>& ArrayCajasImpactoFrame, const FVector_NetQuantize& InicioRayo, const TArray<FVector_NetQuantize>& ImpactosRayos);
 
 private:
 	UPROPERTY() ADispareitorPersonaje* DispareitorPersonaje;	

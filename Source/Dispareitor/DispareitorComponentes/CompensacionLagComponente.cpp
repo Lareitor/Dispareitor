@@ -46,6 +46,7 @@ void UCompensacionLagComponente::GuardarCajasImpactoFrame(FCajasImpactoFrame& Ca
 	DispareitorPersonaje = DispareitorPersonaje != nullptr ? DispareitorPersonaje : Cast<ADispareitorPersonaje>(GetOwner());
 	if(DispareitorPersonaje) {
 		CajasImpactoFrame.Tiempo = GetWorld()->GetTimeSeconds();
+		CajasImpactoFrame.DispareitorPersonaje = DispareitorPersonaje;
 		for(auto& CajaColision : DispareitorPersonaje->CajasColision) {
 			FCajaImpacto CajaImpacto;
 			CajaImpacto.Posicion = CajaColision.Value->GetComponentLocation();
@@ -63,10 +64,23 @@ void UCompensacionLagComponente::MostrarCajasImpactoFrame(const FCajasImpactoFra
 }
 
 FResultadoRebobinarLadoServidor UCompensacionLagComponente::RebobinarLadoServidor(class ADispareitorPersonaje* DispareitorPersonajeImpactado, const FVector_NetQuantize& InicioRayo, const FVector_NetQuantize& ImpactoRayo, float TiempoImpacto) {
+	FCajasImpactoFrame CajasImpactoFrameAComprobar = ObtenerCajasImpactoFrameAComprobar(DispareitorPersonajeImpactado, TiempoImpacto);
+	return ConfirmarImpacto(CajasImpactoFrameAComprobar, DispareitorPersonajeImpactado, InicioRayo, ImpactoRayo);
+}
+
+FResultadoRebobinarLadoServidorEscopeta UCompensacionLagComponente::RebobinarLadoServidorEscopeta(const TArray<ADispareitorPersonaje*>& DispareitorPersonajesImpactados, const FVector_NetQuantize& InicioRayo, const TArray<FVector_NetQuantize>& ImpactosRayos, float TiempoImpacto) {
+	TArray<FCajasImpactoFrame> ArrayCajasImpactoFrameAComprobar;	
+	for(ADispareitorPersonaje* DispareitorPersonajeImpactado : DispareitorPersonajesImpactados) {
+		ArrayCajasImpactoFrameAComprobar.Add(ObtenerCajasImpactoFrameAComprobar(DispareitorPersonajeImpactado, TiempoImpacto));
+	}
+}
+
+
+FCajasImpactoFrame UCompensacionLagComponente::ObtenerCajasImpactoFrameAComprobar(ADispareitorPersonaje* DispareitorPersonajeImpactado, float TiempoImpacto) {
 	if(DispareitorPersonajeImpactado == nullptr || DispareitorPersonajeImpactado->ObtenerCompensacionLagComponente() == nullptr || 
 			DispareitorPersonajeImpactado->ObtenerCompensacionLagComponente()->CajasImpactoFrames.GetHead() == nullptr || 
 			DispareitorPersonajeImpactado->ObtenerCompensacionLagComponente()->CajasImpactoFrames.GetTail() == nullptr ) {
-		return FResultadoRebobinarLadoServidor();
+		return FCajasImpactoFrame();
 	}
 
 	FCajasImpactoFrame CajasImpactoFrameAComprobar;
@@ -76,7 +90,7 @@ FResultadoRebobinarLadoServidor UCompensacionLagComponente::RebobinarLadoServido
 	const float TiempoMasAntiguo = CajasImpactoFramesDelPersonajeImpactado.GetTail()->GetValue().Tiempo;
 	const float TiempoMasNuevo = CajasImpactoFramesDelPersonajeImpactado.GetHead()->GetValue().Tiempo;
 	if(TiempoMasAntiguo > TiempoImpacto) { // Demasiado atrás en el tiempo, demasiado lageado para hacer el Server Side Rewind
-		return FResultadoRebobinarLadoServidor();
+		return FCajasImpactoFrame();
 	}
 	if(TiempoMasAntiguo == TiempoImpacto) { 
 		CajasImpactoFrameAComprobar = CajasImpactoFramesDelPersonajeImpactado.GetTail()->GetValue();
@@ -109,7 +123,7 @@ FResultadoRebobinarLadoServidor UCompensacionLagComponente::RebobinarLadoServido
 		CajasImpactoFrameAComprobar = InterpolacionEntreFrames(CajasImpactoFrameMasViejo->GetValue(), CajasImpactoFrameMasJoven->GetValue(), TiempoImpacto);	
 	}
 
-	return ConfirmarImpacto(CajasImpactoFrameAComprobar, DispareitorPersonajeImpactado, InicioRayo, ImpactoRayo);
+	return CajasImpactoFrameAComprobar;
 }
 
 FCajasImpactoFrame UCompensacionLagComponente::InterpolacionEntreFrames(const FCajasImpactoFrame& CajasImpactoFrameMasJoven, const FCajasImpactoFrame& CajasImpactoFrameMasViejo, float TiempoImpacto) {
@@ -177,6 +191,10 @@ FResultadoRebobinarLadoServidor UCompensacionLagComponente::ConfirmarImpacto(con
 	RestaurarCajasImpactoFrame(DispareitorPersonajeImpactado, CajasImpactoFrameActual);
 	ModificarColisionMallaPersonaje(DispareitorPersonajeImpactado, ECollisionEnabled::QueryAndPhysics);
 	return FResultadoRebobinarLadoServidor{false, false};
+}
+
+FResultadoRebobinarLadoServidorEscopeta UCompensacionLagComponente::ConfirmarImpactoEscopeta(const TArray<FCajasImpactoFrame>& ArrayCajasImpactoFrame, const FVector_NetQuantize& InicioRayo, const TArray<FVector_NetQuantize>& ImpactosRayos) {
+	
 }
 
 void UCompensacionLagComponente::CachearCajasImpactoFrame(ADispareitorPersonaje* DispareitorPersonajeImpactado, FCajasImpactoFrame& CajasImpactoFrameSalida) {
