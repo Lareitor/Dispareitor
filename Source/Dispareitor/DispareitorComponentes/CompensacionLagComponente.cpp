@@ -73,6 +73,8 @@ FResultadoRebobinarLadoServidorEscopeta UCompensacionLagComponente::RebobinarLad
 	for(ADispareitorPersonaje* DispareitorPersonajeImpactado : DispareitorPersonajesImpactados) {
 		ArrayCajasImpactoFrameAComprobar.Add(ObtenerCajasImpactoFrameAComprobar(DispareitorPersonajeImpactado, TiempoImpacto));
 	}
+
+	return ConfirmarImpactoEscopeta(ArrayCajasImpactoFrameAComprobar, InicioRayo, ImpactosRayos);
 }
 
 
@@ -194,7 +196,86 @@ FResultadoRebobinarLadoServidor UCompensacionLagComponente::ConfirmarImpacto(con
 }
 
 FResultadoRebobinarLadoServidorEscopeta UCompensacionLagComponente::ConfirmarImpactoEscopeta(const TArray<FCajasImpactoFrame>& ArrayCajasImpactoFrame, const FVector_NetQuantize& InicioRayo, const TArray<FVector_NetQuantize>& ImpactosRayos) {
+	for(auto& CajasImpactoFrame : ArrayCajasImpactoFrame) {
+		if(CajasImpactoFrame.DispareitorPersonaje == nullptr) {
+			return FResultadoRebobinarLadoServidorEscopeta();
+		}
+	}
 	
+	FResultadoRebobinarLadoServidorEscopeta ResultadoRebobinarLadoServidorEscopeta;
+	TArray<FCajasImpactoFrame> ArrayCajasImpactoFrameActuales;
+
+	for(auto& CajasImpactoFrame : ArrayCajasImpactoFrame) {
+		FCajasImpactoFrame CajasImpactoFrameActual;
+
+		CajasImpactoFrameActual.DispareitorPersonaje = CajasImpactoFrame.DispareitorPersonaje;
+		CachearCajasImpactoFrame(CajasImpactoFrame.DispareitorPersonaje, CajasImpactoFrameActual);
+		MoverCajasImpactoFrame(CajasImpactoFrame.DispareitorPersonaje, CajasImpactoFrame);
+		ModificarColisionMallaPersonaje(CajasImpactoFrame.DispareitorPersonaje, ECollisionEnabled::NoCollision);
+		ArrayCajasImpactoFrameActuales.Add(CajasImpactoFrameActual);
+	}
+
+	
+	// Permitir colisiones solo para las cajas de cabeza
+	for(auto& CajasImpactoFrame : ArrayCajasImpactoFrame) {
+		UBoxComponent* CajaCabeza = CajasImpactoFrame.DispareitorPersonaje->CajasColision[FName("head")];
+		CajaCabeza->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		CajaCabeza->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
+	}
+
+	// Comprobar disparos en la cabeza
+	UWorld* Mundo = GetWorld();
+	for(auto& ImpactoRayo : ImpactosRayos) {	
+		FHitResult ConfirmacionImpacto;
+		const FVector FinRayo = InicioRayo + (ImpactoRayo - InicioRayo) * 1.25; // Para extender el rayo a traves del objeto
+		if(Mundo) {
+			Mundo->LineTraceSingleByChannel(ConfirmacionImpacto, InicioRayo, FinRayo, ECollisionChannel::ECC_Visibility);
+			ADispareitorPersonaje* DispareitorPersonaje = Cast<ADispareitorPersonaje>(ConfirmacionImpacto.GetActor());
+			if(DispareitorPersonaje) {
+				if(ResultadoRebobinarLadoServidorEscopeta.TirosALaCabeza.Contains(DispareitorPersonaje)) {
+					ResultadoRebobinarLadoServidorEscopeta.TirosALaCabeza[DispareitorPersonaje]++;
+				} else {
+					ResultadoRebobinarLadoServidorEscopeta.TirosALaCabeza.Emplace(DispareitorPersonaje, 1);
+				}
+			}
+		}
+	}
+
+	// Permitir colisiones para todas las cajas excepto para las de cabeza
+	for(auto& CajasImpactoFrame : ArrayCajasImpactoFrame) {
+		for(auto& CajaColision : CajasImpactoFrame.DispareitorPersonaje->CajasColision) {
+			if(CajaColision.Value != nullptr) {
+				CajaColision.Value->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+				CajaColision.Value->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
+			}
+		}
+		UBoxComponent* CajaCabeza = CajasImpactoFrame.DispareitorPersonaje->CajasColision[FName("head")];
+		CajaCabeza->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+
+	// Comprobar disparos en el cuerpo
+	for(auto& ImpactoRayo : ImpactosRayos) {	
+		FHitResult ConfirmacionImpacto;
+		const FVector FinRayo = InicioRayo + (ImpactoRayo - InicioRayo) * 1.25; // Para extender el rayo a traves del objeto
+		if(Mundo) {
+			Mundo->LineTraceSingleByChannel(ConfirmacionImpacto, InicioRayo, FinRayo, ECollisionChannel::ECC_Visibility);
+			ADispareitorPersonaje* DispareitorPersonaje = Cast<ADispareitorPersonaje>(ConfirmacionImpacto.GetActor());
+			if(DispareitorPersonaje) {
+				if(ResultadoRebobinarLadoServidorEscopeta.TirosAlCuerpo.Contains(DispareitorPersonaje)) {
+					ResultadoRebobinarLadoServidorEscopeta.TirosAlCuerpo[DispareitorPersonaje]++;
+				} else {
+					ResultadoRebobinarLadoServidorEscopeta.TirosAlCuerpo.Emplace(DispareitorPersonaje, 1);
+				}
+			}
+		}
+	}
+
+	for(auto& CajasImpactoFrameActuales : ArrayCajasImpactoFrameActuales) {
+		RestaurarCajasImpactoFrame(CajasImpactoFrameActuales.DispareitorPersonaje, CajasImpactoFrameActuales);
+		ModificarColisionMallaPersonaje(CajasImpactoFrameActuales.DispareitorPersonaje, ECollisionEnabled::QueryAndPhysics);
+	}
+
+	return ResultadoRebobinarLadoServidorEscopeta;
 }
 
 void UCompensacionLagComponente::CachearCajasImpactoFrame(ADispareitorPersonaje* DispareitorPersonajeImpactado, FCajasImpactoFrame& CajasImpactoFrameSalida) {
