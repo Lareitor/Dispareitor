@@ -230,12 +230,12 @@ FResultadoRebobinarLadoServidorEscopeta UCompensacionLagComponente::ConfirmarImp
 		const FVector FinRayo = InicioRayo + (ImpactoRayo - InicioRayo) * 1.25; // Para extender el rayo a traves del objeto
 		if(Mundo) {
 			Mundo->LineTraceSingleByChannel(ConfirmacionImpacto, InicioRayo, FinRayo, ECollisionChannel::ECC_Visibility);
-			ADispareitorPersonaje* DispareitorPersonaje = Cast<ADispareitorPersonaje>(ConfirmacionImpacto.GetActor());
-			if(DispareitorPersonaje) {
-				if(ResultadoRebobinarLadoServidorEscopeta.TirosALaCabeza.Contains(DispareitorPersonaje)) {
-					ResultadoRebobinarLadoServidorEscopeta.TirosALaCabeza[DispareitorPersonaje]++;
+			ADispareitorPersonaje* DispareitorPersonajeImpactado = Cast<ADispareitorPersonaje>(ConfirmacionImpacto.GetActor());
+			if(DispareitorPersonajeImpactado) {
+				if(ResultadoRebobinarLadoServidorEscopeta.TirosALaCabeza.Contains(DispareitorPersonajeImpactado)) {
+					ResultadoRebobinarLadoServidorEscopeta.TirosALaCabeza[DispareitorPersonajeImpactado]++;
 				} else {
-					ResultadoRebobinarLadoServidorEscopeta.TirosALaCabeza.Emplace(DispareitorPersonaje, 1);
+					ResultadoRebobinarLadoServidorEscopeta.TirosALaCabeza.Emplace(DispareitorPersonajeImpactado, 1);
 				}
 			}
 		}
@@ -259,12 +259,12 @@ FResultadoRebobinarLadoServidorEscopeta UCompensacionLagComponente::ConfirmarImp
 		const FVector FinRayo = InicioRayo + (ImpactoRayo - InicioRayo) * 1.25; // Para extender el rayo a traves del objeto
 		if(Mundo) {
 			Mundo->LineTraceSingleByChannel(ConfirmacionImpacto, InicioRayo, FinRayo, ECollisionChannel::ECC_Visibility);
-			ADispareitorPersonaje* DispareitorPersonaje = Cast<ADispareitorPersonaje>(ConfirmacionImpacto.GetActor());
-			if(DispareitorPersonaje) {
-				if(ResultadoRebobinarLadoServidorEscopeta.TirosAlCuerpo.Contains(DispareitorPersonaje)) {
-					ResultadoRebobinarLadoServidorEscopeta.TirosAlCuerpo[DispareitorPersonaje]++;
+			ADispareitorPersonaje* DispareitorPersonajeImpactado = Cast<ADispareitorPersonaje>(ConfirmacionImpacto.GetActor());
+			if(DispareitorPersonajeImpactado) {
+				if(ResultadoRebobinarLadoServidorEscopeta.TirosAlCuerpo.Contains(DispareitorPersonajeImpactado)) {
+					ResultadoRebobinarLadoServidorEscopeta.TirosAlCuerpo[DispareitorPersonajeImpactado]++;
 				} else {
-					ResultadoRebobinarLadoServidorEscopeta.TirosAlCuerpo.Emplace(DispareitorPersonaje, 1);
+					ResultadoRebobinarLadoServidorEscopeta.TirosAlCuerpo.Emplace(DispareitorPersonajeImpactado, 1);
 				}
 			}
 		}
@@ -336,5 +336,25 @@ void UCompensacionLagComponente::PeticionImpacto_EnServidor_Implementation(ADisp
 
 	if(DispareitorPersonaje && DispareitorPersonajeImpactado && ArmaCausanteDanio && ResultadoRebobinarLadoServidor.bImpactoConfirmado) {
 		UGameplayStatics::ApplyDamage(DispareitorPersonajeImpactado, ArmaCausanteDanio->ObtenerDanio(), DispareitorPersonaje->Controller, ArmaCausanteDanio, UDamageType::StaticClass());
+	}
+}
+
+void UCompensacionLagComponente::PeticionImpactoEscopeta_EnServidor_Implementation(const TArray<ADispareitorPersonaje*>& DispareitorPersonajesImpactados, const FVector_NetQuantize& InicioRayo, const TArray<FVector_NetQuantize>& ImpactosRayos, float TiempoImpacto) {
+	FResultadoRebobinarLadoServidorEscopeta ResultadoRebobinarLadoServidorEscopeta = RebobinarLadoServidorEscopeta(DispareitorPersonajesImpactados, InicioRayo, ImpactosRayos, TiempoImpacto);
+
+	for(auto& DispareitorPersonajeImpactado : DispareitorPersonajesImpactados) {
+		if(DispareitorPersonajeImpactado && DispareitorPersonajeImpactado->ObtenerArmaEquipada() && DispareitorPersonaje) {
+			float DanioTotal = 0.f;
+			if(ResultadoRebobinarLadoServidorEscopeta.TirosALaCabeza.Contains(DispareitorPersonajeImpactado)) {
+				float DanioTiroALaCabeza = ResultadoRebobinarLadoServidorEscopeta.TirosALaCabeza[DispareitorPersonajeImpactado] * DispareitorPersonajeImpactado->ObtenerArmaEquipada()->ObtenerDanio();
+				DanioTotal += DanioTiroALaCabeza;
+			}
+			if(ResultadoRebobinarLadoServidorEscopeta.TirosAlCuerpo.Contains(DispareitorPersonajeImpactado)) {
+				float DanioTiroAlCuerpo = ResultadoRebobinarLadoServidorEscopeta.TirosAlCuerpo[DispareitorPersonajeImpactado] * DispareitorPersonajeImpactado->ObtenerArmaEquipada()->ObtenerDanio();
+				DanioTotal += DanioTiroAlCuerpo;
+			}
+			UGameplayStatics::ApplyDamage(DispareitorPersonajeImpactado, DanioTotal, DispareitorPersonaje->Controller, DispareitorPersonajeImpactado->ObtenerArmaEquipada(), UDamageType::StaticClass());
+
+		}
 	}
 }
