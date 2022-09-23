@@ -1,6 +1,8 @@
 #include "Escopeta.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Dispareitor/Personaje/DispareitorPersonaje.h"
+#include "Dispareitor/ControladorJugador/DispareitorControladorJugador.h"
+#include "Dispareitor/DispareitorComponentes/CompensacionLagComponente.h"
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Sound/SoundCue.h"
@@ -39,9 +41,21 @@ void AEscopeta::DispararEscopeta(const TArray<FVector_NetQuantize>& Objetivos) {
             }
         }
 
+        TArray<ADispareitorPersonaje*> DispareitorPersonajesImpactados;
         for(auto ElementoMapa : DispareitorPersonajesImpactadosMapa) {
-            if(ElementoMapa.Key && HasAuthority() && InstigadorControlador) {
-                UGameplayStatics::ApplyDamage(ElementoMapa.Key, Danio * ElementoMapa.Value, InstigadorControlador, this, UDamageType::StaticClass());
+            if(ElementoMapa.Key && InstigadorControlador) {
+                if(HasAuthority() && !bRebobinarLadoServidor) {
+                    UGameplayStatics::ApplyDamage(ElementoMapa.Key, Danio * ElementoMapa.Value, InstigadorControlador, this, UDamageType::StaticClass());
+                }
+                DispareitorPersonajesImpactados.Add(ElementoMapa.Key);
+            }
+        }
+
+        if(!HasAuthority() && bRebobinarLadoServidor) {
+            DispareitorPersonaje = DispareitorPersonaje != nullptr ? DispareitorPersonaje : Cast<ADispareitorPersonaje>(PeonPropietario);    
+            DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(InstigadorControlador);
+            if(DispareitorPersonaje && DispareitorPersonaje->ObtenerCompensacionLagComponente() && DispareitorPersonaje->IsLocallyControlled() && DispareitorControladorJugador) {
+                DispareitorPersonaje->ObtenerCompensacionLagComponente()->PeticionImpactoEscopeta_EnServidor(DispareitorPersonajesImpactados, Inicio, Objetivos, DispareitorControladorJugador->ObtenerTiempoServidor() - DispareitorControladorJugador->STT);
             }
         }
     }

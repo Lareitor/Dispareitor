@@ -33,7 +33,7 @@ void AArmaHitScan::Disparar(const FVector& Objetivo) {
             if (!HasAuthority() && bRebobinarLadoServidor) {
                 DispareitorPersonaje = DispareitorPersonaje != nullptr ? DispareitorPersonaje : Cast<ADispareitorPersonaje>(PeonPropietario);    
                 DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(ControladorDelInstigador);
-                if(DispareitorPersonaje && DispareitorPersonaje->ObtenerCompensacionLagComponente() && DispareitorControladorJugador) {
+                if(DispareitorPersonaje && DispareitorPersonaje->ObtenerCompensacionLagComponente() && DispareitorPersonaje->IsLocallyControlled() && DispareitorControladorJugador) {
                     DispareitorPersonaje->ObtenerCompensacionLagComponente()->PeticionImpacto_EnServidor(DispareitorPersonajeImpactado, Inicio, Objetivo, DispareitorControladorJugador->ObtenerTiempoServidor() - DispareitorControladorJugador->STT, this);
                 }
             }

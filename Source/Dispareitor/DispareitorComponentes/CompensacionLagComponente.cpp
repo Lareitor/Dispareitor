@@ -125,6 +125,7 @@ FCajasImpactoFrame UCompensacionLagComponente::ObtenerCajasImpactoFrameAComproba
 		CajasImpactoFrameAComprobar = InterpolacionEntreFrames(CajasImpactoFrameMasViejo->GetValue(), CajasImpactoFrameMasJoven->GetValue(), TiempoImpacto);	
 	}
 
+	CajasImpactoFrameAComprobar.DispareitorPersonaje = DispareitorPersonajeImpactado;
 	return CajasImpactoFrameAComprobar;
 }
 
