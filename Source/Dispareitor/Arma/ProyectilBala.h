@@ -10,6 +10,10 @@ class DISPAREITOR_API AProyectilBala : public AProyectil {
 public:
 	AProyectilBala();
 
+#if WITH_EDITOR
+	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& Evento) override;
+#endif
+
 protected:
 	virtual void Callback_AlImpactar(UPrimitiveComponent* ComponenteImpactante, AActor* ActorImpactado, UPrimitiveComponent* ComponenteImpactado, FVector ImpulsoNormal, const FHitResult& ImpactoResultado) override;
 	virtual void BeginPlay() override;

@@ -17,6 +17,20 @@ AProyectilCohete::AProyectilCohete() {
     CoheteMovimientoComponente->SetIsReplicated(true);
 }
 
+#if WITH_EDITOR
+void AProyectilCohete::PostEditChangeProperty(struct FPropertyChangedEvent& Evento) {
+    Super::PostEditChangeProperty(Evento);
+
+    FName NombrePropiedad = Evento.Property != nullptr ? Evento.Property->GetFName() : NAME_None;
+    if(NombrePropiedad == GET_MEMBER_NAME_CHECKED(AProyectilCohete, VelocidadInicial) ) {
+        if(CoheteMovimientoComponente) {
+            CoheteMovimientoComponente->InitialSpeed = VelocidadInicial;
+            CoheteMovimientoComponente->MaxSpeed = VelocidadInicial;
+        }    
+    }
+}
+#endif
+
 void AProyectilCohete::BeginPlay() {
     Super::BeginPlay();
 

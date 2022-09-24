@@ -11,6 +11,10 @@ class DISPAREITOR_API AProyectilCohete : public AProyectil {
 public:
 	AProyectilCohete();	
 	virtual void Destroyed() override;
+
+#if WITH_EDITOR
+	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& Evento) override;
+#endif
 	
 protected:
 	virtual void Callback_AlImpactar(UPrimitiveComponent* ComponenteImpactante, AActor* ActorImpactado, UPrimitiveComponent* ComponenteImpactado, FVector ImpulsoNormal, const FHitResult& ImpactoResultado) override;

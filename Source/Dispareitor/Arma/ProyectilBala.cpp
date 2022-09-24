@@ -14,6 +14,20 @@ AProyectilBala::AProyectilBala() {
     ComponenteMovimientoProyectil->MaxSpeed = VelocidadInicial;
 }
 
+#if WITH_EDITOR
+void AProyectilBala::PostEditChangeProperty(struct FPropertyChangedEvent& Evento) {
+    Super::PostEditChangeProperty(Evento);
+
+    FName NombrePropiedad = Evento.Property != nullptr ? Evento.Property->GetFName() : NAME_None;
+    if(NombrePropiedad == GET_MEMBER_NAME_CHECKED(AProyectilBala, VelocidadInicial) ) {
+        if(ComponenteMovimientoProyectil) {
+            ComponenteMovimientoProyectil->InitialSpeed = VelocidadInicial;
+            ComponenteMovimientoProyectil->MaxSpeed = VelocidadInicial;
+        }    
+    }
+}
+#endif
+
 void AProyectilBala::BeginPlay() {
     Super::BeginPlay();
 
