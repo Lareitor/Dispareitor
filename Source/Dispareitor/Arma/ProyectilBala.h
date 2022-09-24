@@ -12,5 +12,5 @@ public:
 
 protected:
 	virtual void Callback_AlImpactar(UPrimitiveComponent* ComponenteImpactante, AActor* ActorImpactado, UPrimitiveComponent* ComponenteImpactado, FVector ImpulsoNormal, const FHitResult& ImpactoResultado) override;
-	
+	virtual void BeginPlay() override;
 };

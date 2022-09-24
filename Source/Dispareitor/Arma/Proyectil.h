@@ -12,6 +12,10 @@ public:
 	AProyectil();
 	virtual void Tick(float DeltaTime) override;
 	virtual void Destroyed() override;
+	bool bRebobinarLadoServidor = false;
+	FVector_NetQuantize InicioRayo;
+	FVector_NetQuantize100 VectorVelocidadInicial; // FVector_NetQuantize100 contiene dos decimales de precision, los necesitamos para que la velocidad sea precisa
+	UPROPERTY(EditAnywhere) float VelocidadInicial = 15000.f;
 
 protected:
 	virtual void BeginPlay() override;
