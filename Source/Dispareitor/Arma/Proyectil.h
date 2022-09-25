@@ -16,6 +16,7 @@ public:
 	FVector_NetQuantize InicioRayo;
 	FVector_NetQuantize100 VectorVelocidadInicial; // FVector_NetQuantize100 contiene dos decimales de precision, los necesitamos para que la velocidad sea precisa
 	UPROPERTY(EditAnywhere) float VelocidadInicial = 15000.f;
+	float Danio = 20.f; // bp_granadamano = 100
 
 protected:
 	virtual void BeginPlay() override;
@@ -24,7 +25,6 @@ protected:
 	void CrearTrazaDeHumo();
 	void AplicarDanioDeExplosion();
 	UFUNCTION()	virtual void Callback_AlImpactar(UPrimitiveComponent* ComponenteImpactante, AActor* ActorImpactado, UPrimitiveComponent* ComponenteImpactado, FVector ImpulsoNormal, const FHitResult& ImpactoResultado);
-	UPROPERTY(EditAnywhere)	float Danio = 20.f; // bp_granadamano = 100
 	UPROPERTY(EditAnywhere)	class UParticleSystem* SistemaParticulasAlImpactar; // BP_Proyectil: P_Impact_Metal_Large_01# BP_ProyectilBala: P_Impact_Metal_Large_01# BP_ProyectilGranada: P_Grenade_Explosion_01# BP_GranadaMano: P_Grenade_Explosion_01# BP_ProyectilCohete: P_RocketLauncher_Explosion_01 
 	UPROPERTY(EditAnywhere)	class USoundCue* SonidoAlImpactar; // BP_Proyectil: Rifle_ImpactSurface_Cue# BP_ProyectilBala:Rifle_ImpactSurface_Cue # BP_ProyectilGranada: GrenadeLauncher_Explosion_Cue # BP_GranadaMano: GrenadeLauncher_Explosion_Cue# BP_ProyectilCohete: RocketLauncher_Explosion_Cue
 	UPROPERTY(EditAnywhere)	class UBoxComponent* CajaColision;
