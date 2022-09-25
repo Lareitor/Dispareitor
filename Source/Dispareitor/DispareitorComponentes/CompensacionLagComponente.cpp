@@ -4,6 +4,7 @@
 #include "Components/BoxComponent.h"
 #include "DrawDebugHelpers.h"
 #include "Kismet/GameplayStatics.h"
+#include "Dispareitor/Dispareitor.h"
 
 
 UCompensacionLagComponente::UCompensacionLagComponente() {
@@ -164,14 +165,22 @@ FResultadoRebobinarLadoServidor UCompensacionLagComponente::ConfirmarImpacto(con
 
 	UBoxComponent* CajaCabeza = DispareitorPersonajeImpactado->CajasColision[FName("head")];
 	CajaCabeza->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	CajaCabeza->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
+	CajaCabeza->SetCollisionResponseToChannel(ECC_CajaColision, ECollisionResponse::ECR_Block);
 
 	FHitResult ConfirmacionImpacto;
 	const FVector FinRayo = InicioRayo + (ImpactoRayo - InicioRayo) * 1.25; // Para extender el rayo a traves del objeto
 	UWorld* Mundo = GetWorld();
 	if(Mundo) {
-		Mundo->LineTraceSingleByChannel(ConfirmacionImpacto, InicioRayo, FinRayo, ECollisionChannel::ECC_Visibility);
+		Mundo->LineTraceSingleByChannel(ConfirmacionImpacto, InicioRayo, FinRayo, ECC_CajaColision);
 		if(ConfirmacionImpacto.bBlockingHit) { // Golpeamos la cabeza, no necesitamos comprobar nada mas
+			if(ConfirmacionImpacto.Component.IsValid()) {
+				UBoxComponent* CajaImpacto = Cast<UBoxComponent>(ConfirmacionImpacto.Component);
+				if(CajaImpacto) {
+					DrawDebugBox(Mundo, CajaImpacto->GetComponentLocation(), CajaImpacto->GetScaledBoxExtent(), FQuat(CajaImpacto->GetComponentRotation()), FColor::Red, false, 8.f);
+				}
+
+			}
+
 			RestaurarCajasImpactoFrame(DispareitorPersonajeImpactado, CajasImpactoFrameActual);
 			ModificarColisionMallaPersonaje(DispareitorPersonajeImpactado, ECollisionEnabled::QueryAndPhysics);
 			return FResultadoRebobinarLadoServidor{true, true};
@@ -179,11 +188,19 @@ FResultadoRebobinarLadoServidor UCompensacionLagComponente::ConfirmarImpacto(con
 			for(auto& CajaColision : DispareitorPersonajeImpactado->CajasColision) {
 				if(CajaColision.Value != nullptr) {
 					CajaColision.Value->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-					CajaColision.Value->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
+					CajaColision.Value->SetCollisionResponseToChannel(ECC_CajaColision, ECollisionResponse::ECR_Block);
 				}
 			}
-			Mundo->LineTraceSingleByChannel(ConfirmacionImpacto, InicioRayo, FinRayo, ECollisionChannel::ECC_Visibility);
+			Mundo->LineTraceSingleByChannel(ConfirmacionImpacto, InicioRayo, FinRayo, ECC_CajaColision);
 			if(ConfirmacionImpacto.bBlockingHit) {
+				if(ConfirmacionImpacto.Component.IsValid()) {
+					UBoxComponent* CajaImpacto = Cast<UBoxComponent>(ConfirmacionImpacto.Component);
+					if(CajaImpacto) {
+						DrawDebugBox(Mundo, CajaImpacto->GetComponentLocation(), CajaImpacto->GetScaledBoxExtent(), FQuat(CajaImpacto->GetComponentRotation()), FColor::Blue, false, 8.f);
+					}
+
+				}
+
 				RestaurarCajasImpactoFrame(DispareitorPersonajeImpactado, CajasImpactoFrameActual);
 				ModificarColisionMallaPersonaje(DispareitorPersonajeImpactado, ECollisionEnabled::QueryAndPhysics);
 				return FResultadoRebobinarLadoServidor{true, false};
@@ -221,7 +238,7 @@ FResultadoRebobinarLadoServidorEscopeta UCompensacionLagComponente::ConfirmarImp
 	for(auto& CajasImpactoFrame : ArrayCajasImpactoFrame) {
 		UBoxComponent* CajaCabeza = CajasImpactoFrame.DispareitorPersonaje->CajasColision[FName("head")];
 		CajaCabeza->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		CajaCabeza->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
+		CajaCabeza->SetCollisionResponseToChannel(ECC_CajaColision, ECollisionResponse::ECR_Block);
 	}
 
 	// Comprobar disparos en la cabeza
@@ -230,7 +247,7 @@ FResultadoRebobinarLadoServidorEscopeta UCompensacionLagComponente::ConfirmarImp
 		FHitResult ConfirmacionImpacto;
 		const FVector FinRayo = InicioRayo + (ImpactoRayo - InicioRayo) * 1.25; // Para extender el rayo a traves del objeto
 		if(Mundo) {
-			Mundo->LineTraceSingleByChannel(ConfirmacionImpacto, InicioRayo, FinRayo, ECollisionChannel::ECC_Visibility);
+			Mundo->LineTraceSingleByChannel(ConfirmacionImpacto, InicioRayo, FinRayo, ECC_CajaColision);
 			ADispareitorPersonaje* DispareitorPersonajeImpactado = Cast<ADispareitorPersonaje>(ConfirmacionImpacto.GetActor());
 			if(DispareitorPersonajeImpactado) {
 				if(ResultadoRebobinarLadoServidorEscopeta.TirosALaCabeza.Contains(DispareitorPersonajeImpactado)) {
@@ -247,7 +264,7 @@ FResultadoRebobinarLadoServidorEscopeta UCompensacionLagComponente::ConfirmarImp
 		for(auto& CajaColision : CajasImpactoFrame.DispareitorPersonaje->CajasColision) {
 			if(CajaColision.Value != nullptr) {
 				CajaColision.Value->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-				CajaColision.Value->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
+				CajaColision.Value->SetCollisionResponseToChannel(ECC_CajaColision, ECollisionResponse::ECR_Block);
 			}
 		}
 		UBoxComponent* CajaCabeza = CajasImpactoFrame.DispareitorPersonaje->CajasColision[FName("head")];
@@ -259,7 +276,7 @@ FResultadoRebobinarLadoServidorEscopeta UCompensacionLagComponente::ConfirmarImp
 		FHitResult ConfirmacionImpacto;
 		const FVector FinRayo = InicioRayo + (ImpactoRayo - InicioRayo) * 1.25; // Para extender el rayo a traves del objeto
 		if(Mundo) {
-			Mundo->LineTraceSingleByChannel(ConfirmacionImpacto, InicioRayo, FinRayo, ECollisionChannel::ECC_Visibility);
+			Mundo->LineTraceSingleByChannel(ConfirmacionImpacto, InicioRayo, FinRayo, ECC_CajaColision);
 			ADispareitorPersonaje* DispareitorPersonajeImpactado = Cast<ADispareitorPersonaje>(ConfirmacionImpacto.GetActor());
 			if(DispareitorPersonajeImpactado) {
 				if(ResultadoRebobinarLadoServidorEscopeta.TirosAlCuerpo.Contains(DispareitorPersonajeImpactado)) {
