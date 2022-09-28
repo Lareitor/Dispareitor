@@ -11,7 +11,7 @@
 void AEscopeta::DispararEscopeta(const TArray<FVector_NetQuantize>& Objetivos) {
     AArma::Disparar(FVector());
     APawn* PeonPropietario = Cast<APawn>(GetOwner());
-    if(PeonPropietario == nullptr) {
+    if(!PeonPropietario) {
         return;
     }
     AController* InstigadorControlador = PeonPropietario->GetController();
@@ -44,7 +44,7 @@ void AEscopeta::DispararEscopeta(const TArray<FVector_NetQuantize>& Objetivos) {
         TArray<ADispareitorPersonaje*> DispareitorPersonajesImpactados;
         for(auto ElementoMapa : DispareitorPersonajesImpactadosMapa) {
             if(ElementoMapa.Key && InstigadorControlador) {
-                if(HasAuthority() && !bRebobinarLadoServidor) {
+                if(HasAuthority() && (!bRebobinarLadoServidor || PeonPropietario->IsLocallyControlled())) {
                     UGameplayStatics::ApplyDamage(ElementoMapa.Key, Danio * ElementoMapa.Value, InstigadorControlador, this, UDamageType::StaticClass());
                 }
                 DispareitorPersonajesImpactados.Add(ElementoMapa.Key);
@@ -54,7 +54,7 @@ void AEscopeta::DispararEscopeta(const TArray<FVector_NetQuantize>& Objetivos) {
         if(!HasAuthority() && bRebobinarLadoServidor) {
             DispareitorPersonaje = DispareitorPersonaje != nullptr ? DispareitorPersonaje : Cast<ADispareitorPersonaje>(PeonPropietario);    
             DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(InstigadorControlador);
-            if(DispareitorPersonaje && DispareitorPersonaje->ObtenerCompensacionLagComponente() && DispareitorPersonaje->IsLocallyControlled() && DispareitorControladorJugador) {
+            if(DispareitorPersonaje && DispareitorPersonaje->ObtenerCompensacionLagComponente() && DispareitorPersonaje->IsLocallyControlled() && DispareitorControladorJugador && DispareitorPersonaje->IsLocallyControlled()) {
                 DispareitorPersonaje->ObtenerCompensacionLagComponente()->PeticionImpactoEscopeta_EnServidor(DispareitorPersonajesImpactados, Inicio, Objetivos, DispareitorControladorJugador->ObtenerTiempoServidor() - DispareitorControladorJugador->STT);
             }
         }

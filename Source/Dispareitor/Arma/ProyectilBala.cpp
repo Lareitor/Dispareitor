@@ -1,6 +1,8 @@
 #include "ProyectilBala.h"
 #include "Kismet/GameplayStatics.h"
-#include "GameFramework/Character.h"
+#include "Dispareitor/Personaje/DispareitorPersonaje.h"
+#include "Dispareitor/ControladorJugador/DispareitorControladorJugador.h"
+#include "Dispareitor/DispareitorComponentes/CompensacionLagComponente.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 
 
@@ -51,14 +53,19 @@ void AProyectilBala::BeginPlay() {
 }
 
 void AProyectilBala::Callback_AlImpactar(UPrimitiveComponent* ComponenteImpactante, AActor* ActorImpactado, UPrimitiveComponent* ComponenteImpactado, FVector ImpulsoNormal, const FHitResult& ImpactoResultado) {
-    ACharacter* PersonajePropietario = Cast<ACharacter>(GetOwner());
+    ADispareitorPersonaje* PersonajePropietario = Cast<ADispareitorPersonaje>(GetOwner());
     if(PersonajePropietario) {
-        AController* ControladorPropietario = PersonajePropietario->Controller;
-        if(ControladorPropietario) {
-             UGameplayStatics::ApplyDamage(ActorImpactado, Danio, ControladorPropietario, this, UDamageType::StaticClass());
-        }
+        ADispareitorControladorJugador* ControladorPropietario = Cast<ADispareitorControladorJugador>(PersonajePropietario->Controller);
+        if(PersonajePropietario->HasAuthority() && !bRebobinarLadoServidor) {
+            UGameplayStatics::ApplyDamage(ActorImpactado, Danio, ControladorPropietario, this, UDamageType::StaticClass());
+        } else {
+            ADispareitorPersonaje* PersonajeImpactado = Cast<ADispareitorPersonaje>(ActorImpactado);
+            if(PersonajePropietario->IsLocallyControlled() && bRebobinarLadoServidor && PersonajePropietario->ObtenerCompensacionLagComponente() && PersonajeImpactado) {
+                PersonajePropietario->ObtenerCompensacionLagComponente()->PeticionImpactoProyectil_EnServidor(PersonajeImpactado, InicioRayo, VectorVelocidadInicial, ControladorPropietario->ObtenerTiempoServidor() -  ControladorPropietario->STT);
+            }
+        }        
     }
-    
+
     // Lo llamamos al final porque el Super invoca a Destroy y por tanto no se ejecutaría el codigo que pongamos a continuación de esta linea
-    Super::Callback_AlImpactar(ComponenteImpactante, ActorImpactado, ComponenteImpactado, ImpulsoNormal, ImpactoResultado);    
+    Super::Callback_AlImpactar(ComponenteImpactante, ActorImpactado, ComponenteImpactado, ImpulsoNormal, ImpactoResultado);
 }

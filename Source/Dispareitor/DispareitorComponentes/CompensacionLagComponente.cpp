@@ -428,13 +428,22 @@ void UCompensacionLagComponente::ModificarColisionMallaPersonaje(ADispareitorPer
 }
 
 
-void UCompensacionLagComponente::PeticionImpacto_EnServidor_Implementation(ADispareitorPersonaje* DispareitorPersonajeImpactado, const FVector_NetQuantize& InicioRayo, const FVector_NetQuantize& ImpactoRayo, float TiempoImpacto, class AArma* ArmaCausanteDanio) {
+void UCompensacionLagComponente::PeticionImpactoHitscan_EnServidor_Implementation(ADispareitorPersonaje* DispareitorPersonajeImpactado, const FVector_NetQuantize& InicioRayo, const FVector_NetQuantize& ImpactoRayo, float TiempoImpacto, class AArma* ArmaCausanteDanio) {
 	FResultadoRebobinarLadoServidor ResultadoRebobinarLadoServidor = RebobinarLadoServidorHitscan(DispareitorPersonajeImpactado, InicioRayo, ImpactoRayo, TiempoImpacto);	
 
 	if(DispareitorPersonaje && DispareitorPersonajeImpactado && ArmaCausanteDanio && ResultadoRebobinarLadoServidor.bImpactoConfirmado) {
 		UGameplayStatics::ApplyDamage(DispareitorPersonajeImpactado, ArmaCausanteDanio->ObtenerDanio(), DispareitorPersonaje->Controller, ArmaCausanteDanio, UDamageType::StaticClass());
 	}
 }
+
+void UCompensacionLagComponente::PeticionImpactoProyectil_EnServidor_Implementation(ADispareitorPersonaje* DispareitorPersonajeImpactado, const FVector_NetQuantize& InicioRayo, const FVector_NetQuantize100& VelocidadInicial, float TiempoImpacto) {
+	FResultadoRebobinarLadoServidor ResultadoRebobinarLadoServidor = RebobinarLadoServidorProyectil(DispareitorPersonajeImpactado, InicioRayo, VelocidadInicial, TiempoImpacto);	
+
+	if(DispareitorPersonaje && DispareitorPersonajeImpactado && ResultadoRebobinarLadoServidor.bImpactoConfirmado) {
+		UGameplayStatics::ApplyDamage(DispareitorPersonajeImpactado, DispareitorPersonaje->ObtenerArmaEquipada()->ObtenerDanio(), DispareitorPersonaje->Controller, DispareitorPersonaje->ObtenerArmaEquipada(), UDamageType::StaticClass());
+	}
+}
+
 
 void UCompensacionLagComponente::PeticionImpactoEscopeta_EnServidor_Implementation(const TArray<ADispareitorPersonaje*>& DispareitorPersonajesImpactados, const FVector_NetQuantize& InicioRayo, const TArray<FVector_NetQuantize>& ImpactosRayos, float TiempoImpacto) {
 	FResultadoRebobinarLadoServidorEscopeta ResultadoRebobinarLadoServidorEscopeta = RebobinarLadoServidorEscopeta(DispareitorPersonajesImpactados, InicioRayo, ImpactosRayos, TiempoImpacto);

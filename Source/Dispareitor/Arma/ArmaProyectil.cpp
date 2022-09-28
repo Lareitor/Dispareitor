@@ -27,9 +27,9 @@ void AArmaProyectil::Disparar(const FVector& Objetivo) {
                     ProyectilGenerado = Mundo->SpawnActor<AProyectil>(ClaseProyectil, TransformSocketPuntaArma.GetLocation(), RotacionAObjetivo, SpawnParametros);         
                     ProyectilGenerado->bRebobinarLadoServidor = false;
                     ProyectilGenerado->Danio = Danio;
-                } else { // ... y no controlado locamente -> generar un proyectil no replicado y no SSR 
+                } else { // ... y no controlado locamente -> generar un proyectil no replicado y SSR 
                     ProyectilGenerado = Mundo->SpawnActor<AProyectil>(ClaseProyectilNoReplicado, TransformSocketPuntaArma.GetLocation(), RotacionAObjetivo, SpawnParametros);         
-                    ProyectilGenerado->bRebobinarLadoServidor = false;
+                    ProyectilGenerado->bRebobinarLadoServidor = true;
                 }   
             } else { // Cliente, usando SSR
                 if(PeonInstigador->IsLocallyControlled()) { // controlado localmente -> generar proyectil no replicado y SSR 
