@@ -64,9 +64,14 @@ void UCompensacionLagComponente::MostrarCajasImpactoFrame(const FCajasImpactoFra
 	}
 }
 
-FResultadoRebobinarLadoServidor UCompensacionLagComponente::RebobinarLadoServidor(class ADispareitorPersonaje* DispareitorPersonajeImpactado, const FVector_NetQuantize& InicioRayo, const FVector_NetQuantize& ImpactoRayo, float TiempoImpacto) {
+FResultadoRebobinarLadoServidor UCompensacionLagComponente::RebobinarLadoServidorHitscan(class ADispareitorPersonaje* DispareitorPersonajeImpactado, const FVector_NetQuantize& InicioRayo, const FVector_NetQuantize& ImpactoRayo, float TiempoImpacto) {
 	FCajasImpactoFrame CajasImpactoFrameAComprobar = ObtenerCajasImpactoFrameAComprobar(DispareitorPersonajeImpactado, TiempoImpacto);
-	return ConfirmarImpacto(CajasImpactoFrameAComprobar, DispareitorPersonajeImpactado, InicioRayo, ImpactoRayo);
+	return ConfirmarImpactoHitscan(CajasImpactoFrameAComprobar, DispareitorPersonajeImpactado, InicioRayo, ImpactoRayo);
+}
+
+FResultadoRebobinarLadoServidor UCompensacionLagComponente::RebobinarLadoServidorProyectil(class ADispareitorPersonaje* DispareitorPersonajeImpactado, const FVector_NetQuantize& InicioRayo, const FVector_NetQuantize100& VelocidadInicial, float TiempoImpacto) {
+	FCajasImpactoFrame CajasImpactoFrameAComprobar = ObtenerCajasImpactoFrameAComprobar(DispareitorPersonajeImpactado, TiempoImpacto);
+	return ConfirmarImpactoProyectil(CajasImpactoFrameAComprobar, DispareitorPersonajeImpactado, InicioRayo, VelocidadInicial, TiempoImpacto);
 }
 
 FResultadoRebobinarLadoServidorEscopeta UCompensacionLagComponente::RebobinarLadoServidorEscopeta(const TArray<ADispareitorPersonaje*>& DispareitorPersonajesImpactados, const FVector_NetQuantize& InicioRayo, const TArray<FVector_NetQuantize>& ImpactosRayos, float TiempoImpacto) {
@@ -153,8 +158,10 @@ FCajasImpactoFrame UCompensacionLagComponente::InterpolacionEntreFrames(const FC
 	return CajasImpactoFrameInterpolado;
 }
 
-FResultadoRebobinarLadoServidor UCompensacionLagComponente::ConfirmarImpacto(const FCajasImpactoFrame& CajasImpactoFrame, ADispareitorPersonaje* DispareitorPersonajeImpactado, const FVector_NetQuantize& InicioRayo, const FVector_NetQuantize& ImpactoRayo) {
-	if(DispareitorPersonajeImpactado == nullptr) {
+FResultadoRebobinarLadoServidor UCompensacionLagComponente::ConfirmarImpactoHitscan(const FCajasImpactoFrame& CajasImpactoFrame, ADispareitorPersonaje* DispareitorPersonajeImpactado, const FVector_NetQuantize& InicioRayo, const FVector_NetQuantize& ImpactoRayo) {
+	UWorld* Mundo = GetWorld();
+	
+	if(!DispareitorPersonajeImpactado || !Mundo) {
 		return FResultadoRebobinarLadoServidor();
 	}
 
@@ -169,42 +176,111 @@ FResultadoRebobinarLadoServidor UCompensacionLagComponente::ConfirmarImpacto(con
 
 	FHitResult ConfirmacionImpacto;
 	const FVector FinRayo = InicioRayo + (ImpactoRayo - InicioRayo) * 1.25; // Para extender el rayo a traves del objeto
-	UWorld* Mundo = GetWorld();
-	if(Mundo) {
+	
+	
+	Mundo->LineTraceSingleByChannel(ConfirmacionImpacto, InicioRayo, FinRayo, ECC_CajaColision);
+	if(ConfirmacionImpacto.bBlockingHit) { // Golpeamos la cabeza, no necesitamos comprobar nada mas
+		if(ConfirmacionImpacto.Component.IsValid()) {
+			UBoxComponent* CajaImpacto = Cast<UBoxComponent>(ConfirmacionImpacto.Component);
+			if(CajaImpacto) {
+				DrawDebugBox(Mundo, CajaImpacto->GetComponentLocation(), CajaImpacto->GetScaledBoxExtent(), FQuat(CajaImpacto->GetComponentRotation()), FColor::Red, false, 8.f);
+			}
+		}
+
+		RestaurarCajasImpactoFrame(DispareitorPersonajeImpactado, CajasImpactoFrameActual);
+		ModificarColisionMallaPersonaje(DispareitorPersonajeImpactado, ECollisionEnabled::QueryAndPhysics);
+		return FResultadoRebobinarLadoServidor{true, true};
+	} else { // Comprobar si impactamos para el resto de cajas 
+		for(auto& CajaColision : DispareitorPersonajeImpactado->CajasColision) {
+			if(CajaColision.Value != nullptr) {
+				CajaColision.Value->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+				CajaColision.Value->SetCollisionResponseToChannel(ECC_CajaColision, ECollisionResponse::ECR_Block);
+			}
+		}
 		Mundo->LineTraceSingleByChannel(ConfirmacionImpacto, InicioRayo, FinRayo, ECC_CajaColision);
-		if(ConfirmacionImpacto.bBlockingHit) { // Golpeamos la cabeza, no necesitamos comprobar nada mas
+		if(ConfirmacionImpacto.bBlockingHit) {
 			if(ConfirmacionImpacto.Component.IsValid()) {
 				UBoxComponent* CajaImpacto = Cast<UBoxComponent>(ConfirmacionImpacto.Component);
 				if(CajaImpacto) {
-					DrawDebugBox(Mundo, CajaImpacto->GetComponentLocation(), CajaImpacto->GetScaledBoxExtent(), FQuat(CajaImpacto->GetComponentRotation()), FColor::Red, false, 8.f);
+					DrawDebugBox(Mundo, CajaImpacto->GetComponentLocation(), CajaImpacto->GetScaledBoxExtent(), FQuat(CajaImpacto->GetComponentRotation()), FColor::Blue, false, 8.f);
 				}
-
 			}
 
 			RestaurarCajasImpactoFrame(DispareitorPersonajeImpactado, CajasImpactoFrameActual);
 			ModificarColisionMallaPersonaje(DispareitorPersonajeImpactado, ECollisionEnabled::QueryAndPhysics);
-			return FResultadoRebobinarLadoServidor{true, true};
-		} else { // Comprobar si impactamos para el resto de cajas 
-			for(auto& CajaColision : DispareitorPersonajeImpactado->CajasColision) {
-				if(CajaColision.Value != nullptr) {
-					CajaColision.Value->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-					CajaColision.Value->SetCollisionResponseToChannel(ECC_CajaColision, ECollisionResponse::ECR_Block);
+			return FResultadoRebobinarLadoServidor{true, false};
+		} 
+	}
+	
+
+	RestaurarCajasImpactoFrame(DispareitorPersonajeImpactado, CajasImpactoFrameActual);
+	ModificarColisionMallaPersonaje(DispareitorPersonajeImpactado, ECollisionEnabled::QueryAndPhysics);
+	return FResultadoRebobinarLadoServidor{false, false};
+}
+
+FResultadoRebobinarLadoServidor UCompensacionLagComponente::ConfirmarImpactoProyectil(const FCajasImpactoFrame& CajasImpactoFrame, ADispareitorPersonaje* DispareitorPersonajeImpactado, const FVector_NetQuantize& InicioRayo, const FVector_NetQuantize100& VelocidadInicial, float TiempoImpacto) {
+	UWorld* Mundo = GetWorld();
+	
+	if(!DispareitorPersonajeImpactado || !Mundo) {
+		return FResultadoRebobinarLadoServidor();
+	}
+
+	FCajasImpactoFrame CajasImpactoFrameActual;
+	CachearCajasImpactoFrame(DispareitorPersonajeImpactado, CajasImpactoFrameActual);
+	MoverCajasImpactoFrame(DispareitorPersonajeImpactado, CajasImpactoFrame);
+	ModificarColisionMallaPersonaje(DispareitorPersonajeImpactado, ECollisionEnabled::NoCollision);
+
+	UBoxComponent* CajaCabeza = DispareitorPersonajeImpactado->CajasColision[FName("head")];
+	CajaCabeza->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	CajaCabeza->SetCollisionResponseToChannel(ECC_CajaColision, ECollisionResponse::ECR_Block);
+
+	FPredictProjectilePathParams ParametrosPredecirTrayectoriaProyectil;
+	ParametrosPredecirTrayectoriaProyectil.bTraceWithChannel = true; // Calcular trayectoria con un canal especifico 
+    ParametrosPredecirTrayectoriaProyectil.bTraceWithCollision = true; // Nos permite generar eventos de colision
+    ParametrosPredecirTrayectoriaProyectil.LaunchVelocity = VelocidadInicial;
+    ParametrosPredecirTrayectoriaProyectil.MaxSimTime = TiempoAlmacenamientoMaximo; // Tiempo máximo que el proyectil será simulado volando
+    ParametrosPredecirTrayectoriaProyectil.ProjectileRadius = 5.f;
+    ParametrosPredecirTrayectoriaProyectil.SimFrequency = 15.f; // Como de real es la simulación, cuanto mayor sea el nº más exacta será
+    ParametrosPredecirTrayectoriaProyectil.StartLocation = InicioRayo;
+    ParametrosPredecirTrayectoriaProyectil.TraceChannel = ECC_CajaColision;
+    ParametrosPredecirTrayectoriaProyectil.ActorsToIgnore.Add(GetOwner());
+	ParametrosPredecirTrayectoriaProyectil.DrawDebugTime = 5.f; // Dibujar la trayectoria durante 5 sg.
+    ParametrosPredecirTrayectoriaProyectil.DrawDebugType = EDrawDebugTrace::ForDuration; // Para la duracion de 5 sg.
+	FPredictProjectilePathResult ResultadoPredecirTrayectoriaProyectil;
+	UGameplayStatics::PredictProjectilePath(this, ParametrosPredecirTrayectoriaProyectil, ResultadoPredecirTrayectoriaProyectil);
+
+	
+	if(ResultadoPredecirTrayectoriaProyectil.HitResult.bBlockingHit) { // Golpeamos la cabeza, no necesitamos comprobar nada mas
+		if(ResultadoPredecirTrayectoriaProyectil.HitResult.Component.IsValid()) {
+			UBoxComponent* CajaImpacto = Cast<UBoxComponent>(ResultadoPredecirTrayectoriaProyectil.HitResult.Component);
+			if(CajaImpacto) {
+				DrawDebugBox(Mundo, CajaImpacto->GetComponentLocation(), CajaImpacto->GetScaledBoxExtent(), FQuat(CajaImpacto->GetComponentRotation()), FColor::Red, false, 8.f);
+			}
+		}
+		
+		RestaurarCajasImpactoFrame(DispareitorPersonajeImpactado, CajasImpactoFrameActual);
+		ModificarColisionMallaPersonaje(DispareitorPersonajeImpactado, ECollisionEnabled::QueryAndPhysics);
+		return FResultadoRebobinarLadoServidor{true, true};
+	} else { // Comprobar si impactamos para el resto de cajas 
+		for(auto& CajaColision : DispareitorPersonajeImpactado->CajasColision) {
+			if(CajaColision.Value != nullptr) {
+				CajaColision.Value->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+				CajaColision.Value->SetCollisionResponseToChannel(ECC_CajaColision, ECollisionResponse::ECR_Block);
+			}
+		}
+
+		UGameplayStatics::PredictProjectilePath(this, ParametrosPredecirTrayectoriaProyectil, ResultadoPredecirTrayectoriaProyectil);
+		if(ResultadoPredecirTrayectoriaProyectil.HitResult.bBlockingHit) {
+			if(ResultadoPredecirTrayectoriaProyectil.HitResult.Component.IsValid()) {
+				UBoxComponent* CajaImpacto = Cast<UBoxComponent>(ResultadoPredecirTrayectoriaProyectil.HitResult.Component);
+				if(CajaImpacto) {
+					DrawDebugBox(Mundo, CajaImpacto->GetComponentLocation(), CajaImpacto->GetScaledBoxExtent(), FQuat(CajaImpacto->GetComponentRotation()), FColor::Blue, false, 8.f);
 				}
 			}
-			Mundo->LineTraceSingleByChannel(ConfirmacionImpacto, InicioRayo, FinRayo, ECC_CajaColision);
-			if(ConfirmacionImpacto.bBlockingHit) {
-				if(ConfirmacionImpacto.Component.IsValid()) {
-					UBoxComponent* CajaImpacto = Cast<UBoxComponent>(ConfirmacionImpacto.Component);
-					if(CajaImpacto) {
-						DrawDebugBox(Mundo, CajaImpacto->GetComponentLocation(), CajaImpacto->GetScaledBoxExtent(), FQuat(CajaImpacto->GetComponentRotation()), FColor::Blue, false, 8.f);
-					}
 
-				}
-
-				RestaurarCajasImpactoFrame(DispareitorPersonajeImpactado, CajasImpactoFrameActual);
-				ModificarColisionMallaPersonaje(DispareitorPersonajeImpactado, ECollisionEnabled::QueryAndPhysics);
-				return FResultadoRebobinarLadoServidor{true, false};
-			} 
+			RestaurarCajasImpactoFrame(DispareitorPersonajeImpactado, CajasImpactoFrameActual);
+			ModificarColisionMallaPersonaje(DispareitorPersonajeImpactado, ECollisionEnabled::QueryAndPhysics);
+			return FResultadoRebobinarLadoServidor{true, false};
 		}
 	}
 
@@ -213,9 +289,15 @@ FResultadoRebobinarLadoServidor UCompensacionLagComponente::ConfirmarImpacto(con
 	return FResultadoRebobinarLadoServidor{false, false};
 }
 
+
 FResultadoRebobinarLadoServidorEscopeta UCompensacionLagComponente::ConfirmarImpactoEscopeta(const TArray<FCajasImpactoFrame>& ArrayCajasImpactoFrame, const FVector_NetQuantize& InicioRayo, const TArray<FVector_NetQuantize>& ImpactosRayos) {
+	UWorld* Mundo = GetWorld();
+	if(!Mundo) {
+		return FResultadoRebobinarLadoServidorEscopeta();
+	}
+	
 	for(auto& CajasImpactoFrame : ArrayCajasImpactoFrame) {
-		if(CajasImpactoFrame.DispareitorPersonaje == nullptr) {
+		if(!CajasImpactoFrame.DispareitorPersonaje) {
 			return FResultadoRebobinarLadoServidorEscopeta();
 		}
 	}
@@ -242,19 +324,17 @@ FResultadoRebobinarLadoServidorEscopeta UCompensacionLagComponente::ConfirmarImp
 	}
 
 	// Comprobar disparos en la cabeza
-	UWorld* Mundo = GetWorld();
 	for(auto& ImpactoRayo : ImpactosRayos) {	
 		FHitResult ConfirmacionImpacto;
 		const FVector FinRayo = InicioRayo + (ImpactoRayo - InicioRayo) * 1.25; // Para extender el rayo a traves del objeto
-		if(Mundo) {
-			Mundo->LineTraceSingleByChannel(ConfirmacionImpacto, InicioRayo, FinRayo, ECC_CajaColision);
-			ADispareitorPersonaje* DispareitorPersonajeImpactado = Cast<ADispareitorPersonaje>(ConfirmacionImpacto.GetActor());
-			if(DispareitorPersonajeImpactado) {
-				if(ResultadoRebobinarLadoServidorEscopeta.TirosALaCabeza.Contains(DispareitorPersonajeImpactado)) {
-					ResultadoRebobinarLadoServidorEscopeta.TirosALaCabeza[DispareitorPersonajeImpactado]++;
-				} else {
-					ResultadoRebobinarLadoServidorEscopeta.TirosALaCabeza.Emplace(DispareitorPersonajeImpactado, 1);
-				}
+		
+		Mundo->LineTraceSingleByChannel(ConfirmacionImpacto, InicioRayo, FinRayo, ECC_CajaColision);
+		ADispareitorPersonaje* DispareitorPersonajeImpactado = Cast<ADispareitorPersonaje>(ConfirmacionImpacto.GetActor());
+		if(DispareitorPersonajeImpactado) {
+			if(ResultadoRebobinarLadoServidorEscopeta.TirosALaCabeza.Contains(DispareitorPersonajeImpactado)) {
+				ResultadoRebobinarLadoServidorEscopeta.TirosALaCabeza[DispareitorPersonajeImpactado]++;
+			} else {
+				ResultadoRebobinarLadoServidorEscopeta.TirosALaCabeza.Emplace(DispareitorPersonajeImpactado, 1);
 			}
 		}
 	}
@@ -275,15 +355,14 @@ FResultadoRebobinarLadoServidorEscopeta UCompensacionLagComponente::ConfirmarImp
 	for(auto& ImpactoRayo : ImpactosRayos) {	
 		FHitResult ConfirmacionImpacto;
 		const FVector FinRayo = InicioRayo + (ImpactoRayo - InicioRayo) * 1.25; // Para extender el rayo a traves del objeto
-		if(Mundo) {
-			Mundo->LineTraceSingleByChannel(ConfirmacionImpacto, InicioRayo, FinRayo, ECC_CajaColision);
-			ADispareitorPersonaje* DispareitorPersonajeImpactado = Cast<ADispareitorPersonaje>(ConfirmacionImpacto.GetActor());
-			if(DispareitorPersonajeImpactado) {
-				if(ResultadoRebobinarLadoServidorEscopeta.TirosAlCuerpo.Contains(DispareitorPersonajeImpactado)) {
-					ResultadoRebobinarLadoServidorEscopeta.TirosAlCuerpo[DispareitorPersonajeImpactado]++;
-				} else {
-					ResultadoRebobinarLadoServidorEscopeta.TirosAlCuerpo.Emplace(DispareitorPersonajeImpactado, 1);
-				}
+		
+		Mundo->LineTraceSingleByChannel(ConfirmacionImpacto, InicioRayo, FinRayo, ECC_CajaColision);
+		ADispareitorPersonaje* DispareitorPersonajeImpactado = Cast<ADispareitorPersonaje>(ConfirmacionImpacto.GetActor());
+		if(DispareitorPersonajeImpactado) {
+			if(ResultadoRebobinarLadoServidorEscopeta.TirosAlCuerpo.Contains(DispareitorPersonajeImpactado)) {
+				ResultadoRebobinarLadoServidorEscopeta.TirosAlCuerpo[DispareitorPersonajeImpactado]++;
+			} else {
+				ResultadoRebobinarLadoServidorEscopeta.TirosAlCuerpo.Emplace(DispareitorPersonajeImpactado, 1);
 			}
 		}
 	}
@@ -350,7 +429,7 @@ void UCompensacionLagComponente::ModificarColisionMallaPersonaje(ADispareitorPer
 
 
 void UCompensacionLagComponente::PeticionImpacto_EnServidor_Implementation(ADispareitorPersonaje* DispareitorPersonajeImpactado, const FVector_NetQuantize& InicioRayo, const FVector_NetQuantize& ImpactoRayo, float TiempoImpacto, class AArma* ArmaCausanteDanio) {
-	FResultadoRebobinarLadoServidor ResultadoRebobinarLadoServidor = RebobinarLadoServidor(DispareitorPersonajeImpactado, InicioRayo, ImpactoRayo, TiempoImpacto);	
+	FResultadoRebobinarLadoServidor ResultadoRebobinarLadoServidor = RebobinarLadoServidorHitscan(DispareitorPersonajeImpactado, InicioRayo, ImpactoRayo, TiempoImpacto);	
 
 	if(DispareitorPersonaje && DispareitorPersonajeImpactado && ArmaCausanteDanio && ResultadoRebobinarLadoServidor.bImpactoConfirmado) {
 		UGameplayStatics::ApplyDamage(DispareitorPersonajeImpactado, ArmaCausanteDanio->ObtenerDanio(), DispareitorPersonaje->Controller, ArmaCausanteDanio, UDamageType::StaticClass());

@@ -31,6 +31,7 @@ void AProyectilBala::PostEditChangeProperty(struct FPropertyChangedEvent& Evento
 void AProyectilBala::BeginPlay() {
     Super::BeginPlay();
 
+    /*
     FPredictProjectilePathParams ParametrosPredecirTrayectoriaProyectil;
     ParametrosPredecirTrayectoriaProyectil.bTraceWithChannel = true; // Calcular trayectoria con un canal especifico 
     ParametrosPredecirTrayectoriaProyectil.bTraceWithCollision = true; // Nos permite generar eventos de colision
@@ -46,6 +47,7 @@ void AProyectilBala::BeginPlay() {
 
     FPredictProjectilePathResult ResultadoPredecirTrayectoriaProyectil;
     UGameplayStatics::PredictProjectilePath(this, ParametrosPredecirTrayectoriaProyectil, ResultadoPredecirTrayectoriaProyectil);
+    */
 }
 
 void AProyectilBala::Callback_AlImpactar(UPrimitiveComponent* ComponenteImpactante, AActor* ActorImpactado, UPrimitiveComponent* ComponenteImpactado, FVector ImpulsoNormal, const FHitResult& ImpactoResultado) {

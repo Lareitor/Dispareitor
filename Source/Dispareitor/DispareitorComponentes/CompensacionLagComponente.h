@@ -47,7 +47,8 @@ public:
 	friend class ADispareitorPersonaje;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	void MostrarCajasImpactoFrame(const FCajasImpactoFrame& CajasImpactoFrame, const FColor Color);
-	FResultadoRebobinarLadoServidor RebobinarLadoServidor(class ADispareitorPersonaje* DispareitorPersonajeImpactado, const FVector_NetQuantize& InicioRayo, const FVector_NetQuantize& ImpactoRayo, float TiempoImpacto);
+	FResultadoRebobinarLadoServidor RebobinarLadoServidorHitscan(class ADispareitorPersonaje* DispareitorPersonajeImpactado, const FVector_NetQuantize& InicioRayo, const FVector_NetQuantize& ImpactoRayo, float TiempoImpacto);
+	FResultadoRebobinarLadoServidor RebobinarLadoServidorProyectil(class ADispareitorPersonaje* DispareitorPersonajeImpactado, const FVector_NetQuantize& InicioRayo, const FVector_NetQuantize100& VelocidadInicial, float TiempoImpacto);
 	FResultadoRebobinarLadoServidorEscopeta RebobinarLadoServidorEscopeta(const TArray<ADispareitorPersonaje*>& DispareitorPersonajesImpactados, const FVector_NetQuantize& InicioRayo, const TArray<FVector_NetQuantize>& ImpactosRayos, float TiempoImpacto);
 	UFUNCTION(Server, Reliable) void PeticionImpacto_EnServidor(ADispareitorPersonaje* DispareitorPersonajeImpactado, const FVector_NetQuantize& InicioRayo, const FVector_NetQuantize& ImpactoRayo, float TiempoImpacto, class AArma* ArmaCausanteDanio);
 	UFUNCTION(Server, Reliable) void PeticionImpactoEscopeta_EnServidor(const TArray<ADispareitorPersonaje*>& DispareitorPersonajesImpactados, const FVector_NetQuantize& InicioRayo, const TArray<FVector_NetQuantize>& ImpactosRayos, float TiempoImpacto);
@@ -57,13 +58,14 @@ protected:
 	virtual void BeginPlay() override;
 	void GuardarCajasImpactoFrame(FCajasImpactoFrame& CajasImpactoFrame);
 	FCajasImpactoFrame InterpolacionEntreFrames(const FCajasImpactoFrame& CajasImpactoFrameMasJoven, const FCajasImpactoFrame& CajasImpactoFrameMasViejo, float TiempoImpacto);
-	FResultadoRebobinarLadoServidor ConfirmarImpacto(const FCajasImpactoFrame& CajasImpactoFrame, ADispareitorPersonaje* DispareitorPersonajeImpactado, const FVector_NetQuantize& InicioRayo, const FVector_NetQuantize& ImpactoRayo);
 	void CachearCajasImpactoFrame(ADispareitorPersonaje* DispareitorPersonajeImpactado, FCajasImpactoFrame& CajasImpactoFrameSalida);
 	void MoverCajasImpactoFrame(ADispareitorPersonaje* DispareitorPersonajeImpactado,const FCajasImpactoFrame& CajasImpactoFrame);
 	void RestaurarCajasImpactoFrame(ADispareitorPersonaje* DispareitorPersonajeImpactado,const FCajasImpactoFrame& CajasImpactoFrame);
 	void ModificarColisionMallaPersonaje(ADispareitorPersonaje* DispareitorPersonajeImpactado, ECollisionEnabled::Type TipoColisionPermitida);
 	void GuardarCajasImpactoFrame();
 	FCajasImpactoFrame ObtenerCajasImpactoFrameAComprobar(ADispareitorPersonaje* DispareitorPersonajeImpactado, float TiempoImpacto);
+	FResultadoRebobinarLadoServidor ConfirmarImpactoHitscan(const FCajasImpactoFrame& CajasImpactoFrame, ADispareitorPersonaje* DispareitorPersonajeImpactado, const FVector_NetQuantize& InicioRayo, const FVector_NetQuantize& ImpactoRayo);
+	FResultadoRebobinarLadoServidor ConfirmarImpactoProyectil(const FCajasImpactoFrame& CajasImpactoFrame, ADispareitorPersonaje* DispareitorPersonajeImpactado, const FVector_NetQuantize& InicioRayo, const FVector_NetQuantize100& VelocidadInicial, float TiempoImpacto);
 	FResultadoRebobinarLadoServidorEscopeta ConfirmarImpactoEscopeta(const TArray<FCajasImpactoFrame>& ArrayCajasImpactoFrame, const FVector_NetQuantize& InicioRayo, const TArray<FVector_NetQuantize>& ImpactosRayos);
 
 private:
