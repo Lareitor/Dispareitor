@@ -12,7 +12,6 @@
 #include "Dispareitor/DispareitorComponentes/CombateComponente.h"
 #include "Dispareitor/EstadoJuego/DispareitorEstadoJuego.h"
 #include "Dispareitor/EstadoJugador/DispareitorEstadoJugador.h"
-#include "Dispareitor/Arma/Arma.h"
 #include "Components/Image.h"
 
 // APlayerController solo existe en el servidor y en el cliente propietario. Permite el acceso al HUD: vida, muertos, muertes, municion...
@@ -375,9 +374,13 @@ void ADispareitorControladorJugador::ComprobarPingAlto(float DeltaTime) {
     if(TiempoParaSiguienteComprobacionPingAlto > FrecuenciaChequeoPingAlto) {
         // PlayerState = PlayerState != nullptr ? PlayerState : GetPlayerState<APlayerState>(); ESTA LINEA FALLA EN LINUX AL COMPILAR AUNQUE DA LA IMPRESION DE QUE NO ES NECESARIA
         if(PlayerState) {
+            UE_LOG(LogTemp, Warning, TEXT("PlayerState->GetCompressedPing() * 4: %d"), PlayerState->GetCompressedPing() * 4);
             if(PlayerState->GetCompressedPing() * 4 > UmbralPingAlto) { // ping se guarda comprimido y dividido por 4
                 IniciarAnimacionPingAlto();
                 TiempoEjecutandoseAnimacionPingAlto = 0.f;
+                ReportarEstadoPing_EnServidor(true);
+            } else {
+                ReportarEstadoPing_EnServidor(false);
             }
         }
         TiempoParaSiguienteComprobacionPingAlto = 0.f;
@@ -388,6 +391,10 @@ void ADispareitorControladorJugador::ComprobarPingAlto(float DeltaTime) {
             PararAnimacionPingAlto();
        }
     }
+}
+
+void ADispareitorControladorJugador::ReportarEstadoPing_EnServidor_Implementation(bool bPingAlto) {
+    DelegadoPingAlto.Broadcast(bPingAlto);
 }
 
 void ADispareitorControladorJugador::IniciarAnimacionPingAlto() {

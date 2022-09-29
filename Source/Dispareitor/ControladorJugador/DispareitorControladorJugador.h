@@ -4,6 +4,8 @@
 #include "GameFramework/PlayerController.h"
 #include "DispareitorControladorJugador.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDelegadoPingAlto, bool, bPingAlto);
+
 UCLASS()
 class DISPAREITOR_API ADispareitorControladorJugador : public APlayerController {
 	GENERATED_BODY()
@@ -28,6 +30,7 @@ public:
 	void ManejarEstadoPartida();
 	void ManejarEnfriamiento();
 	float STT = 0.f; // Single Trip Time es la mitad aprox. de RTT
+	FDelegadoPingAlto DelegadoPingAlto;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -82,4 +85,5 @@ private:
 	UPROPERTY(EditAnywhere) float DuracionAnimacionPingAlto = 5.f;
 	UPROPERTY(EditAnywhere) float FrecuenciaChequeoPingAlto = 20.f;
 	UPROPERTY(EditAnywhere) float UmbralPingAlto = 50.f;
+	UFUNCTION(Server, Reliable) void ReportarEstadoPing_EnServidor(bool bPingAlto);
 };

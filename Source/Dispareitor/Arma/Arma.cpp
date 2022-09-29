@@ -56,6 +56,7 @@ void AArma::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimePro
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AArma, Estado);
+	DOREPLIFETIME_CONDITION(AArma, bRebobinarLadoServidor, COND_OwnerOnly);
 }
 
 
@@ -72,6 +73,11 @@ void AArma::Callback_EsferaSolapadaFin(UPrimitiveComponent* ComponenteSolapado, 
 		DispareitorPersonajeSaleEsfera->ActivarArmaSolapada(nullptr);
 	}
 }
+
+void AArma::Callback_PingAlto(bool bPingAlto) {
+	bRebobinarLadoServidor = !bPingAlto;
+}
+
 
 // Llamado por Soltar, UCombateComponente::EquiparArma, UCombateComponente::AlReplicar_ArmaEquipada
 void AArma::ActualizarEstado(EEstado EstadoAActualizar) {
@@ -123,6 +129,22 @@ void AArma::ManejarActualizacionEstadoAlEquiparSecundaria() {
 		Malla->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	}
 	PermitirProfundidadPersonalizadaAlRenderizar(false);
+
+	DispareitorPersonaje = DispareitorPersonaje != nullptr ? DispareitorPersonaje : Cast<ADispareitorPersonaje>(GetOwner());
+	if(DispareitorPersonaje && bRebobinarLadoServidor) {
+		DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller);
+		if(DispareitorControladorJugador && HasAuthority() && !DispareitorControladorJugador->DelegadoPingAlto.IsBound())  {
+			DispareitorControladorJugador->DelegadoPingAlto.AddDynamic(this, &AArma::Callback_PingAlto);
+		}
+	}
+
+	DispareitorPersonaje = DispareitorPersonaje != nullptr ? DispareitorPersonaje : Cast<ADispareitorPersonaje>(GetOwner());
+	if(DispareitorPersonaje && bRebobinarLadoServidor) {
+		DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller);
+		if(DispareitorControladorJugador && HasAuthority() && DispareitorControladorJugador->DelegadoPingAlto.IsBound()) {
+			DispareitorControladorJugador->DelegadoPingAlto.RemoveDynamic(this, &AArma::Callback_PingAlto);
+		}
+	}
 }
 
 void AArma::ManejarActualizacionEstadoAlSoltar() {
@@ -139,6 +161,14 @@ void AArma::ManejarActualizacionEstadoAlSoltar() {
 	Malla->SetCustomDepthStencilValue(PROFUNDIDAD_PERSONALIZADA_AL_RENDERIZAR_AZUL);
 	Malla->MarkRenderStateDirty();
 	PermitirProfundidadPersonalizadaAlRenderizar(true);	
+
+	DispareitorPersonaje = DispareitorPersonaje != nullptr ? DispareitorPersonaje : Cast<ADispareitorPersonaje>(GetOwner());
+	if(DispareitorPersonaje && bRebobinarLadoServidor) {
+		DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller);
+		if(DispareitorControladorJugador && HasAuthority() && DispareitorControladorJugador->DelegadoPingAlto.IsBound()) {
+			DispareitorControladorJugador->DelegadoPingAlto.RemoveDynamic(this, &AArma::Callback_PingAlto);
+		}
+	}
 }
 
 void AArma::MostrarLeyendaSobreArma(bool bMostrarLeyendaSobreArma) {

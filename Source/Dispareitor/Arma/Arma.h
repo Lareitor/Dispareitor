@@ -67,7 +67,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Dispersion") float DistanciaAEsferaDeDispersion = 800.f;
 	UPROPERTY(EditAnywhere, Category = "Dispersion") float RadioDeEsferaDeDispersion = 75.f;
 	UPROPERTY(EditAnywhere)	float Danio = 20.f;	
-	UPROPERTY(EditAnywhere)	bool bRebobinarLadoServidor = false;
+	UPROPERTY(Replicated, EditAnywhere)	bool bRebobinarLadoServidor = false;
+	UFUNCTION() void Callback_PingAlto(bool bPingAlto);
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = Propiedades) USkeletalMeshComponent* Malla;
