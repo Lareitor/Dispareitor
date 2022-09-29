@@ -1,10 +1,6 @@
-.git
-.vs
-.vscode
-Content
-DerivedDataCache
 Intermediate
-Saved
-Script
-Plugins/MultijugadorSesiones/Content
+Content
+.vscode
+.git
 Plugins/MultijugadorSesiones/Intermediate
+Plugins/MultijugadorSesiones/Content

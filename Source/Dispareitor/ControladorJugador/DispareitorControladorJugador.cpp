@@ -373,7 +373,7 @@ void ADispareitorControladorJugador::ManejarEstadoPartida() {
 void ADispareitorControladorJugador::ComprobarPingAlto(float DeltaTime) {
     TiempoParaSiguienteComprobacionPingAlto += DeltaTime;
     if(TiempoParaSiguienteComprobacionPingAlto > FrecuenciaChequeoPingAlto) {
-        PlayerState = PlayerState != nullptr ? PlayerState : GetPlayerState<APlayerState>();
+        // PlayerState = PlayerState != nullptr ? PlayerState : GetPlayerState<APlayerState>(); ESTA LINEA FALLA EN LINUX AL COMPILAR AUNQUE DA LA IMPRESION DE QUE NO ES NECESARIA
         if(PlayerState) {
             if(PlayerState->GetCompressedPing() * 4 > UmbralPingAlto) { // ping se guarda comprimido y dividido por 4
                 IniciarAnimacionPingAlto();
