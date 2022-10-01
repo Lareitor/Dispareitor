@@ -401,7 +401,14 @@ void ADispareitorPersonaje::EquiparPulsado() {
 	}
 
 	if(CombateComponente) {
-		Equipar_EnServidor();		
+		if(CombateComponente->EstadoCombate == EEstadosCombate::EEC_Desocupado) {
+			Equipar_EnServidor();	
+		}
+		if(CombateComponente->PuedoIntercambiarArmas() && !HasAuthority() && CombateComponente->EstadoCombate == EEstadosCombate::EEC_Desocupado && !ArmaSolapada) {
+			EjecutarMontajeIntercambiarArmas();
+			CombateComponente->EstadoCombate = EEstadosCombate::EEC_IntercambiandoArmas;
+			bIntercambiarArmasFinalizado = false;
+		}	
 	}
 }
 
@@ -622,6 +629,13 @@ void ADispareitorPersonaje::EjecutarMontajeArrojarGranada() {
 	if(InstanciaAnimacion && MontajeArrojarGranada) {
 		InstanciaAnimacion->Montage_Play(MontajeArrojarGranada);
 	}
+}
+
+void ADispareitorPersonaje::EjecutarMontajeIntercambiarArmas() {
+	UAnimInstance* InstanciaAnimacion = GetMesh()->GetAnimInstance();
+	if(InstanciaAnimacion && MontajeIntercambiarArmas) {
+		InstanciaAnimacion->Montage_Play(MontajeIntercambiarArmas);
+	}	
 }
 
 FVector ADispareitorPersonaje::ObtenerObjetoAlcanzado() const {
@@ -856,5 +870,5 @@ void ADispareitorPersonaje::ReaparecerArmaPorDefecto() {
 }
 
 bool ADispareitorPersonaje::EstaRecargandoLocalmente() {
-	return CombateComponente != nullptr ? CombateComponente->bRecargandoLocalmente : false;
+	return CombateComponente ? CombateComponente->bRecargandoLocalmente : false;
 }

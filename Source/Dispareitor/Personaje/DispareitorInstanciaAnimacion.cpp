@@ -95,7 +95,8 @@ void UDispareitorInstanciaAnimacion::NativeUpdateAnimation(float DeltaTime) {
     }
 
     bUsarFABRIK = DispareitorPersonaje->ObtenerEstadoCombate() == EEstadosCombate::EEC_Desocupado;
-    if(DispareitorPersonaje->IsLocallyControlled() && DispareitorPersonaje->ObtenerEstadoCombate() != EEstadosCombate::EEC_LanzandoGranada) {
+    bool bUsarFABRIKSobreescribir = DispareitorPersonaje->IsLocallyControlled() && DispareitorPersonaje->ObtenerEstadoCombate() != EEstadosCombate::EEC_LanzandoGranada && DispareitorPersonaje->bIntercambiarArmasFinalizado;     
+    if(bUsarFABRIKSobreescribir) {
         bUsarFABRIK = !DispareitorPersonaje->EstaRecargandoLocalmente();
     }
     bTransformarManoDerecha = DispareitorPersonaje->ObtenerEstadoCombate() == EEstadosCombate::EEC_Desocupado && !DispareitorPersonaje->DeboSoloGirarCamara();

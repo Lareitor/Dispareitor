@@ -97,13 +97,13 @@ void UCombateComponente::CalcularRayoDesdeCruceta(FHitResult& RayoResultado) {
 
 // Llamado por Tick
 void UCombateComponente::ActualizarCrucetaHUD(float DeltaTime) {
-	if(DispareitorPersonaje == nullptr || DispareitorPersonaje->Controller == nullptr) {
+	if(!DispareitorPersonaje || !DispareitorPersonaje->Controller) {
 		return;
 	}
 
-	DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador :  Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller); 
+	DispareitorControladorJugador = DispareitorControladorJugador ? DispareitorControladorJugador :  Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller); 
 	if(DispareitorControladorJugador) {
-		DispareitorHUD = DispareitorHUD != nullptr ? DispareitorHUD : Cast<ADispareitorHUD>(DispareitorControladorJugador->GetHUD());
+		DispareitorHUD = DispareitorHUD ? DispareitorHUD : Cast<ADispareitorHUD>(DispareitorControladorJugador->GetHUD());
 		if(DispareitorHUD) {
 			if(ArmaEquipada) {
 				HUDCruceta.CrucetaCentro = ArmaEquipada->CrucetaCentro;
@@ -141,7 +141,7 @@ void UCombateComponente::ActualizarCrucetaHUD(float DeltaTime) {
 
 // Llamado por Tick
 void UCombateComponente::InterpolarFOV(float DeltaTime) {
-	if(ArmaEquipada == nullptr) {
+	if(!ArmaEquipada) {
 		return;
 	}
 
@@ -167,11 +167,11 @@ void UCombateComponente::InicializarMunicionPersonaje() {
 // Llamado por ADispareitorPersonaje::Equipar 
 // Solo ejecutado en el servidor
 void UCombateComponente::EquiparArma(class AArma* ArmaAEquipar) {
-	if(DispareitorPersonaje == nullptr || ArmaAEquipar == nullptr || EstadoCombate != EEstadosCombate::EEC_Desocupado) {
+	if(!DispareitorPersonaje || !ArmaAEquipar || EstadoCombate != EEstadosCombate::EEC_Desocupado) {
 		return;
 	}
 
-	if(ArmaEquipada != nullptr && ArmaSecundariaEquipada == nullptr) {
+	if(ArmaEquipada && !ArmaSecundariaEquipada) {
 		EquiparArmaSecundaria(ArmaAEquipar);
 	} else {
 		EquiparArmaPrimaria(ArmaAEquipar);
@@ -183,7 +183,7 @@ void UCombateComponente::EquiparArma(class AArma* ArmaAEquipar) {
 }
 
 void UCombateComponente::EquiparArmaPrimaria(AArma* ArmaAEquipar) {
-	if(ArmaAEquipar == nullptr) {
+	if(!ArmaAEquipar) {
 		return; 
 	}
 
@@ -211,7 +211,7 @@ void UCombateComponente::AlReplicar_ArmaEquipada() {
 }
 
 void UCombateComponente::EquiparArmaSecundaria(AArma* ArmaAEquipar) {
-	if(ArmaAEquipar == nullptr) {
+	if(!ArmaAEquipar) {
 		return; 
 	}
 
@@ -231,19 +231,17 @@ void UCombateComponente::AlReplicar_ArmaSecundariaEquipada() {
 }
 
 void UCombateComponente::IntercambiarArmas() {
+	if(!DispareitorPersonaje) {
+		return;	
+	}  
+
+	DispareitorPersonaje->EjecutarMontajeIntercambiarArmas();
+	DispareitorPersonaje->bIntercambiarArmasFinalizado = false;
+	EstadoCombate = EEstadosCombate::EEC_IntercambiandoArmas;
+
 	AArma* ArmaTemporal = ArmaEquipada;
 	ArmaEquipada = ArmaSecundariaEquipada;
 	ArmaSecundariaEquipada = ArmaTemporal;
-
-	ArmaEquipada->ActualizarEstado(EEstado::EEA_Equipada); 
-	UnirActorAManoDerecha(ArmaEquipada);
-	ArmaEquipada->ActualizarMunicionHUD();
-	ActualizarMunicionPersonaje();
-	EjecutarSonidoAlEquipar(ArmaEquipada);
-	RecargarArmaVacia();
-
-	ArmaSecundariaEquipada->ActualizarEstado(EEstado::EEA_EquipadaSecundaria); 
-	UnirActorAMochila(ArmaSecundariaEquipada);
 }
 
 void UCombateComponente::SoltarArmaEquipada() {
@@ -253,7 +251,7 @@ void UCombateComponente::SoltarArmaEquipada() {
 }
 
 void UCombateComponente::UnirActorAManoDerecha(AActor* Actor) {
-	if(DispareitorPersonaje == nullptr || DispareitorPersonaje->GetMesh() == nullptr || Actor == nullptr) {
+	if(!DispareitorPersonaje || !DispareitorPersonaje->GetMesh() || !Actor) {
 		return;	
 	}  
 
@@ -264,7 +262,7 @@ void UCombateComponente::UnirActorAManoDerecha(AActor* Actor) {
 }
 
 void UCombateComponente::UnirActorAManoIzquierda(AActor* Actor) {
-	if(DispareitorPersonaje == nullptr || DispareitorPersonaje->GetMesh() == nullptr || Actor == nullptr) {
+	if(!DispareitorPersonaje || !DispareitorPersonaje->GetMesh() || !Actor) {
 		return;	
 	}  
 
@@ -275,7 +273,7 @@ void UCombateComponente::UnirActorAManoIzquierda(AActor* Actor) {
 }
 
 void UCombateComponente::UnirActorAMochila(AActor* Actor) {
-	if(DispareitorPersonaje == nullptr || DispareitorPersonaje->GetMesh() == nullptr || Actor == nullptr) {
+	if(!DispareitorPersonaje || !DispareitorPersonaje->GetMesh() || !Actor) {
 		return;	
 	}  
 
@@ -292,7 +290,7 @@ void UCombateComponente::RecargarArmaVacia() {
 }
 
 void UCombateComponente::ActualizarMunicionPersonaje() {
-	if(ArmaEquipada == nullptr) {
+	if(!ArmaEquipada) {
 		return;
 	}
 
@@ -300,7 +298,7 @@ void UCombateComponente::ActualizarMunicionPersonaje() {
 		MunicionPersonaje = MapaMunicionPersonaje[ArmaEquipada->ObtenerTipoArma()];
 	}
 
-	DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller);
+	DispareitorControladorJugador = DispareitorControladorJugador ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller);
 	if(DispareitorControladorJugador) {
 		DispareitorControladorJugador->ActualizarMunicionPersonajeHUD(MunicionPersonaje);
 	}
@@ -324,7 +322,7 @@ void UCombateComponente::Recargar() {
 }
 
 void UCombateComponente::Recargar_EnServidor_Implementation() {
-	if(DispareitorPersonaje == nullptr || ArmaEquipada == nullptr) {
+	if(!DispareitorPersonaje || !ArmaEquipada) {
 		return;
 	}
 	EstadoCombate = EEstadosCombate::EEC_Recargando;
@@ -342,7 +340,7 @@ void UCombateComponente::EjecutarMontajeRecargar() {
 
 // Llamado por BP_DispareitorInstanciaAnimacion al ejecutar una notificacion en Montaje_Recargar
 void UCombateComponente::RecargarFinalizado() {
-	if(DispareitorPersonaje == nullptr) {
+	if(!DispareitorPersonaje) {
 		return;
 	}
 
@@ -366,7 +364,7 @@ void UCombateComponente::RecargarCartuchoEscopeta() {
 }
 
 void UCombateComponente::ActualizarValoresMunicion() {
-	if(DispareitorPersonaje == nullptr || ArmaEquipada == nullptr || !MapaMunicionPersonaje.Contains(ArmaEquipada->ObtenerTipoArma())) {
+	if(!DispareitorPersonaje || !ArmaEquipada || !MapaMunicionPersonaje.Contains(ArmaEquipada->ObtenerTipoArma())) {
 		return;
 	}
 
@@ -375,20 +373,20 @@ void UCombateComponente::ActualizarValoresMunicion() {
 	MunicionPersonaje = MapaMunicionPersonaje[ArmaEquipada->ObtenerTipoArma()];
 	ArmaEquipada->AniadirMunicion(RecargarCantidadValor);
 
-	DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller);
+	DispareitorControladorJugador = DispareitorControladorJugador ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller);
 	if(DispareitorControladorJugador) {
 		DispareitorControladorJugador->ActualizarMunicionPersonajeHUD(MunicionPersonaje);
 	}
 }
 
 void UCombateComponente::ActualizarValoresMunicionEscopeta() {
-	if(DispareitorPersonaje == nullptr || ArmaEquipada == nullptr || !MapaMunicionPersonaje.Contains(ArmaEquipada->ObtenerTipoArma())) {
+	if(!DispareitorPersonaje || !ArmaEquipada || !MapaMunicionPersonaje.Contains(ArmaEquipada->ObtenerTipoArma())) {
 		return;
 	}
 
 	MapaMunicionPersonaje[ArmaEquipada->ObtenerTipoArma()] -= 1;
 	MunicionPersonaje = MapaMunicionPersonaje[ArmaEquipada->ObtenerTipoArma()];
-	DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller);
+	DispareitorControladorJugador = DispareitorControladorJugador ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller);
 	if(DispareitorControladorJugador) {
 		DispareitorControladorJugador->ActualizarMunicionPersonajeHUD(MunicionPersonaje);
 	}
@@ -407,19 +405,19 @@ void UCombateComponente::SaltarAFinAnimacionEscopeta() {
 }
 
 void UCombateComponente::AlReplicar_MunicionPersonaje() {
-	DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller);
+	DispareitorControladorJugador = DispareitorControladorJugador ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller);
 	if(DispareitorControladorJugador) {
 		DispareitorControladorJugador->ActualizarMunicionPersonajeHUD(MunicionPersonaje);
 	}
 
-	if(EstadoCombate == EEstadosCombate::EEC_Recargando && ArmaEquipada != nullptr && ArmaEquipada->ObtenerTipoArma() == ETipoArma::ETA_Escopeta && MunicionPersonaje == 0) {
+	if(EstadoCombate == EEstadosCombate::EEC_Recargando && ArmaEquipada && ArmaEquipada->ObtenerTipoArma() == ETipoArma::ETA_Escopeta && MunicionPersonaje == 0) {
 		SaltarAFinAnimacionEscopeta();
 	}
 }
 
 
 int32 UCombateComponente::CalcularCantidadARecargar() {
-	if(ArmaEquipada == nullptr || !MapaMunicionPersonaje.Contains(ArmaEquipada->ObtenerTipoArma())) {
+	if(!ArmaEquipada || !MapaMunicionPersonaje.Contains(ArmaEquipada->ObtenerTipoArma())) {
 		return 0;
 	}
 
@@ -449,12 +447,17 @@ void UCombateComponente::AlReplicar_EstadoCombate() {
 				MostrarGranada(true);
 			}
 			break;	
+		case EEstadosCombate::EEC_IntercambiandoArmas:
+			if(DispareitorPersonaje && !DispareitorPersonaje->IsLocallyControlled()) {
+				DispareitorPersonaje->EjecutarMontajeIntercambiarArmas();
+			}
+			break;		
 	}
 }
 
 // Llamado por DispareitorPersonaje cuando se pulsa o libera el boton de apuntar
 void UCombateComponente::ActualizarApuntando(bool Apuntando) {
-	if(DispareitorPersonaje == nullptr || ArmaEquipada == nullptr) {
+	if(!DispareitorPersonaje || !ArmaEquipada) {
 		return;
 	}
 
@@ -469,7 +472,7 @@ void UCombateComponente::ActualizarApuntando(bool Apuntando) {
 		if (DispareitorPersonaje->IsLocallyControlled()) {
 			bBotonApuntadoPresionado = bApuntando;
 			if(ArmaEquipada->ObtenerTipoArma() == ETipoArma::ETA_Francotirador) {
-				DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador :  Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller);
+				DispareitorControladorJugador = DispareitorControladorJugador ? DispareitorControladorJugador :  Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller);
 				if (DispareitorControladorJugador) {
 					DispareitorControladorJugador->ActualizarCrucetaFrancotiradorHUD(Apuntando);
 					if (Apuntando && SonidoFrancotiradorCrucetaZoomIn) {
@@ -605,7 +608,7 @@ void UCombateComponente::DispararEscopetaLocalmente(const TArray<FVector_NetQuan
 }
 
 void UCombateComponente::EmpezarTemporizadorDisparo() {
-	if(DispareitorPersonaje == nullptr || ArmaEquipada == nullptr) {
+	if(!DispareitorPersonaje || !ArmaEquipada) {
 		return;
 	}
 
@@ -613,7 +616,7 @@ void UCombateComponente::EmpezarTemporizadorDisparo() {
 }
 
 void UCombateComponente::TerminadoDisparoTemporizador() {
-	if(DispareitorPersonaje == nullptr || ArmaEquipada == nullptr) {
+	if(!DispareitorPersonaje || !ArmaEquipada) {
 		return;
 	}
 
@@ -626,13 +629,24 @@ void UCombateComponente::TerminadoDisparoTemporizador() {
 }
 
 bool UCombateComponente::PuedoDisparar() {
-	return ArmaEquipada != nullptr && !ArmaEquipada->EstaSinMunicion() && bPuedoDisparar && !bRecargandoLocalmente &&
-			(EstadoCombate == EEstadosCombate::EEC_Desocupado || (EstadoCombate == EEstadosCombate::EEC_Recargando && ArmaEquipada->ObtenerTipoArma() == ETipoArma::ETA_Escopeta));
+	if(!ArmaEquipada) {
+		return false;
+	}
+
+	if(!ArmaEquipada->EstaSinMunicion() && bPuedoDisparar && EstadoCombate == EEstadosCombate::EEC_Recargando && ArmaEquipada->ObtenerTipoArma() == ETipoArma::ETA_Escopeta) {
+		return true;
+	}
+
+	if(bRecargandoLocalmente) {
+		return false;
+	}
+
+	return !ArmaEquipada->EstaSinMunicion() && bPuedoDisparar && EstadoCombate == EEstadosCombate::EEC_Desocupado;
 }
 
 // Llamado por ADispareitorPersonaje::ArrojarGranadaPulsado
 void UCombateComponente::ArrojarGranada() {
-	if(GranadasActuales == 0 || EstadoCombate != EEstadosCombate::EEC_Desocupado || ArmaEquipada == nullptr) {
+	if(GranadasActuales == 0 || EstadoCombate != EEstadosCombate::EEC_Desocupado || !ArmaEquipada) {
 		return;
 	}
 
@@ -672,7 +686,7 @@ void UCombateComponente::AlReplicar_GranadasActuales() {
 }
 
 void UCombateComponente::ActualizarGranadasHUD() {
-	DispareitorControladorJugador = DispareitorControladorJugador == nullptr ? Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller) : DispareitorControladorJugador; 
+	DispareitorControladorJugador = DispareitorControladorJugador ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller); 
 	if(DispareitorControladorJugador) {
 		DispareitorControladorJugador->ActualizarGranadasHUD(GranadasActuales);
 	}
@@ -710,6 +724,27 @@ void UCombateComponente::ArrojarGranadaFinalizado() {
 	UnirActorAManoDerecha(ArmaEquipada);
 }
 
+void UCombateComponente::RecibidaNotificacionAnimacion_IntercambiarArmas() {
+	if(DispareitorPersonaje) {
+		DispareitorPersonaje->bIntercambiarArmasFinalizado = true;
+		if( DispareitorPersonaje->HasAuthority()) {
+			EstadoCombate = EEstadosCombate::EEC_Desocupado;
+		}
+	}
+}
+
+void UCombateComponente::RecibidaNotificacionAnimacion_IntercambiarArmasFinalizado() {
+	ArmaEquipada->ActualizarEstado(EEstado::EEA_Equipada); 
+	UnirActorAManoDerecha(ArmaEquipada);
+	ArmaEquipada->ActualizarMunicionHUD();
+	ActualizarMunicionPersonaje();
+	EjecutarSonidoAlEquipar(ArmaEquipada);
+	RecargarArmaVacia();
+
+	ArmaSecundariaEquipada->ActualizarEstado(EEstado::EEA_EquipadaSecundaria); 
+	UnirActorAMochila(ArmaSecundariaEquipada);	
+}
+
 void UCombateComponente::CogerMunicion(ETipoArma TipoArma, int32 IncrementoMunicion) {
 	if(MapaMunicionPersonaje.Contains(TipoArma)) {
 		MapaMunicionPersonaje[TipoArma] = FMath::Clamp(MapaMunicionPersonaje[TipoArma] + IncrementoMunicion, 0, MaximaMunicionPersonaje);	
@@ -721,5 +756,6 @@ void UCombateComponente::CogerMunicion(ETipoArma TipoArma, int32 IncrementoMunic
 }
 
 bool UCombateComponente::PuedoIntercambiarArmas() {
-	return ArmaEquipada != nullptr && ArmaSecundariaEquipada != nullptr && EstadoCombate == EEstadosCombate::EEC_Desocupado;
+	return ArmaEquipada && ArmaSecundariaEquipada && EstadoCombate == EEstadosCombate::EEC_Desocupado;
 }
+

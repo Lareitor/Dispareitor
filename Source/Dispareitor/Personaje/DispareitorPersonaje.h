@@ -26,6 +26,7 @@ public:
 	void EjecutarMontajeRecargar(); 
 	void EjecutarMontajeEliminado(); 
 	void EjecutarMontajeArrojarGranada(); 
+	void EjecutarMontajeIntercambiarArmas();
 	virtual void OnRep_ReplicatedMovement() override;
 	void Eliminado();
 	// RPC Multicast. Si se invoca en el servidor, se ejecuta en el servidor + clientes, si se invoca en el cliente solo se ejecuta en ese cliente
@@ -39,6 +40,7 @@ public:
 	void ActualizarGranadasHUD();
 	void ReaparecerArmaPorDefecto();
 	UPROPERTY() TMap<FName, class UBoxComponent*> CajasColision; 
+	bool bIntercambiarArmasFinalizado = false;
 
 protected:
 	virtual void BeginPlay() override;
@@ -115,6 +117,7 @@ private:
 	UPROPERTY(EditAnywhere, Category = Combate)	class UAnimMontage* MontajeReaccionAImpacto;
 	UPROPERTY(EditAnywhere, Category = Combate)	class UAnimMontage* MontajeEliminado;
 	UPROPERTY(EditAnywhere, Category = Combate)	class UAnimMontage* MontajeArrojarGranada;
+	UPROPERTY(EditAnywhere, Category = Combate)	class UAnimMontage* MontajeIntercambiarArmas;
 	void EsconderCamaraSiPersonajeCerca();
 	UPROPERTY(EditAnywhere)	float DistanciaMinimaEntrePersonajeYCamara = 200.f;
 	// Al rotar el hueso raiz giramos la cintura sin mover las piernas
