@@ -356,13 +356,6 @@ void UCombateComponente::RecargarFinalizado() {
 	}
 }
 
-// Llamado por BP_DispareitorInstanciaAnimacion al ejecutar una notificacion en Montaje_Recargar al insertar un cartucho en la escopeta
-void UCombateComponente::RecargarCartuchoEscopeta() {
-	if(DispareitorPersonaje && DispareitorPersonaje->HasAuthority()) {
-		ActualizarValoresMunicionEscopeta();
-	}
-}
-
 void UCombateComponente::ActualizarValoresMunicion() {
 	if(!DispareitorPersonaje || !ArmaEquipada || !MapaMunicionPersonaje.Contains(ArmaEquipada->ObtenerTipoArma())) {
 		return;
@@ -376,6 +369,13 @@ void UCombateComponente::ActualizarValoresMunicion() {
 	DispareitorControladorJugador = DispareitorControladorJugador ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller);
 	if(DispareitorControladorJugador) {
 		DispareitorControladorJugador->ActualizarMunicionPersonajeHUD(MunicionPersonaje);
+	}
+}
+
+// Llamado por BP_DispareitorInstanciaAnimacion al ejecutar una notificacion en Montaje_Recargar al insertar un cartucho en la escopeta
+void UCombateComponente::RecargarCartuchoEscopeta() {
+	if(DispareitorPersonaje && DispareitorPersonaje->HasAuthority()) {
+		ActualizarValoresMunicionEscopeta();
 	}
 }
 
@@ -510,6 +510,7 @@ void UCombateComponente::DispararPresionado(bool bPresionado) {
 void UCombateComponente::Disparar() {
 	if(PuedoDisparar()) {
 		bPuedoDisparar = false;
+		bRecargandoLocalmente = false; // Porque puede que hayamos interrumpido la recargar de la escopeta al disparar en cuyo caso debemos debemos poner esta variable a false (que se pone a false al final de la recargar)
 		
 		if(ArmaEquipada) {
 			CrucetaFactorDisparo = 0.75f;
@@ -629,7 +630,7 @@ void UCombateComponente::TerminadoDisparoTemporizador() {
 }
 
 bool UCombateComponente::PuedoDisparar() {
-	if(!ArmaEquipada) {
+	if(!ArmaEquipada || !DispareitorPersonaje->bIntercambiarArmasFinalizado) {
 		return false;
 	}
 
@@ -726,7 +727,6 @@ void UCombateComponente::ArrojarGranadaFinalizado() {
 
 void UCombateComponente::RecibidaNotificacionAnimacion_IntercambiarArmas() {
 	if(DispareitorPersonaje) {
-		DispareitorPersonaje->bIntercambiarArmasFinalizado = true;
 		if( DispareitorPersonaje->HasAuthority()) {
 			EstadoCombate = EEstadosCombate::EEC_Desocupado;
 		}
@@ -743,6 +743,8 @@ void UCombateComponente::RecibidaNotificacionAnimacion_IntercambiarArmasFinaliza
 
 	ArmaSecundariaEquipada->ActualizarEstado(EEstado::EEA_EquipadaSecundaria); 
 	UnirActorAMochila(ArmaSecundariaEquipada);	
+
+	DispareitorPersonaje->bIntercambiarArmasFinalizado = true;
 }
 
 void UCombateComponente::CogerMunicion(ETipoArma TipoArma, int32 IncrementoMunicion) {

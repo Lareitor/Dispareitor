@@ -40,7 +40,7 @@ public:
 	void ActualizarGranadasHUD();
 	void ReaparecerArmaPorDefecto();
 	UPROPERTY() TMap<FName, class UBoxComponent*> CajasColision; 
-	bool bIntercambiarArmasFinalizado = false;
+	bool bIntercambiarArmasFinalizado = true;
 
 protected:
 	virtual void BeginPlay() override;
