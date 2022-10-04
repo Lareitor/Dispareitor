@@ -101,7 +101,7 @@ private:
 	UFUNCTION()	void ArmaSolapada_AlReplicar(AArma* ArmaReplicadaAnterior);
 	// Hace esta funcion de tipo RPC, para llamarla desde los clientes pero que se ejecuten en el servidor
 	// Reliable garantiza que la información llega al servidor (el cliente recibe una confirmación de parte del servidor, si no la recibe vuelve a enviar la info)
-	UFUNCTION(Server, Reliable) void Equipar_EnServidor();
+	UFUNCTION(Server, Reliable) void EquiparIntercambiar_EnServidor();
 	/**
 	 * AO = Aim Offset
 	 */

@@ -402,7 +402,7 @@ void ADispareitorPersonaje::EquiparPulsado() {
 
 	if(CombateComponente) {
 		if(CombateComponente->EstadoCombate == EEstadosCombate::EEC_Desocupado) {
-			Equipar_EnServidor();	
+			EquiparIntercambiar_EnServidor();	
 		}
 		if(CombateComponente->PuedoIntercambiarArmas() && !HasAuthority() && CombateComponente->EstadoCombate == EEstadosCombate::EEC_Desocupado && !ArmaSolapada) {
 			EjecutarMontajeIntercambiarArmas();
@@ -412,8 +412,8 @@ void ADispareitorPersonaje::EquiparPulsado() {
 	}
 }
 
-// Aunque la definicion de la funcion es Equipar_EnServidor hay que añadirle _Implementation, ya que UE creará Equipar_EnServidor y nosotros _Implementation que incluirá el codigo que se ejecuta en el servidor  
-void ADispareitorPersonaje::Equipar_EnServidor_Implementation() {
+// Aunque la definicion de la funcion es EquiparIntercambiar_EnServidor hay que añadirle _Implementation, ya que UE creará EquiparIntercambiar_EnServidor y nosotros _Implementation que incluirá el codigo que se ejecuta en el servidor  
+void ADispareitorPersonaje::EquiparIntercambiar_EnServidor_Implementation() {
 	if(CombateComponente) {
 		if(ArmaSolapada) {
 			CombateComponente->EquiparArma(ArmaSolapada);

@@ -727,7 +727,7 @@ void UCombateComponente::ArrojarGranadaFinalizado() {
 
 void UCombateComponente::RecibidaNotificacionAnimacion_IntercambiarArmas() {
 	if(DispareitorPersonaje) {
-		if( DispareitorPersonaje->HasAuthority()) {
+		if(DispareitorPersonaje->HasAuthority()) {
 			EstadoCombate = EEstadosCombate::EEC_Desocupado;
 		}
 	}
