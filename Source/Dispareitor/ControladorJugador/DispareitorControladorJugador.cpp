@@ -13,6 +13,7 @@
 #include "Dispareitor/EstadoJuego/DispareitorEstadoJuego.h"
 #include "Dispareitor/EstadoJugador/DispareitorEstadoJugador.h"
 #include "Components/Image.h"
+#include "Dispareitor/HUD/RegresarAMenuPrincipal.h"
 
 // APlayerController solo existe en el servidor y en el cliente propietario. Permite el acceso al HUD: vida, muertos, muertes, municion...
 
@@ -21,6 +22,17 @@ void ADispareitorControladorJugador::BeginPlay() {
 
     DispareitorHUD = Cast<ADispareitorHUD>(GetHUD());
     ComprobarEstadoPartida_EnServidor();
+}
+
+// Esta funcion es parecida a ADispareitorPersonaje::SetupPlayerInputComponent pero en APlayerController
+void ADispareitorControladorJugador::SetupInputComponent() {
+    Super::SetupInputComponent();
+    if(!InputComponent) {
+        return;
+    }
+
+    // Enlazamos la tecla quitar en el controlador y no en el personaje porque si esta muerto el jugador no podemos mostrar el menu
+    InputComponent->BindAction("Quitar", IE_Pressed, this, &ADispareitorControladorJugador::MostrarRegresarAMenuPrincipal); 
 }
 
 void ADispareitorControladorJugador::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const {
@@ -374,7 +386,6 @@ void ADispareitorControladorJugador::ComprobarPingAlto(float DeltaTime) {
     if(TiempoParaSiguienteComprobacionPingAlto > FrecuenciaChequeoPingAlto) {
         // PlayerState = PlayerState != nullptr ? PlayerState : GetPlayerState<APlayerState>(); ESTA LINEA FALLA EN LINUX AL COMPILAR AUNQUE DA LA IMPRESION DE QUE NO ES NECESARIA
         if(PlayerState) {
-            UE_LOG(LogTemp, Warning, TEXT("PlayerState->GetCompressedPing() * 4: %d"), PlayerState->GetCompressedPing() * 4);
             if(PlayerState->GetCompressedPing() * 4 > UmbralPingAlto) { // ping se guarda comprimido y dividido por 4
                 IniciarAnimacionPingAlto();
                 TiempoEjecutandoseAnimacionPingAlto = 0.f;
@@ -417,3 +428,20 @@ void ADispareitorControladorJugador::PararAnimacionPingAlto() {
     } 
 }
 
+void ADispareitorControladorJugador::MostrarRegresarAMenuPrincipal() {
+    if(!ClaseRegresarAMenuPrincipal) {
+        return;
+    }
+
+    if(!RegresarAMenuPrincipal) {
+        RegresarAMenuPrincipal = CreateWidget<URegresarAMenuPrincipal>(this, ClaseRegresarAMenuPrincipal);
+    }
+    if(RegresarAMenuPrincipal) { 
+        bRegresarAMenuPrincipal = !bRegresarAMenuPrincipal; 
+        if(bRegresarAMenuPrincipal) {
+            RegresarAMenuPrincipal->ActivarMenu();
+        } else {
+            RegresarAMenuPrincipal->DesactivarMenu();
+        }
+    }
+}

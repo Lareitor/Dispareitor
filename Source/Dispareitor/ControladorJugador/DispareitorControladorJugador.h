@@ -34,6 +34,7 @@ public:
 	
 protected:
 	virtual void BeginPlay() override;
+	virtual void SetupInputComponent() override; 
 	void ActivarTiempoHUD();
 	void SondearInicio();
 	// Sincronizacion tiempos entre cliente y servidor
@@ -49,6 +50,8 @@ protected:
 	void IniciarAnimacionPingAlto();
 	void PararAnimacionPingAlto();
 	void ComprobarPingAlto(float DeltaTime);
+
+	void MostrarRegresarAMenuPrincipal();
 
 private:
 	UPROPERTY() class ADispareitorHUD* DispareitorHUD;	
@@ -86,4 +89,8 @@ private:
 	UPROPERTY(EditAnywhere) float FrecuenciaChequeoPingAlto = 20.f;
 	UPROPERTY(EditAnywhere) float UmbralPingAlto = 50.f;
 	UFUNCTION(Server, Reliable) void ReportarEstadoPing_EnServidor(bool bPingAlto);
+
+	UPROPERTY(EditAnywhere, Category = HUD) TSubclassOf<class UUserWidget> ClaseRegresarAMenuPrincipal;
+	UPROPERTY() class URegresarAMenuPrincipal* RegresarAMenuPrincipal;
+	bool bRegresarAMenuPrincipal = false;
 };

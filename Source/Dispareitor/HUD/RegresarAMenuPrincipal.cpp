@@ -21,7 +21,7 @@ void URegresarAMenuPrincipal::ActivarMenu() {
         }
     }
 
-    if(BotonMenuPrincipal) {
+    if(BotonMenuPrincipal && !BotonMenuPrincipal->OnClicked.IsBound()) {
         BotonMenuPrincipal->OnClicked.AddDynamic(this, &URegresarAMenuPrincipal::PulsadoBotonMenuPrincipal);
     }
 
@@ -42,6 +42,14 @@ bool URegresarAMenuPrincipal::Initialize() {
     return true;
 }
 
+void URegresarAMenuPrincipal::PulsadoBotonMenuPrincipal() {
+    BotonMenuPrincipal->SetIsEnabled(false);
+
+    if(SubsistemaInstanciaJuego) {
+        SubsistemaInstanciaJuego->DestruirSesion();
+    }
+}
+
 void URegresarAMenuPrincipal::Callback_AlDestruirSesion(bool bFueOk) {
     if(!bFueOk) {
         BotonMenuPrincipal->SetIsEnabled(true);
@@ -51,7 +59,7 @@ void URegresarAMenuPrincipal::Callback_AlDestruirSesion(bool bFueOk) {
     UWorld* Mundo = GetWorld();
     if(Mundo) {
         AGameModeBase* ModoJuego = Mundo->GetAuthGameMode<AGameModeBase>();
-        if(ModoJuego) { // Estamos en el servidor
+        if(ModoJuego) { // Estamos en el servidor ya que este objeto solo existe en el servidor
             ModoJuego->ReturnToMainMenuHost();
         } else { // Estamos en el cliente
             ControladorJugador = ControladorJugador ? ControladorJugador : Mundo->GetFirstPlayerController();
@@ -74,14 +82,15 @@ void URegresarAMenuPrincipal::DesactivarMenu() {
             ControladorJugador->SetShowMouseCursor(false);
         }
     }
-}
 
-void URegresarAMenuPrincipal::PulsadoBotonMenuPrincipal() {
-    BotonMenuPrincipal->SetIsEnabled(false);
-
-    if(SubsistemaInstanciaJuego) {
-        SubsistemaInstanciaJuego->DestruirSesion();
+    if(BotonMenuPrincipal && BotonMenuPrincipal->OnClicked.IsBound()) {
+        BotonMenuPrincipal->OnClicked.RemoveDynamic(this, &URegresarAMenuPrincipal::PulsadoBotonMenuPrincipal);
+    }
+    if(SubsistemaInstanciaJuego && SubsistemaInstanciaJuego->DelegadoMultijugadorCompletadoDestruirSesion.IsBound()) {
+        SubsistemaInstanciaJuego->DelegadoMultijugadorCompletadoDestruirSesion.RemoveDynamic(this, &URegresarAMenuPrincipal::Callback_AlDestruirSesion);
     }
 }
+
+
 
 
