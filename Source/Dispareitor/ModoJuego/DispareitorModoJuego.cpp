@@ -78,7 +78,7 @@ void ADispareitorModoJuego::JugadorEliminado(class ADispareitorPersonaje* Dispar
     }
 
     if(DispareitorPersonajeVictima) {
-        DispareitorPersonajeVictima->Eliminado();
+        DispareitorPersonajeVictima->Eliminado(false);
     }
 }
 
@@ -134,5 +134,21 @@ void ADispareitorModoJuego::SituarArmas() {
     int32 IndicePuntosReaparicionArmas = 0;
     for(AActor* Arma : Armas) {
         Arma->SetActorLocation(PuntosReaparicionArmas[IndicePuntosReaparicionArmas++]->GetActorLocation());
+    }
+}
+
+void ADispareitorModoJuego::JugadorDejaJuego(ADispareitorEstadoJugador* DispareitorEstadoJugador) {
+    if(!DispareitorEstadoJugador) {
+        return;
+    }
+    
+    ADispareitorEstadoJuego* DispareitorEstadoJuego = GetGameState<ADispareitorEstadoJuego>();
+    if(DispareitorEstadoJuego && DispareitorEstadoJuego->ArrayDeEstadoJugadoresConPuntuacionMasAlta.Contains(DispareitorEstadoJugador)) {
+        DispareitorEstadoJuego->ArrayDeEstadoJugadoresConPuntuacionMasAlta.Remove(DispareitorEstadoJugador);
+    }
+
+    ADispareitorPersonaje* DispareitorPersonaje = Cast<ADispareitorPersonaje>(DispareitorEstadoJugador->GetPawn());
+    if(DispareitorPersonaje) {
+        DispareitorPersonaje->Eliminado(true);
     }
 }

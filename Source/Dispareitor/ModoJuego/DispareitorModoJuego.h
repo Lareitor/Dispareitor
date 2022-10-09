@@ -17,6 +17,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void JugadorEliminado(class ADispareitorPersonaje* DispareitorPersonajeVictima, class ADispareitorControladorJugador* DispareitorControladorJugadorVictima, class ADispareitorControladorJugador* DispareitorControladorJugadorAtacante);	
 	virtual void PeticionReaparecer(ACharacter* PersonajeEliminado, AController* ControladorEliminado);
+	void JugadorDejaJuego(class ADispareitorEstadoJugador* DispareitorEstadoJugador);
 	UPROPERTY(EditDefaultsOnly)	float TiempoCalentamiento = 10.f;
 	UPROPERTY(EditDefaultsOnly)	float TiempoPartida = 300.f;
 	UPROPERTY(EditDefaultsOnly)	float TiempoEnfriamiento = 10.f;

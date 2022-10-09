@@ -15,6 +15,7 @@ public:
 protected:
 	virtual bool Initialize() override;
 	UFUNCTION() void Callback_AlDestruirSesion(bool bFueOk);
+	UFUNCTION() void Callback_AlDejarElJuego();
 
 private:
 	UPROPERTY(meta = (BindWidget)) class UButton* BotonMenuPrincipal;	

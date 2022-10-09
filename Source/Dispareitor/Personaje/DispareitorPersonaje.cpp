@@ -739,13 +739,13 @@ void ADispareitorPersonaje::ActualizarMunicionHUD() {
 
 // Llamado por DispareitorModoJuego::JugadorEliminado 
 // Ejecutado en el server ya que DispareitorModoJuego solo existe en el server
-void ADispareitorPersonaje::Eliminado() {
+void ADispareitorPersonaje::Eliminado(bool bJugadorDejaJuego) {
 	SoltarODestruirArmas();
-	Eliminado_Multicast();
-	GetWorldTimerManager().SetTimer(TemporizadorEliminado, this, &ADispareitorPersonaje::TemporizadorEliminadoFinalizado, RetardoDeEliminacion);
+	Eliminado_Multicast(bJugadorDejaJuego);
 }
 
-void ADispareitorPersonaje::Eliminado_Multicast_Implementation() {
+void ADispareitorPersonaje::Eliminado_Multicast_Implementation(bool bJugadorDejaJuego) {
+	bDejarJuego = bJugadorDejaJuego;
 	bEliminado = true;
 	EjecutarMontajeEliminado();
 
@@ -778,6 +778,17 @@ void ADispareitorPersonaje::Eliminado_Multicast_Implementation() {
 	}
 	if(DispareitorControladorJugador) {
 		DispareitorControladorJugador->ActualizarMunicionArmaHUD(0);
+	}
+	GetWorldTimerManager().SetTimer(TemporizadorEliminado, this, &ADispareitorPersonaje::TemporizadorEliminadoFinalizado, RetardoDeEliminacion);
+}
+
+void ADispareitorPersonaje::TemporizadorEliminadoFinalizado() {
+	ADispareitorModoJuego* DispareitorModoJuego = GetWorld()->GetAuthGameMode<ADispareitorModoJuego>();
+	if(DispareitorModoJuego && !bDejarJuego) {
+		DispareitorModoJuego->PeticionReaparecer(this, DispareitorControladorJugador);
+	}
+	if(bDejarJuego && IsLocallyControlled()) {
+		DelegadoDejarJuego.Broadcast();
 	}
 }
 
@@ -815,13 +826,6 @@ void ADispareitorPersonaje::EmpezarDisolucion() {
 void ADispareitorPersonaje::Callback_ActualizarMaterialEnDisolucion(float DisolucionValor) {
 	if(InstanciaMaterialDinamicoParaDisolucion) {
 		InstanciaMaterialDinamicoParaDisolucion->SetScalarParameterValue(TEXT("Disolucion"), DisolucionValor);
-	}
-}
-
-void ADispareitorPersonaje::TemporizadorEliminadoFinalizado() {
-	ADispareitorModoJuego* DispareitorModoJuego = GetWorld()->GetAuthGameMode<ADispareitorModoJuego>();
-	if(DispareitorModoJuego) {
-		DispareitorModoJuego->PeticionReaparecer(this, DispareitorControladorJugador);
 	}
 }
 
@@ -871,4 +875,12 @@ void ADispareitorPersonaje::ReaparecerArmaPorDefecto() {
 
 bool ADispareitorPersonaje::EstaRecargandoLocalmente() {
 	return CombateComponente ? CombateComponente->bRecargandoLocalmente : false;
+}
+
+void ADispareitorPersonaje::DejarJuego_EnServidor_Implementation() {
+	ADispareitorModoJuego* DispareitorModoJuego = GetWorld()->GetAuthGameMode<ADispareitorModoJuego>();
+	DispareitorEstadoJugador =  DispareitorEstadoJugador ? DispareitorEstadoJugador : GetPlayerState<ADispareitorEstadoJugador>();
+	if(DispareitorModoJuego && DispareitorEstadoJugador) {
+		DispareitorModoJuego->JugadorDejaJuego(DispareitorEstadoJugador);
+	}
 }

@@ -3,6 +3,7 @@
 #include "Components/Button.h"
 #include "SubsistemaInstanciaJuego.h"
 #include "GameFramework/GameModeBase.h"
+#include "Dispareitor/Personaje/DispareitorPersonaje.h"
 
 
 void URegresarAMenuPrincipal::ActivarMenu() {
@@ -45,8 +46,18 @@ bool URegresarAMenuPrincipal::Initialize() {
 void URegresarAMenuPrincipal::PulsadoBotonMenuPrincipal() {
     BotonMenuPrincipal->SetIsEnabled(false);
 
-    if(SubsistemaInstanciaJuego) {
-        SubsistemaInstanciaJuego->DestruirSesion();
+    UWorld* Mundo = GetWorld();
+    if(Mundo) {
+        APlayerController* PrimerControladorJugador = Mundo->GetFirstPlayerController();
+        if(PrimerControladorJugador) {
+            ADispareitorPersonaje* DispareitorPersonaje = Cast<ADispareitorPersonaje>(PrimerControladorJugador->GetPawn());
+            if(DispareitorPersonaje) {
+                DispareitorPersonaje->DejarJuego_EnServidor();
+                DispareitorPersonaje->DelegadoDejarJuego.AddDynamic(this, &URegresarAMenuPrincipal::Callback_AlDejarElJuego);
+            } else { // Estamos en mitad de una reaparicion, volvemos a mostrar el boton hasta que tengamos DispareitorPersonaje 
+                BotonMenuPrincipal->SetIsEnabled(true);
+            }
+        }
     }
 }
 
@@ -90,6 +101,12 @@ void URegresarAMenuPrincipal::DesactivarMenu() {
         SubsistemaInstanciaJuego->DelegadoMultijugadorCompletadoDestruirSesion.RemoveDynamic(this, &URegresarAMenuPrincipal::Callback_AlDestruirSesion);
     }
 }
+
+void URegresarAMenuPrincipal::Callback_AlDejarElJuego() {
+    if(SubsistemaInstanciaJuego) {
+        SubsistemaInstanciaJuego->DestruirSesion();
+    }
+}   
 
 
 

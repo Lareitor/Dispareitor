@@ -8,7 +8,10 @@
 #include "Dispareitor/Tipos/EstadosCombate.h"
 #include "DispareitorPersonaje.generated.h"
 
-// TODO Plataformas moviles
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDelegadoDejarJuego);
+
+// TODO 
 // Cuando las armas se caen al vacio volver a reponerlas 
 // Si la cruceta no se pone roja al pasar sobre un enemigo, activar manualmente el check Trace Responses a Block en la malla del personaje
 // Si los disparos no son precisos a la malla comprobar que en la malla el tipo de canal es MallaDelEsqueleto
@@ -28,9 +31,9 @@ public:
 	void EjecutarMontajeArrojarGranada(); 
 	void EjecutarMontajeIntercambiarArmas();
 	virtual void OnRep_ReplicatedMovement() override;
-	void Eliminado();
+	void Eliminado(bool bJugadorDejoJuego);
 	// RPC Multicast. Si se invoca en el servidor, se ejecuta en el servidor + clientes, si se invoca en el cliente solo se ejecuta en ese cliente
-	UFUNCTION(NetMulticast, Reliable) void Eliminado_Multicast();
+	UFUNCTION(NetMulticast, Reliable) void Eliminado_Multicast(bool bJugadorDejoJuego);
 	virtual void Destroyed() override;
 	void SondearInicializacion();
 	UPROPERTY(Replicated) bool bSoloGirarCamara = false;
@@ -41,6 +44,8 @@ public:
 	void ReaparecerArmaPorDefecto();
 	UPROPERTY() TMap<FName, class UBoxComponent*> CajasColision; 
 	bool bIntercambiarArmasFinalizado = true;
+	UFUNCTION(Server, Reliable) void DejarJuego_EnServidor();
+	FDelegadoDejarJuego DelegadoDejarJuego;
 
 protected:
 	virtual void BeginPlay() override;
@@ -167,6 +172,8 @@ private:
 	UPROPERTY(VisibleAnywhere) UStaticMeshComponent* Granada;
 	// Arma por defecto
 	UPROPERTY(EditAnywhere) TSubclassOf<AArma> ClaseArmaPorDefecto;
+
+	bool bDejarJuego = false;
 
 public:	
 	virtual void Jump() override;
