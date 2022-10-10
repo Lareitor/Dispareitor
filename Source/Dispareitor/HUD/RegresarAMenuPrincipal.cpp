@@ -35,6 +35,27 @@ void URegresarAMenuPrincipal::ActivarMenu() {
     }
 }
 
+void URegresarAMenuPrincipal::DesactivarMenu() {
+    RemoveFromParent();
+
+    UWorld* Mundo = GetWorld();
+    if(Mundo) {
+        ControladorJugador = ControladorJugador ? ControladorJugador : Mundo->GetFirstPlayerController();
+        if(ControladorJugador) {
+            FInputModeGameOnly EntradaModoJuego; 
+            ControladorJugador->SetInputMode(EntradaModoJuego);
+            ControladorJugador->SetShowMouseCursor(false);
+        }
+    }
+
+    if(BotonMenuPrincipal && BotonMenuPrincipal->OnClicked.IsBound()) {
+        BotonMenuPrincipal->OnClicked.RemoveDynamic(this, &URegresarAMenuPrincipal::PulsadoBotonMenuPrincipal);
+    }
+    if(SubsistemaInstanciaJuego && SubsistemaInstanciaJuego->DelegadoMultijugadorCompletadoDestruirSesion.IsBound()) {
+        SubsistemaInstanciaJuego->DelegadoMultijugadorCompletadoDestruirSesion.RemoveDynamic(this, &URegresarAMenuPrincipal::Callback_AlDestruirSesion);
+    }
+}
+
 bool URegresarAMenuPrincipal::Initialize() {
     if(!Super::Initialize()) {
         return false;
@@ -61,6 +82,12 @@ void URegresarAMenuPrincipal::PulsadoBotonMenuPrincipal() {
     }
 }
 
+void URegresarAMenuPrincipal::Callback_AlDejarElJuego() {
+    if(SubsistemaInstanciaJuego) {
+        SubsistemaInstanciaJuego->DestruirSesion();
+    }
+}
+
 void URegresarAMenuPrincipal::Callback_AlDestruirSesion(bool bFueOk) {
     if(!bFueOk) {
         BotonMenuPrincipal->SetIsEnabled(true);
@@ -80,33 +107,7 @@ void URegresarAMenuPrincipal::Callback_AlDestruirSesion(bool bFueOk) {
         }
     }
 }
-	
-void URegresarAMenuPrincipal::DesactivarMenu() {
-    RemoveFromParent();
 
-    UWorld* Mundo = GetWorld();
-    if(Mundo) {
-        ControladorJugador = ControladorJugador ? ControladorJugador : Mundo->GetFirstPlayerController();
-        if(ControladorJugador) {
-            FInputModeGameOnly EntradaModoJuego; 
-            ControladorJugador->SetInputMode(EntradaModoJuego);
-            ControladorJugador->SetShowMouseCursor(false);
-        }
-    }
-
-    if(BotonMenuPrincipal && BotonMenuPrincipal->OnClicked.IsBound()) {
-        BotonMenuPrincipal->OnClicked.RemoveDynamic(this, &URegresarAMenuPrincipal::PulsadoBotonMenuPrincipal);
-    }
-    if(SubsistemaInstanciaJuego && SubsistemaInstanciaJuego->DelegadoMultijugadorCompletadoDestruirSesion.IsBound()) {
-        SubsistemaInstanciaJuego->DelegadoMultijugadorCompletadoDestruirSesion.RemoveDynamic(this, &URegresarAMenuPrincipal::Callback_AlDestruirSesion);
-    }
-}
-
-void URegresarAMenuPrincipal::Callback_AlDejarElJuego() {
-    if(SubsistemaInstanciaJuego) {
-        SubsistemaInstanciaJuego->DestruirSesion();
-    }
-}   
 
 
 

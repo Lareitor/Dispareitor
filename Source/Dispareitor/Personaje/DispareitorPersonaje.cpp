@@ -737,7 +737,7 @@ void ADispareitorPersonaje::ActualizarMunicionHUD() {
 	} 
 }
 
-// Llamado por DispareitorModoJuego::JugadorEliminado 
+// Llamado por DispareitorModoJuego::JugadorEliminado y por ADispareitorModoJuego::JugadorDejaJuego
 // Ejecutado en el server ya que DispareitorModoJuego solo existe en el server
 void ADispareitorPersonaje::Eliminado(bool bJugadorDejaJuego) {
 	SoltarODestruirArmas();
