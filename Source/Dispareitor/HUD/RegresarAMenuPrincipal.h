@@ -19,7 +19,7 @@ protected:
 
 private:
 	UPROPERTY(meta = (BindWidget)) class UButton* BotonMenuPrincipal;	
-	UFUNCTION() void PulsadoBotonMenuPrincipal(); 
+	UFUNCTION() void Callback_PulsadoBotonMenuPrincipal(); 
 	UPROPERTY() class USubsistemaInstanciaJuego* SubsistemaInstanciaJuego;
 	UPROPERTY() class APlayerController* ControladorJugador;
 };

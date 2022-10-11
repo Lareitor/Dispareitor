@@ -23,7 +23,7 @@ void URegresarAMenuPrincipal::ActivarMenu() {
     }
 
     if(BotonMenuPrincipal && !BotonMenuPrincipal->OnClicked.IsBound()) {
-        BotonMenuPrincipal->OnClicked.AddDynamic(this, &URegresarAMenuPrincipal::PulsadoBotonMenuPrincipal);
+        BotonMenuPrincipal->OnClicked.AddDynamic(this, &URegresarAMenuPrincipal::Callback_PulsadoBotonMenuPrincipal);
     }
 
     UGameInstance* InstanciaJuego = GetGameInstance();
@@ -49,7 +49,7 @@ void URegresarAMenuPrincipal::DesactivarMenu() {
     }
 
     if(BotonMenuPrincipal && BotonMenuPrincipal->OnClicked.IsBound()) {
-        BotonMenuPrincipal->OnClicked.RemoveDynamic(this, &URegresarAMenuPrincipal::PulsadoBotonMenuPrincipal);
+        BotonMenuPrincipal->OnClicked.RemoveDynamic(this, &URegresarAMenuPrincipal::Callback_PulsadoBotonMenuPrincipal);
     }
     if(SubsistemaInstanciaJuego && SubsistemaInstanciaJuego->DelegadoMultijugadorCompletadoDestruirSesion.IsBound()) {
         SubsistemaInstanciaJuego->DelegadoMultijugadorCompletadoDestruirSesion.RemoveDynamic(this, &URegresarAMenuPrincipal::Callback_AlDestruirSesion);
@@ -64,7 +64,7 @@ bool URegresarAMenuPrincipal::Initialize() {
     return true;
 }
 
-void URegresarAMenuPrincipal::PulsadoBotonMenuPrincipal() {
+void URegresarAMenuPrincipal::Callback_PulsadoBotonMenuPrincipal() {
     BotonMenuPrincipal->SetIsEnabled(false);
 
     UWorld* Mundo = GetWorld();
