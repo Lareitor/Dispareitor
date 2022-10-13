@@ -70,8 +70,29 @@ void ADispareitorModoJuego::JugadorEliminado(class ADispareitorPersonaje* Dispar
     ADispareitorEstadoJuego* DispareitorEstadoJuego = GetGameState<ADispareitorEstadoJuego>();
 
     if(AtacanteEstadoJugador && AtacanteEstadoJugador != VictimaEstadoJugador && DispareitorEstadoJuego) {
+        TArray<ADispareitorEstadoJugador*> ArrayDeEstadoJugadoresConPuntuacionMasAltaCopia;
+        for(auto DispareitorEstadoJugador : DispareitorEstadoJuego->ArrayDeEstadoJugadoresConPuntuacionMasAlta) {
+            ArrayDeEstadoJugadoresConPuntuacionMasAltaCopia.Add(DispareitorEstadoJugador);
+        }        
+
         AtacanteEstadoJugador->IncrementarMuertos(1.f);
         DispareitorEstadoJuego->ActualizarArrayDeEstadoJugadoresConPuntuacionMasAlta(AtacanteEstadoJugador);
+    
+        if(DispareitorEstadoJuego->ArrayDeEstadoJugadoresConPuntuacionMasAlta.Contains(AtacanteEstadoJugador)) {
+            ADispareitorPersonaje* DispareitorPersonajeGanaLider = Cast<ADispareitorPersonaje>(AtacanteEstadoJugador->GetPawn());
+            if(DispareitorPersonajeGanaLider) {
+                DispareitorPersonajeGanaLider->GanoElLider_Multicast();
+            }
+        }
+
+        for(int32 i = 0; i < ArrayDeEstadoJugadoresConPuntuacionMasAltaCopia.Num(); i++) {
+            if(!DispareitorEstadoJuego->ArrayDeEstadoJugadoresConPuntuacionMasAlta.Contains(ArrayDeEstadoJugadoresConPuntuacionMasAltaCopia[i])) {
+                ADispareitorPersonaje* DispareitorPersonajePierdeLider = Cast<ADispareitorPersonaje>(ArrayDeEstadoJugadoresConPuntuacionMasAltaCopia[i]->GetPawn());
+                if(DispareitorPersonajePierdeLider) {
+                    DispareitorPersonajePierdeLider->PerdioElLider_Multicast();
+                }
+            }
+        }
     }
     if(VictimaEstadoJugador) {
         VictimaEstadoJugador->IncrementarMuertes(1);

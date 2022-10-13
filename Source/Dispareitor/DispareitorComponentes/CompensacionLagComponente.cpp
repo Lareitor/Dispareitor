@@ -182,9 +182,9 @@ FResultadoRebobinarLadoServidor UCompensacionLagComponente::ConfirmarImpactoHits
 	if(ConfirmacionImpacto.bBlockingHit) { // Golpeamos la cabeza, no necesitamos comprobar nada mas
 		if(ConfirmacionImpacto.Component.IsValid()) {
 			UBoxComponent* CajaImpacto = Cast<UBoxComponent>(ConfirmacionImpacto.Component);
-			if(CajaImpacto) {
+			/*if(CajaImpacto) {
 				DrawDebugBox(Mundo, CajaImpacto->GetComponentLocation(), CajaImpacto->GetScaledBoxExtent(), FQuat(CajaImpacto->GetComponentRotation()), FColor::Red, false, 8.f);
-			}
+			}*/
 		}
 
 		RestaurarCajasImpactoFrame(DispareitorPersonajeImpactado, CajasImpactoFrameActual);
@@ -201,9 +201,9 @@ FResultadoRebobinarLadoServidor UCompensacionLagComponente::ConfirmarImpactoHits
 		if(ConfirmacionImpacto.bBlockingHit) {
 			if(ConfirmacionImpacto.Component.IsValid()) {
 				UBoxComponent* CajaImpacto = Cast<UBoxComponent>(ConfirmacionImpacto.Component);
-				if(CajaImpacto) {
+				/*if(CajaImpacto) {
 					DrawDebugBox(Mundo, CajaImpacto->GetComponentLocation(), CajaImpacto->GetScaledBoxExtent(), FQuat(CajaImpacto->GetComponentRotation()), FColor::Blue, false, 8.f);
-				}
+				}*/
 			}
 
 			RestaurarCajasImpactoFrame(DispareitorPersonajeImpactado, CajasImpactoFrameActual);
@@ -244,8 +244,8 @@ FResultadoRebobinarLadoServidor UCompensacionLagComponente::ConfirmarImpactoProy
     ParametrosPredecirTrayectoriaProyectil.StartLocation = InicioRayo;
     ParametrosPredecirTrayectoriaProyectil.TraceChannel = ECC_CajaColision;
     ParametrosPredecirTrayectoriaProyectil.ActorsToIgnore.Add(GetOwner());
-	ParametrosPredecirTrayectoriaProyectil.DrawDebugTime = 5.f; // Dibujar la trayectoria durante 5 sg.
-    ParametrosPredecirTrayectoriaProyectil.DrawDebugType = EDrawDebugTrace::ForDuration; // Para la duracion de 5 sg.
+	//ParametrosPredecirTrayectoriaProyectil.DrawDebugTime = 5.f; // Dibujar la trayectoria durante 5 sg.
+    //ParametrosPredecirTrayectoriaProyectil.DrawDebugType = EDrawDebugTrace::ForDuration; // Para la duracion de 5 sg.
 	FPredictProjectilePathResult ResultadoPredecirTrayectoriaProyectil;
 	UGameplayStatics::PredictProjectilePath(this, ParametrosPredecirTrayectoriaProyectil, ResultadoPredecirTrayectoriaProyectil);
 
@@ -253,9 +253,9 @@ FResultadoRebobinarLadoServidor UCompensacionLagComponente::ConfirmarImpactoProy
 	if(ResultadoPredecirTrayectoriaProyectil.HitResult.bBlockingHit) { // Golpeamos la cabeza, no necesitamos comprobar nada mas
 		if(ResultadoPredecirTrayectoriaProyectil.HitResult.Component.IsValid()) {
 			UBoxComponent* CajaImpacto = Cast<UBoxComponent>(ResultadoPredecirTrayectoriaProyectil.HitResult.Component);
-			if(CajaImpacto) {
+			/*if(CajaImpacto) {
 				DrawDebugBox(Mundo, CajaImpacto->GetComponentLocation(), CajaImpacto->GetScaledBoxExtent(), FQuat(CajaImpacto->GetComponentRotation()), FColor::Red, false, 8.f);
-			}
+			}*/
 		}
 		
 		RestaurarCajasImpactoFrame(DispareitorPersonajeImpactado, CajasImpactoFrameActual);
@@ -273,9 +273,9 @@ FResultadoRebobinarLadoServidor UCompensacionLagComponente::ConfirmarImpactoProy
 		if(ResultadoPredecirTrayectoriaProyectil.HitResult.bBlockingHit) {
 			if(ResultadoPredecirTrayectoriaProyectil.HitResult.Component.IsValid()) {
 				UBoxComponent* CajaImpacto = Cast<UBoxComponent>(ResultadoPredecirTrayectoriaProyectil.HitResult.Component);
-				if(CajaImpacto) {
+				/*if(CajaImpacto) {
 					DrawDebugBox(Mundo, CajaImpacto->GetComponentLocation(), CajaImpacto->GetScaledBoxExtent(), FQuat(CajaImpacto->GetComponentRotation()), FColor::Blue, false, 8.f);
-				}
+				}*/
 			}
 
 			RestaurarCajasImpactoFrame(DispareitorPersonajeImpactado, CajasImpactoFrameActual);

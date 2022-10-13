@@ -46,6 +46,8 @@ public:
 	bool bIntercambiarArmasFinalizado = true;
 	UFUNCTION(Server, Reliable) void DejarJuego_EnServidor();
 	FDelegadoDejarJuego DelegadoDejarJuego;
+	UFUNCTION(NetMulticast, Reliable) void GanoElLider_Multicast();
+	UFUNCTION(NetMulticast, Reliable) void PerdioElLider_Multicast();
 
 protected:
 	virtual void BeginPlay() override;
@@ -163,13 +165,15 @@ private:
 	// Se setea en el BP y a partir de ella creamos InstanciaMaterialDinamicoParaDisolucion
 	UPROPERTY(EditAnywhere, Category = Eliminacion)	UMaterialInstance* InstanciaMaterialParaDisolucion;
 	/**
-	 * Robot eliminacion
+	 * Eliminacion
 	 */
 	UPROPERTY(EditAnywhere)	UParticleSystem* SistemaParticulasRobotEliminacion; //p_bot_cage
 	// Almacena el SistemaParticulasRobotEliminacion creado
 	UPROPERTY(VisibleAnywhere) UParticleSystemComponent* ComponenteSistemaParticulasRobotEliminacion;
 	UPROPERTY(EditAnywhere)	class USoundCue* SonidoRobotEliminacion; //roboteliminacion_cue
 	UPROPERTY(VisibleAnywhere) UStaticMeshComponent* Granada;
+	UPROPERTY(EditAnywhere) class UNiagaraSystem* SistemaNiagaraCorona;
+	UPROPERTY() class UNiagaraComponent* ComponenteNiagaraCorona;
 	// Arma por defecto
 	UPROPERTY(EditAnywhere) TSubclassOf<AArma> ClaseArmaPorDefecto;
 

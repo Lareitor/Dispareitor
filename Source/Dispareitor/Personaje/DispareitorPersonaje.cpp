@@ -22,6 +22,9 @@
 #include "Dispareitor/HUD/HUDSobreLaCabeza.h"
 #include "Components/BoxComponent.h"
 #include "Dispareitor/DispareitorComponentes/CompensacionLagComponente.h"
+#include "NiagaraComponent.h"
+#include "NiagaraFunctionLibrary.h"
+#include "Dispareitor/EstadoJuego/DispareitorEstadoJuego.h"
 
 ADispareitorPersonaje::ADispareitorPersonaje() {
 	PrimaryActorTick.bCanEverTick = true;
@@ -217,6 +220,11 @@ void ADispareitorPersonaje::SondearInicializacion() {
 		if(DispareitorEstadoJugador) {
 			DispareitorEstadoJugador->IncrementarMuertos(0.f);	
 			DispareitorEstadoJugador->IncrementarMuertes(0);
+
+			ADispareitorEstadoJuego* DispareitorEstadoJuego = Cast<ADispareitorEstadoJuego>(UGameplayStatics::GetGameState(this));
+			if(DispareitorEstadoJuego && DispareitorEstadoJuego->ArrayDeEstadoJugadoresConPuntuacionMasAlta.Contains(DispareitorEstadoJugador)) {
+				GanoElLider_Multicast();
+			}
 		}
 	}
 
@@ -779,6 +787,9 @@ void ADispareitorPersonaje::Eliminado_Multicast_Implementation(bool bJugadorDeja
 	if(DispareitorControladorJugador) {
 		DispareitorControladorJugador->ActualizarMunicionArmaHUD(0);
 	}
+	if(ComponenteNiagaraCorona) {
+		ComponenteNiagaraCorona->DestroyComponent();
+	}
 	GetWorldTimerManager().SetTimer(TemporizadorEliminado, this, &ADispareitorPersonaje::TemporizadorEliminadoFinalizado, RetardoDeEliminacion);
 }
 
@@ -882,5 +893,23 @@ void ADispareitorPersonaje::DejarJuego_EnServidor_Implementation() {
 	DispareitorEstadoJugador =  DispareitorEstadoJugador ? DispareitorEstadoJugador : GetPlayerState<ADispareitorEstadoJugador>();
 	if(DispareitorModoJuego && DispareitorEstadoJugador) {
 		DispareitorModoJuego->JugadorDejaJuego(DispareitorEstadoJugador);
+	}
+}
+
+void ADispareitorPersonaje::GanoElLider_Multicast_Implementation() {
+	if(!SistemaNiagaraCorona) {
+		return;
+	}
+	if(!ComponenteNiagaraCorona) {
+		ComponenteNiagaraCorona = UNiagaraFunctionLibrary::SpawnSystemAttached(SistemaNiagaraCorona, GetCapsuleComponent(), FName(), GetActorLocation() + FVector(0.f, 0.f, 110.f), GetActorRotation(), EAttachLocation::KeepWorldPosition, false);
+	}
+	if(ComponenteNiagaraCorona) {
+		ComponenteNiagaraCorona->Activate();
+	}
+}
+
+void ADispareitorPersonaje::PerdioElLider_Multicast_Implementation() {
+	if(ComponenteNiagaraCorona) {
+		ComponenteNiagaraCorona->DestroyComponent();
 	}
 }
