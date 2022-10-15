@@ -33,14 +33,17 @@ public:
 	UPROPERTY(EditAnywhere, Category = Francotirador) TSubclassOf<class UUserWidget> ClaseFrancotiradorCruceta; //WBP_FrancotiradorCruceta
 	UPROPERTY() class UFrancotiradorCruceta* FrancotiradorCruceta;
 	void MostrarFrancotiradorCruceta();
+	void MostrarAnunciosEliminacion(FString NombreGanador, FString NombrePerdedor);
 
 protected:
 	virtual void BeginPlay() override;
 	
 private:
+	UPROPERTY() class ADispareitorControladorJugador* DispareitorControladorJugador; 
 	FHUDCruceta HUDCruceta;
 	void DibujarCruceta(UTexture2D* Textura, FVector2D CentroPantalla, FVector2D Apertura, FLinearColor ColorCruceta);
 	UPROPERTY(EditAnywhere)	float AperturaMaximaCruceta = 16.f;
+	UPROPERTY(EditAnywhere) TSubclassOf<class UAnunciosEliminacion> ClaseAnunciosEliminacion;
 
 public:
 	FORCEINLINE void ActualizarCrucetaHUD(const FHUDCruceta& HUDT) { HUDCruceta = HUDT; }		

@@ -32,6 +32,8 @@ public:
 	float STT = 0.f; // Single Trip Time es la mitad aprox. de RTT
 	FDelegadoPingAlto DelegadoPingAlto;
 	
+	void AnunciarEliminacion(APlayerState* EstadoJugadorGanador, APlayerState* EstadoJugadorPerdedor);
+	
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override; 
@@ -52,6 +54,8 @@ protected:
 	void ComprobarPingAlto(float DeltaTime);
 
 	void MostrarRegresarAMenuPrincipal();
+
+	UFUNCTION(Client, Reliable) void AnunciarEliminacion_EnCliente(APlayerState* EstadoJugadorGanador, APlayerState* EstadoJugadorPerdedor);
 
 private:
 	UPROPERTY() class ADispareitorHUD* DispareitorHUD;	

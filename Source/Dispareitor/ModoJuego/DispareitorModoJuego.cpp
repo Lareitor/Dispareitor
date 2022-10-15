@@ -64,22 +64,26 @@ void ADispareitorModoJuego::OnMatchStateSet() {
 
 // Llamado por ADispareitorPersonaje::RecibirDanio
 void ADispareitorModoJuego::JugadorEliminado(class ADispareitorPersonaje* DispareitorPersonajeVictima, class ADispareitorControladorJugador* DispareitorControladorJugadorVictima, class ADispareitorControladorJugador* DispareitorControladorJugadorAtacante) {
-    ADispareitorEstadoJugador* AtacanteEstadoJugador = DispareitorControladorJugadorAtacante ? Cast<ADispareitorEstadoJugador>(DispareitorControladorJugadorAtacante->PlayerState) : nullptr;
-    ADispareitorEstadoJugador* VictimaEstadoJugador = DispareitorControladorJugadorVictima ? Cast<ADispareitorEstadoJugador>(DispareitorControladorJugadorVictima->PlayerState) : nullptr;
+    if(!DispareitorControladorJugadorAtacante || !DispareitorControladorJugadorAtacante->PlayerState || !DispareitorControladorJugadorVictima || !DispareitorControladorJugadorVictima->PlayerState) {
+        return;
+    }
+    
+    ADispareitorEstadoJugador* EstadoJugadorAtacante = DispareitorControladorJugadorAtacante ? Cast<ADispareitorEstadoJugador>(DispareitorControladorJugadorAtacante->PlayerState) : nullptr;
+    ADispareitorEstadoJugador* EstadoJugadorVictima = DispareitorControladorJugadorVictima ? Cast<ADispareitorEstadoJugador>(DispareitorControladorJugadorVictima->PlayerState) : nullptr;
 
     ADispareitorEstadoJuego* DispareitorEstadoJuego = GetGameState<ADispareitorEstadoJuego>();
 
-    if(AtacanteEstadoJugador && AtacanteEstadoJugador != VictimaEstadoJugador && DispareitorEstadoJuego) {
+    if(EstadoJugadorAtacante && EstadoJugadorAtacante != EstadoJugadorVictima && DispareitorEstadoJuego) {
         TArray<ADispareitorEstadoJugador*> ArrayDeEstadoJugadoresConPuntuacionMasAltaCopia;
         for(auto DispareitorEstadoJugador : DispareitorEstadoJuego->ArrayDeEstadoJugadoresConPuntuacionMasAlta) {
             ArrayDeEstadoJugadoresConPuntuacionMasAltaCopia.Add(DispareitorEstadoJugador);
         }        
 
-        AtacanteEstadoJugador->IncrementarMuertos(1.f);
-        DispareitorEstadoJuego->ActualizarArrayDeEstadoJugadoresConPuntuacionMasAlta(AtacanteEstadoJugador);
+        EstadoJugadorAtacante->IncrementarMuertos(1.f);
+        DispareitorEstadoJuego->ActualizarArrayDeEstadoJugadoresConPuntuacionMasAlta(EstadoJugadorAtacante);
     
-        if(DispareitorEstadoJuego->ArrayDeEstadoJugadoresConPuntuacionMasAlta.Contains(AtacanteEstadoJugador)) {
-            ADispareitorPersonaje* DispareitorPersonajeGanaLider = Cast<ADispareitorPersonaje>(AtacanteEstadoJugador->GetPawn());
+        if(DispareitorEstadoJuego->ArrayDeEstadoJugadoresConPuntuacionMasAlta.Contains(EstadoJugadorAtacante)) {
+            ADispareitorPersonaje* DispareitorPersonajeGanaLider = Cast<ADispareitorPersonaje>(EstadoJugadorAtacante->GetPawn());
             if(DispareitorPersonajeGanaLider) {
                 DispareitorPersonajeGanaLider->GanoElLider_Multicast();
             }
@@ -94,12 +98,19 @@ void ADispareitorModoJuego::JugadorEliminado(class ADispareitorPersonaje* Dispar
             }
         }
     }
-    if(VictimaEstadoJugador) {
-        VictimaEstadoJugador->IncrementarMuertes(1);
+    if(EstadoJugadorVictima) {
+        EstadoJugadorVictima->IncrementarMuertes(1);
     }
 
     if(DispareitorPersonajeVictima) {
         DispareitorPersonajeVictima->Eliminado(false);
+    }
+
+    for(FConstPlayerControllerIterator IteradorControladorJugador = GetWorld()->GetPlayerControllerIterator(); IteradorControladorJugador; ++IteradorControladorJugador) {
+        ADispareitorControladorJugador* DispareitorControladorJugador = Cast<ADispareitorControladorJugador>(*IteradorControladorJugador);
+        if(DispareitorControladorJugador && EstadoJugadorAtacante && EstadoJugadorVictima) {
+            DispareitorControladorJugador->AnunciarEliminacion(EstadoJugadorAtacante, EstadoJugadorVictima);
+        }
     }
 }
 

@@ -3,6 +3,8 @@
 #include "PantallaDelPersonaje.h"
 #include "AnunciosWidget.h"
 #include "FrancotiradorCruceta.h"
+#include "AnunciosEliminacion.h"
+#include "Dispareitor/ControladorJugador/DispareitorControladorJugador.h"
 
 void ADispareitorHUD::BeginPlay() {
     Super::BeginPlay();
@@ -75,6 +77,17 @@ void ADispareitorHUD::DibujarCruceta(UTexture2D* Textura, FVector2D CentroPantal
     const FVector2D PosicionDondeDibujarTextura(CentroPantalla.X - (AnchuraTextura / 2.f) + Apertura.X, CentroPantalla.Y - (AlturaTextura / 2.f) + Apertura.Y);
 
     DrawTexture(Textura, PosicionDondeDibujarTextura.X, PosicionDondeDibujarTextura.Y, AnchuraTextura, AlturaTextura, 0.f, 0.f, 1.f, 1.f, CrucetaColor);
+}
+
+void ADispareitorHUD::MostrarAnunciosEliminacion(FString NombreGanador, FString NombrePerdedor) {
+    DispareitorControladorJugador = DispareitorControladorJugador ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(GetOwningPlayerController());
+    if(DispareitorControladorJugador && ClaseAnunciosEliminacion) {
+        UAnunciosEliminacion* AnunciosEliminacion = CreateWidget<UAnunciosEliminacion>(DispareitorControladorJugador, ClaseAnunciosEliminacion);
+        if(AnunciosEliminacion) {
+            AnunciosEliminacion->ActualizarTextoEliminacion(NombreGanador, NombrePerdedor);
+            AnunciosEliminacion->AddToViewport();
+        }
+    }
 }
 
 
