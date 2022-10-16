@@ -44,6 +44,9 @@ private:
 	void DibujarCruceta(UTexture2D* Textura, FVector2D CentroPantalla, FVector2D Apertura, FLinearColor ColorCruceta);
 	UPROPERTY(EditAnywhere)	float AperturaMaximaCruceta = 16.f;
 	UPROPERTY(EditAnywhere) TSubclassOf<class UAnunciosEliminacion> ClaseAnunciosEliminacion;
+	UPROPERTY(EditAnywhere) float TiempoAnuncioEliminacion = 10.5f;
+	UFUNCTION() void TiempoAnuncioEliminacionFinalizado(UAnunciosEliminacion* MensajeAEliminar);
+	UPROPERTY() TArray<UAnunciosEliminacion*> ArrayAnunciosEliminacion;
 
 public:
 	FORCEINLINE void ActualizarCrucetaHUD(const FHUDCruceta& HUDT) { HUDCruceta = HUDT; }		

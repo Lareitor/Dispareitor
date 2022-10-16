@@ -16,7 +16,7 @@ public:
 	FVector_NetQuantize InicioRayo;
 	FVector_NetQuantize100 VectorVelocidadInicial; // FVector_NetQuantize100 contiene dos decimales de precision, los necesitamos para que la velocidad sea precisa
 	UPROPERTY(EditAnywhere) float VelocidadInicial = 15000.f;
-	float Danio = 20.f; // bp_granadamano = 100
+	float Danio = 100.f; // bp_granadamano = 100
 
 protected:
 	virtual void BeginPlay() override;

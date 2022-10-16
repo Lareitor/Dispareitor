@@ -5,6 +5,9 @@
 #include "FrancotiradorCruceta.h"
 #include "AnunciosEliminacion.h"
 #include "Dispareitor/ControladorJugador/DispareitorControladorJugador.h"
+#include "Components/HorizontalBox.h"
+#include "Blueprint/WidgetLayoutLibrary.h"
+#include "Components/CanvasPanelSlot.h"
 
 void ADispareitorHUD::BeginPlay() {
     Super::BeginPlay();
@@ -86,9 +89,31 @@ void ADispareitorHUD::MostrarAnunciosEliminacion(FString NombreGanador, FString 
         if(AnunciosEliminacion) {
             AnunciosEliminacion->ActualizarTextoEliminacion(NombreGanador, NombrePerdedor);
             AnunciosEliminacion->AddToViewport();
+            for(UAnunciosEliminacion* AnuncioEliminacion : ArrayAnunciosEliminacion) {
+                if(AnuncioEliminacion && AnuncioEliminacion->CajaAnunciosEliminacion) {
+                    UCanvasPanelSlot* CanvasPanelSlotDelMensaje = UWidgetLayoutLibrary::SlotAsCanvasSlot(AnuncioEliminacion->CajaAnunciosEliminacion);
+                    if(CanvasPanelSlotDelMensaje) {
+                        FVector2D PosicionDelMensaje = CanvasPanelSlotDelMensaje->GetPosition();
+                        FVector2D NuevaPosicion(PosicionDelMensaje.X, PosicionDelMensaje.Y + CanvasPanelSlotDelMensaje->GetSize().Y);
+                        CanvasPanelSlotDelMensaje->SetPosition(NuevaPosicion);
+                    }
+                    
+                }
+            }
+
+            ArrayAnunciosEliminacion.Add(AnunciosEliminacion);
+
+            FTimerHandle ManejadorTiempoEliminacion;
+            FTimerDelegate DelegadoTiempoEliminacion;
+            DelegadoTiempoEliminacion.BindUFunction(this, FName("TiempoAnuncioEliminacionFinalizado"), AnunciosEliminacion);
+            GetWorldTimerManager().SetTimer(ManejadorTiempoEliminacion, DelegadoTiempoEliminacion, TiempoAnuncioEliminacion, false);
         }
     }
 }
 
-
+void ADispareitorHUD::TiempoAnuncioEliminacionFinalizado(UAnunciosEliminacion* AnunciosEliminacionAEliminar) {
+    if(AnunciosEliminacionAEliminar) {
+        AnunciosEliminacionAEliminar->RemoveFromParent();
+    }
+}
 
