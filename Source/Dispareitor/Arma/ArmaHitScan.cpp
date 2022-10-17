@@ -28,7 +28,8 @@ void AArmaHitScan::Disparar(const FVector& Objetivo) {
         ADispareitorPersonaje* DispareitorPersonajeImpactado = Cast<ADispareitorPersonaje>(ImpactoResultado.GetActor());
         if(DispareitorPersonajeImpactado && ControladorDelInstigador) {
             if(HasAuthority() && (!bRebobinarLadoServidor || PeonPropietario->IsLocallyControlled())) {
-                UGameplayStatics::ApplyDamage(DispareitorPersonajeImpactado, Danio, ControladorDelInstigador, this, UDamageType::StaticClass());
+                const float DanioACausar = ImpactoResultado.BoneName.ToString() == FString("head") ? DanioEnCabeza : Danio;
+                UGameplayStatics::ApplyDamage(DispareitorPersonajeImpactado, DanioACausar, ControladorDelInstigador, this, UDamageType::StaticClass());
             } 
             if (!HasAuthority() && bRebobinarLadoServidor) {
                 DispareitorPersonaje = DispareitorPersonaje != nullptr ? DispareitorPersonaje : Cast<ADispareitorPersonaje>(PeonPropietario);    
@@ -63,6 +64,8 @@ FHitResult AArmaHitScan::CalcularImpacto(const FVector& Inicio, const FVector& O
         FVector HumoTrazaFinal = Fin; 
         if(ImpactoResultado.bBlockingHit) {
              HumoTrazaFinal = ImpactoResultado.ImpactPoint;
+        } else {
+            ImpactoResultado.ImpactPoint = Fin;
         }
 
         //DrawDebugSphere(GetWorld(), HumoTrazaFinal, 16.f, 12, FColor::Orange, true);

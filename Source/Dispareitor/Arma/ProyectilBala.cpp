@@ -57,7 +57,9 @@ void AProyectilBala::Callback_AlImpactar(UPrimitiveComponent* ComponenteImpactan
     if(PersonajePropietario) {
         ADispareitorControladorJugador* ControladorPropietario = Cast<ADispareitorControladorJugador>(PersonajePropietario->Controller);
         if(PersonajePropietario->HasAuthority() && !bRebobinarLadoServidor) {
-            UGameplayStatics::ApplyDamage(ActorImpactado, Danio, ControladorPropietario, this, UDamageType::StaticClass());
+            const float DanioACausar = ImpactoResultado.BoneName.ToString() == FString("head") ? DanioEnCabeza : Danio;
+
+            UGameplayStatics::ApplyDamage(ActorImpactado, DanioACausar, ControladorPropietario, this, UDamageType::StaticClass());
         } else {
             ADispareitorPersonaje* PersonajeImpactado = Cast<ADispareitorPersonaje>(ActorImpactado);
             if(PersonajePropietario->IsLocallyControlled() && bRebobinarLadoServidor && PersonajePropietario->ObtenerCompensacionLagComponente() && PersonajeImpactado) {

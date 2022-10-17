@@ -67,6 +67,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Dispersion") float DistanciaAEsferaDeDispersion = 800.f;
 	UPROPERTY(EditAnywhere, Category = "Dispersion") float RadioDeEsferaDeDispersion = 75.f;
 	UPROPERTY(EditAnywhere)	float Danio = 20.f;	
+	UPROPERTY(EditAnywhere)	float DanioEnCabeza = 40.f;	
 	UPROPERTY(Replicated, EditAnywhere)	bool bRebobinarLadoServidor = false;
 	UFUNCTION() void Callback_PingAlto(bool bPingAlto);
 
@@ -100,5 +101,6 @@ public:
 	FORCEINLINE int32 ObtenerMunicion() const { return Municion; }
 	FORCEINLINE int32 ObtenerCapacidadCargador() const { return CapacidadCargador; }
 	FORCEINLINE float ObtenerDanio() const { return Danio; }
+	FORCEINLINE float ObtenerDanioEnCabeza() const { return DanioEnCabeza; }
 
 };

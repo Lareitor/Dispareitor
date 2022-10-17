@@ -14,24 +14,34 @@ void AEscopeta::DispararEscopeta(const TArray<FVector_NetQuantize>& Objetivos) {
     if(!PeonPropietario) {
         return;
     }
-    AController* InstigadorControlador = PeonPropietario->GetController();
+    AController* ControladorInstigador = PeonPropietario->GetController();
 
     const USkeletalMeshSocket* PuntaArmaSocket = ObtenerMalla()->GetSocketByName("MuzzleFlash"); 
     if(PuntaArmaSocket) {
         const FTransform PuntaArmaSocketTransform = PuntaArmaSocket->GetSocketTransform(ObtenerMalla());
         const FVector Inicio = PuntaArmaSocketTransform.GetLocation();
 
-        TMap<ADispareitorPersonaje*, uint32> DispareitorPersonajesImpactadosMapa;
+        TMap<ADispareitorPersonaje*, uint32> MapaPersonajesImpactados;
+        TMap<ADispareitorPersonaje*, uint32> MapaPersonajesImpactadosCabeza;
         for(FVector_NetQuantize Objetivo: Objetivos) {
             FHitResult ImpactoResultado = CalcularImpacto(Inicio, Objetivo);
            
-            ADispareitorPersonaje* DispareitorPersonajeImpactado = Cast<ADispareitorPersonaje>(ImpactoResultado.GetActor());
-            if(DispareitorPersonajeImpactado) {
-                if(DispareitorPersonajesImpactadosMapa.Contains(DispareitorPersonajeImpactado)) {
-                    DispareitorPersonajesImpactadosMapa[DispareitorPersonajeImpactado]++;
+            ADispareitorPersonaje* PersonajeImpactado = Cast<ADispareitorPersonaje>(ImpactoResultado.GetActor());
+            if(PersonajeImpactado) {
+                const bool bDisparoCabeza = ImpactoResultado.BoneName.ToString() == FString("head");
+                if(bDisparoCabeza) {
+                    if(MapaPersonajesImpactadosCabeza.Contains(PersonajeImpactado)) {
+                        MapaPersonajesImpactadosCabeza[PersonajeImpactado]++;
+                    } else {
+                        MapaPersonajesImpactadosCabeza.Emplace(PersonajeImpactado, 1);
+                    }
                 } else {
-                    DispareitorPersonajesImpactadosMapa.Emplace(DispareitorPersonajeImpactado, 1);
-                }
+                    if(MapaPersonajesImpactados.Contains(PersonajeImpactado)) {
+                        MapaPersonajesImpactados[PersonajeImpactado]++;
+                    } else {
+                        MapaPersonajesImpactados.Emplace(PersonajeImpactado, 1);
+                    }
+                }                
             }
             if(SistemaParticulasAlImpactar) {
                 UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SistemaParticulasAlImpactar, ImpactoResultado.ImpactPoint, ImpactoResultado.ImpactNormal.Rotation());
@@ -41,21 +51,38 @@ void AEscopeta::DispararEscopeta(const TArray<FVector_NetQuantize>& Objetivos) {
             }
         }
 
-        TArray<ADispareitorPersonaje*> DispareitorPersonajesImpactados;
-        for(auto ElementoMapa : DispareitorPersonajesImpactadosMapa) {
-            if(ElementoMapa.Key && InstigadorControlador) {
-                if(HasAuthority() && (!bRebobinarLadoServidor || PeonPropietario->IsLocallyControlled())) {
-                    UGameplayStatics::ApplyDamage(ElementoMapa.Key, Danio * ElementoMapa.Value, InstigadorControlador, this, UDamageType::StaticClass());
+        TArray<ADispareitorPersonaje*> ArrayPersonajesImpactados;
+        TMap<ADispareitorPersonaje*, float> MapaDanio;
+        for(auto ElementoMapa : MapaPersonajesImpactados) {
+            if(ElementoMapa.Key) {
+                MapaDanio.Emplace(ElementoMapa.Key, ElementoMapa.Value * Danio);
+                ArrayPersonajesImpactados.AddUnique(ElementoMapa.Key);
+            }
+        }
+        for(auto ElementoMapaCabeza : MapaPersonajesImpactadosCabeza) {
+            if(ElementoMapaCabeza.Key) {
+                if(MapaDanio.Contains(ElementoMapaCabeza.Key)) {
+                    MapaDanio[ElementoMapaCabeza.Key] += ElementoMapaCabeza.Value * DanioEnCabeza;
+                } else {
+                    MapaDanio.Emplace(ElementoMapaCabeza.Key, ElementoMapaCabeza.Value * DanioEnCabeza); 
                 }
-                DispareitorPersonajesImpactados.Add(ElementoMapa.Key);
+                ArrayPersonajesImpactados.AddUnique(ElementoMapaCabeza.Key);
             }
         }
 
+        for(auto ElementoDanio : MapaDanio) {
+            if(ElementoDanio.Key && ControladorInstigador) {
+                if(HasAuthority() && (!bRebobinarLadoServidor || PeonPropietario->IsLocallyControlled())) {
+                    UGameplayStatics::ApplyDamage(ElementoDanio.Key, ElementoDanio.Value, ControladorInstigador, this, UDamageType::StaticClass());
+                }
+            }
+        }       
+
         if(!HasAuthority() && bRebobinarLadoServidor) {
-            DispareitorPersonaje = DispareitorPersonaje != nullptr ? DispareitorPersonaje : Cast<ADispareitorPersonaje>(PeonPropietario);    
-            DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(InstigadorControlador);
+            DispareitorPersonaje = DispareitorPersonaje ? DispareitorPersonaje : Cast<ADispareitorPersonaje>(PeonPropietario);    
+            DispareitorControladorJugador = DispareitorControladorJugador ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(ControladorInstigador);
             if(DispareitorPersonaje && DispareitorPersonaje->ObtenerCompensacionLagComponente() && DispareitorPersonaje->IsLocallyControlled() && DispareitorControladorJugador && DispareitorPersonaje->IsLocallyControlled()) {
-                DispareitorPersonaje->ObtenerCompensacionLagComponente()->PeticionImpactoEscopeta_EnServidor(DispareitorPersonajesImpactados, Inicio, Objetivos, DispareitorControladorJugador->ObtenerTiempoServidor() - DispareitorControladorJugador->STT);
+                DispareitorPersonaje->ObtenerCompensacionLagComponente()->PeticionImpactoEscopeta_EnServidor(ArrayPersonajesImpactados, Inicio, Objetivos, DispareitorControladorJugador->ObtenerTiempoServidor() - DispareitorControladorJugador->STT);
             }
         }
     }

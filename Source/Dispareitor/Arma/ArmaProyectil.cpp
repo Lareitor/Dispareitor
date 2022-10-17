@@ -27,6 +27,7 @@ void AArmaProyectil::Disparar(const FVector& Objetivo) {
                     ProyectilGenerado = Mundo->SpawnActor<AProyectil>(ClaseProyectil, TransformSocketPuntaArma.GetLocation(), RotacionAObjetivo, SpawnParametros);         
                     ProyectilGenerado->bRebobinarLadoServidor = false;
                     ProyectilGenerado->Danio = Danio;
+                    ProyectilGenerado->DanioEnCabeza = DanioEnCabeza;
                 } else { // ... y no controlado locamente -> generar un proyectil no replicado y SSR 
                     ProyectilGenerado = Mundo->SpawnActor<AProyectil>(ClaseProyectilNoReplicado, TransformSocketPuntaArma.GetLocation(), RotacionAObjetivo, SpawnParametros);         
                     ProyectilGenerado->bRebobinarLadoServidor = true;
@@ -37,7 +38,6 @@ void AArmaProyectil::Disparar(const FVector& Objetivo) {
                     ProyectilGenerado->bRebobinarLadoServidor = true;
                     ProyectilGenerado->InicioRayo = TransformSocketPuntaArma.GetLocation();
                     ProyectilGenerado->VectorVelocidadInicial = ProyectilGenerado->GetActorForwardVector() * ProyectilGenerado->VelocidadInicial; // GetActorForwardVector está normalizado por eso lo multiplicamos
-                    ProyectilGenerado->Danio = Danio;
                 } else { // no controlado locamente -> generar no replicado y no SSR
                     ProyectilGenerado = Mundo->SpawnActor<AProyectil>(ClaseProyectilNoReplicado, TransformSocketPuntaArma.GetLocation(), RotacionAObjetivo, SpawnParametros);         
                     ProyectilGenerado->bRebobinarLadoServidor = false;
@@ -48,6 +48,7 @@ void AArmaProyectil::Disparar(const FVector& Objetivo) {
                 ProyectilGenerado = Mundo->SpawnActor<AProyectil>(ClaseProyectil, TransformSocketPuntaArma.GetLocation(), RotacionAObjetivo, SpawnParametros);         
                 ProyectilGenerado->bRebobinarLadoServidor = false;
                 ProyectilGenerado->Danio = Danio;
+                ProyectilGenerado->DanioEnCabeza = DanioEnCabeza;
             }
         }
     }

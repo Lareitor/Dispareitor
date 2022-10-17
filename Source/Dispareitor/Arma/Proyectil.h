@@ -15,8 +15,9 @@ public:
 	bool bRebobinarLadoServidor = false;
 	FVector_NetQuantize InicioRayo;
 	FVector_NetQuantize100 VectorVelocidadInicial; // FVector_NetQuantize100 contiene dos decimales de precision, los necesitamos para que la velocidad sea precisa
-	UPROPERTY(EditAnywhere) float VelocidadInicial = 15000.f;
-	float Danio = 100.f; // bp_granadamano = 100
+	UPROPERTY(EditAnywhere) float VelocidadInicial = 15000.f;	
+	UPROPERTY(EditAnywhere) float Danio = 100.f; // Solo para granadas y cohetes	
+	UPROPERTY(EditAnywhere) float DanioEnCabeza = 40.f; // No usado por granadas y cohetes
 
 protected:
 	virtual void BeginPlay() override;
