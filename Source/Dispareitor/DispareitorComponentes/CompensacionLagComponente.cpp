@@ -428,19 +428,21 @@ void UCompensacionLagComponente::ModificarColisionMallaPersonaje(ADispareitorPer
 }
 
 
-void UCompensacionLagComponente::PeticionImpactoHitscan_EnServidor_Implementation(ADispareitorPersonaje* DispareitorPersonajeImpactado, const FVector_NetQuantize& InicioRayo, const FVector_NetQuantize& ImpactoRayo, float TiempoImpacto, class AArma* ArmaCausanteDanio) {
+void UCompensacionLagComponente::PeticionImpactoHitscan_EnServidor_Implementation(ADispareitorPersonaje* DispareitorPersonajeImpactado, const FVector_NetQuantize& InicioRayo, const FVector_NetQuantize& ImpactoRayo, float TiempoImpacto) {
 	FResultadoRebobinarLadoServidor ResultadoRebobinarLadoServidor = RebobinarLadoServidorHitscan(DispareitorPersonajeImpactado, InicioRayo, ImpactoRayo, TiempoImpacto);	
 
-	if(DispareitorPersonaje && DispareitorPersonajeImpactado && ArmaCausanteDanio && ResultadoRebobinarLadoServidor.bImpactoConfirmado) {
-		UGameplayStatics::ApplyDamage(DispareitorPersonajeImpactado, ArmaCausanteDanio->ObtenerDanio(), DispareitorPersonaje->Controller, ArmaCausanteDanio, UDamageType::StaticClass());
+	if(DispareitorPersonaje && DispareitorPersonaje->ObtenerArmaEquipada() && DispareitorPersonajeImpactado && ResultadoRebobinarLadoServidor.bImpactoConfirmado) {
+		const float Danio = ResultadoRebobinarLadoServidor.bTiroALaCabeza ? DispareitorPersonaje->ObtenerArmaEquipada()->ObtenerDanioEnCabeza() : DispareitorPersonaje->ObtenerArmaEquipada()->ObtenerDanio();
+		UGameplayStatics::ApplyDamage(DispareitorPersonajeImpactado, Danio, DispareitorPersonaje->Controller, DispareitorPersonaje->ObtenerArmaEquipada(), UDamageType::StaticClass());
 	}
 }
 
 void UCompensacionLagComponente::PeticionImpactoProyectil_EnServidor_Implementation(ADispareitorPersonaje* DispareitorPersonajeImpactado, const FVector_NetQuantize& InicioRayo, const FVector_NetQuantize100& VelocidadInicial, float TiempoImpacto) {
 	FResultadoRebobinarLadoServidor ResultadoRebobinarLadoServidor = RebobinarLadoServidorProyectil(DispareitorPersonajeImpactado, InicioRayo, VelocidadInicial, TiempoImpacto);	
 
-	if(DispareitorPersonaje && DispareitorPersonajeImpactado && ResultadoRebobinarLadoServidor.bImpactoConfirmado) {
-		UGameplayStatics::ApplyDamage(DispareitorPersonajeImpactado, DispareitorPersonaje->ObtenerArmaEquipada()->ObtenerDanio(), DispareitorPersonaje->Controller, DispareitorPersonaje->ObtenerArmaEquipada(), UDamageType::StaticClass());
+	if(DispareitorPersonaje && DispareitorPersonaje->ObtenerArmaEquipada() && DispareitorPersonajeImpactado && ResultadoRebobinarLadoServidor.bImpactoConfirmado) {
+		const float Danio = ResultadoRebobinarLadoServidor.bTiroALaCabeza ? DispareitorPersonaje->ObtenerArmaEquipada()->ObtenerDanioEnCabeza() : DispareitorPersonaje->ObtenerArmaEquipada()->ObtenerDanio();
+		UGameplayStatics::ApplyDamage(DispareitorPersonajeImpactado, Danio, DispareitorPersonaje->Controller, DispareitorPersonaje->ObtenerArmaEquipada(), UDamageType::StaticClass());
 	}
 }
 
@@ -452,7 +454,7 @@ void UCompensacionLagComponente::PeticionImpactoEscopeta_EnServidor_Implementati
 		if(DispareitorPersonajeImpactado && DispareitorPersonajeImpactado->ObtenerArmaEquipada() && DispareitorPersonaje) {
 			float DanioTotal = 0.f;
 			if(ResultadoRebobinarLadoServidorEscopeta.TirosALaCabeza.Contains(DispareitorPersonajeImpactado)) {
-				float DanioTiroALaCabeza = ResultadoRebobinarLadoServidorEscopeta.TirosALaCabeza[DispareitorPersonajeImpactado] * DispareitorPersonajeImpactado->ObtenerArmaEquipada()->ObtenerDanio();
+				float DanioTiroALaCabeza = ResultadoRebobinarLadoServidorEscopeta.TirosALaCabeza[DispareitorPersonajeImpactado] * DispareitorPersonajeImpactado->ObtenerArmaEquipada()->ObtenerDanioEnCabeza();
 				DanioTotal += DanioTiroALaCabeza;
 			}
 			if(ResultadoRebobinarLadoServidorEscopeta.TirosAlCuerpo.Contains(DispareitorPersonajeImpactado)) {

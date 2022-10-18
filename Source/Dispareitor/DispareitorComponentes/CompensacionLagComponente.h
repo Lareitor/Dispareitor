@@ -50,7 +50,7 @@ public:
 	FResultadoRebobinarLadoServidor RebobinarLadoServidorHitscan(class ADispareitorPersonaje* DispareitorPersonajeImpactado, const FVector_NetQuantize& InicioRayo, const FVector_NetQuantize& ImpactoRayo, float TiempoImpacto);
 	FResultadoRebobinarLadoServidor RebobinarLadoServidorProyectil(class ADispareitorPersonaje* DispareitorPersonajeImpactado, const FVector_NetQuantize& InicioRayo, const FVector_NetQuantize100& VelocidadInicial, float TiempoImpacto);
 	FResultadoRebobinarLadoServidorEscopeta RebobinarLadoServidorEscopeta(const TArray<ADispareitorPersonaje*>& DispareitorPersonajesImpactados, const FVector_NetQuantize& InicioRayo, const TArray<FVector_NetQuantize>& ImpactosRayos, float TiempoImpacto);
-	UFUNCTION(Server, Reliable) void PeticionImpactoHitscan_EnServidor(ADispareitorPersonaje* DispareitorPersonajeImpactado, const FVector_NetQuantize& InicioRayo, const FVector_NetQuantize& ImpactoRayo, float TiempoImpacto, class AArma* ArmaCausanteDanio);
+	UFUNCTION(Server, Reliable) void PeticionImpactoHitscan_EnServidor(ADispareitorPersonaje* DispareitorPersonajeImpactado, const FVector_NetQuantize& InicioRayo, const FVector_NetQuantize& ImpactoRayo, float TiempoImpacto);
 	UFUNCTION(Server, Reliable) void PeticionImpactoProyectil_EnServidor(ADispareitorPersonaje* DispareitorPersonajeImpactado, const FVector_NetQuantize& InicioRayo, const FVector_NetQuantize100& VelocidadInicial, float TiempoImpacto);
 	UFUNCTION(Server, Reliable) void PeticionImpactoEscopeta_EnServidor(const TArray<ADispareitorPersonaje*>& DispareitorPersonajesImpactados, const FVector_NetQuantize& InicioRayo, const TArray<FVector_NetQuantize>& ImpactosRayos, float TiempoImpacto);
 
