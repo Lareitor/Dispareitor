@@ -10,6 +10,7 @@ void ADispareitorEstadoJugador::GetLifetimeReplicatedProps(TArray< FLifetimeProp
    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
    DOREPLIFETIME(ADispareitorEstadoJugador, Muertes);
+   DOREPLIFETIME(ADispareitorEstadoJugador, Equipo);
 }
 
 // Este metodo solo se ejecuta en el servidor

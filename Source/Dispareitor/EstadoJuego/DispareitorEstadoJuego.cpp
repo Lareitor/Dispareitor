@@ -8,6 +8,8 @@ void ADispareitorEstadoJuego::GetLifetimeReplicatedProps(TArray<FLifetimePropert
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
     DOREPLIFETIME(ADispareitorEstadoJuego, ArrayDeEstadoJugadoresConPuntuacionMasAlta);
+    DOREPLIFETIME(ADispareitorEstadoJuego, PuntuacionEquipoRojo);
+    DOREPLIFETIME(ADispareitorEstadoJuego, PuntuacionEquipoAzul);
 }
 
 // Llamado por ADispareitorModoJuego::JugadorEliminado
@@ -24,4 +26,10 @@ void ADispareitorEstadoJuego::ActualizarArrayDeEstadoJugadoresConPuntuacionMasAl
     }  
 }
 
+void ADispareitorEstadoJuego::AlReplicar_PuntuacionEquipoRojo() {
 
+}
+
+void ADispareitorEstadoJuego::AlReplicar_PuntuacionEquipoAzul() {
+
+}

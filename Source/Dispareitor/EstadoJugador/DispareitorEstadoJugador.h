@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerState.h"
+#include "Dispareitor/Tipos/Equipo.h"
 #include "DispareitorEstadoJugador.generated.h"
 
 UCLASS()
@@ -19,4 +20,10 @@ private:
 	UPROPERTY()	class ADispareitorPersonaje* DispareitorPersonaje;
 	UPROPERTY()	class ADispareitorControladorJugador* DispareitorControladorJugador;
 	UPROPERTY(ReplicatedUsing = AlReplicar_Muertes)	int32 Muertes;	
+	UPROPERTY(Replicated) EEquipo Equipo = EEquipo::EE_Ninguno;
+
+public:
+	FORCEINLINE EEquipo ObtenerEquipo() const { return Equipo; }	
+	FORCEINLINE void ActivarEquipo(EEquipo EquipoAAsignar) { Equipo = EquipoAAsignar; }
+
 };

@@ -12,8 +12,14 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	void ActualizarArrayDeEstadoJugadoresConPuntuacionMasAlta(class ADispareitorEstadoJugador* DispareitorEstadoJugador);
 
-	UPROPERTY(Replicated)
-	TArray<ADispareitorEstadoJugador*> ArrayDeEstadoJugadoresConPuntuacionMasAlta;
+	UPROPERTY(Replicated) TArray<ADispareitorEstadoJugador*> ArrayDeEstadoJugadoresConPuntuacionMasAlta;
+	TArray<ADispareitorEstadoJugador*> ArrayEstadoJugadoresEquipoRojo;
+	TArray<ADispareitorEstadoJugador*> ArrayEstadoJugadoresEquipoAzul;
+	UPROPERTY(ReplicatedUsing = AlReplicar_PuntuacionEquipoRojo) float PuntuacionEquipoRojo = 0.f;
+	UPROPERTY(ReplicatedUsing = AlReplicar_PuntuacionEquipoAzul) float PuntuacionEquipoAzul = 0.f;
+
+	UFUNCTION() void AlReplicar_PuntuacionEquipoRojo();
+	UFUNCTION() void AlReplicar_PuntuacionEquipoAzul();
 
 private:
 	float PuntuacionMasAlta = 0.f;	
