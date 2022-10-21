@@ -660,10 +660,16 @@ void ADispareitorPersonaje::EsconderCamaraSiPersonajeCerca() {
 		if(CombateComponente && CombateComponente->ArmaEquipada && CombateComponente->ArmaEquipada->ObtenerMalla()) {
 			CombateComponente->ArmaEquipada->ObtenerMalla()->bOwnerNoSee = true;
 		}
+		if(CombateComponente && CombateComponente->ArmaSecundariaEquipada && CombateComponente->ArmaSecundariaEquipada->ObtenerMalla()) {
+			CombateComponente->ArmaSecundariaEquipada->ObtenerMalla()->bOwnerNoSee = true;
+		}
 	} else {
 		GetMesh()->SetVisibility(true);
 		if(CombateComponente && CombateComponente->ArmaEquipada && CombateComponente->ArmaEquipada->ObtenerMalla()) {
 			CombateComponente->ArmaEquipada->ObtenerMalla()->bOwnerNoSee = false;
+		}
+		if(CombateComponente && CombateComponente->ArmaSecundariaEquipada && CombateComponente->ArmaSecundariaEquipada->ObtenerMalla()) {
+			CombateComponente->ArmaSecundariaEquipada->ObtenerMalla()->bOwnerNoSee = false;
 		}
 	}
 }
@@ -773,6 +779,7 @@ void ADispareitorPersonaje::Eliminado_Multicast_Implementation(bool bJugadorDeja
 	}
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Granada->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	if(SistemaParticulasRobotEliminacion) {
 		FVector RobotEliminacionPuntoAparicion(GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z + 200.f);
