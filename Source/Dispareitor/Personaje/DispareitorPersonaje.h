@@ -96,6 +96,7 @@ protected:
 private:
 	// Inicializa la variable a nullptr, en otro caso tendria basura y podría producir errores de codigo como crasheos. Otra forma de hacerlo seria usando directamente = nullptr;
 	UPROPERTY() class ADispareitorControladorJugador* DispareitorControladorJugador; 
+	UPROPERTY() class ADispareitorModoJuego* DModoJuego;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true")) class UCombateComponente* CombateComponente;
 	UPROPERTY(VisibleAnywhere) class UBuffComponente* BuffComponente;
 	UPROPERTY(VisibleAnywhere) class UCompensacionLagComponente* CompensacionLagComponente; 

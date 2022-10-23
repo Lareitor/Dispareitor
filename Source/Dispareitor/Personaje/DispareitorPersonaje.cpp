@@ -677,10 +677,14 @@ void ADispareitorPersonaje::EsconderCamaraSiPersonajeCerca() {
 
 // LLamado al recibir daño por parte de AProyectilBala::Callback_AlImpactar y ALimitesJuego::Callback_SolapadaMallaInicio
 // Solo se ejecuta en el server
-void ADispareitorPersonaje::RecibirDanio(AActor* ActorDaniado, float Danio, const UDamageType* TipoDanio, class AController* ControladorInstigador, AActor* ActorCausante) {
-	if(bEliminado) {
+void ADispareitorPersonaje::RecibirDanio(AActor* ActorDaniado, float Danio, const UDamageType* TipoDanio, class AController* CInstigador, AActor* ActorCausante) {	
+	DModoJuego = DModoJuego ? DModoJuego : GetWorld()->GetAuthGameMode<ADispareitorModoJuego>();
+
+	if(bEliminado || !DModoJuego) {
 		return;
 	}
+
+	Danio = DModoJuego->CalcularDanio(CInstigador, Controller, Danio);
 
 	float DanioAVida = Danio;
 	if(Escudo > 0.f) {
@@ -699,11 +703,10 @@ void ADispareitorPersonaje::RecibirDanio(AActor* ActorDaniado, float Danio, cons
 	EjecutarMontajeReaccionAImpacto();
 
 	if(Vida == 0.f) {
-		ADispareitorModoJuego* DispareitorModoJuego = GetWorld()->GetAuthGameMode<ADispareitorModoJuego>();
-		if(DispareitorModoJuego) {
+		if(DModoJuego) {
 			DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(Controller);
-			ADispareitorControladorJugador* AtacanteDispareitorControladorJugador = Cast<ADispareitorControladorJugador>(ControladorInstigador);
-			DispareitorModoJuego->JugadorEliminado(this, DispareitorControladorJugador, AtacanteDispareitorControladorJugador);
+			ADispareitorControladorJugador* AtacanteDispareitorControladorJugador = Cast<ADispareitorControladorJugador>(CInstigador);
+			DModoJuego->JugadorEliminado(this, DispareitorControladorJugador, AtacanteDispareitorControladorJugador);
 		}
 	}
 }
@@ -802,9 +805,10 @@ void ADispareitorPersonaje::Eliminado_Multicast_Implementation(bool bJugadorDeja
 }
 
 void ADispareitorPersonaje::TemporizadorEliminadoFinalizado() {
-	ADispareitorModoJuego* DispareitorModoJuego = GetWorld()->GetAuthGameMode<ADispareitorModoJuego>();
-	if(DispareitorModoJuego && !bDejarJuego) {
-		DispareitorModoJuego->PeticionReaparecer(this, DispareitorControladorJugador);
+	DModoJuego = DModoJuego ? DModoJuego : GetWorld()->GetAuthGameMode<ADispareitorModoJuego>();
+
+	if(DModoJuego && !bDejarJuego) {
+		DModoJuego->PeticionReaparecer(this, DispareitorControladorJugador);
 	}
 	if(bDejarJuego && IsLocallyControlled()) {
 		DelegadoDejarJuego.Broadcast();
@@ -856,8 +860,8 @@ void ADispareitorPersonaje::Destroyed() {
 		ComponenteSistemaParticulasRobotEliminacion->DestroyComponent();
 	}
 
-	ADispareitorModoJuego* DispareitorModoJuego = Cast<ADispareitorModoJuego>(UGameplayStatics::GetGameMode(this));
-	if(CombateComponente && CombateComponente->ArmaEquipada && DispareitorModoJuego && DispareitorModoJuego->GetMatchState() != MatchState::InProgress) {
+	DModoJuego = DModoJuego ? DModoJuego : GetWorld()->GetAuthGameMode<ADispareitorModoJuego>();
+	if(CombateComponente && CombateComponente->ArmaEquipada && DModoJuego && DModoJuego->GetMatchState() != MatchState::InProgress) {
 		CombateComponente->ArmaEquipada->Destroy();
 	}
 }
@@ -881,9 +885,9 @@ float ADispareitorPersonaje::CalcularVelocidad() {
 }
 
 void ADispareitorPersonaje::ReaparecerArmaPorDefecto() {
-	ADispareitorModoJuego* DispareitorModoJuego = Cast<ADispareitorModoJuego>(UGameplayStatics::GetGameMode(this));
+	DModoJuego = DModoJuego ? DModoJuego : GetWorld()->GetAuthGameMode<ADispareitorModoJuego>();
 	UWorld* Mundo = GetWorld();
-	if(DispareitorModoJuego && Mundo && !bEliminado && ClaseArmaPorDefecto) {
+	if(DModoJuego && Mundo && !bEliminado && ClaseArmaPorDefecto) {
 		AArma* ArmaPorDefecto = Mundo->SpawnActor<AArma>(ClaseArmaPorDefecto);
 		ArmaPorDefecto->bDestruirArma = true;
 		if(CombateComponente) {
@@ -897,10 +901,11 @@ bool ADispareitorPersonaje::EstaRecargandoLocalmente() {
 }
 
 void ADispareitorPersonaje::DejarJuego_EnServidor_Implementation() {
-	ADispareitorModoJuego* DispareitorModoJuego = GetWorld()->GetAuthGameMode<ADispareitorModoJuego>();
+	DModoJuego = DModoJuego ? DModoJuego : GetWorld()->GetAuthGameMode<ADispareitorModoJuego>();
+
 	DispareitorEstadoJugador =  DispareitorEstadoJugador ? DispareitorEstadoJugador : GetPlayerState<ADispareitorEstadoJugador>();
-	if(DispareitorModoJuego && DispareitorEstadoJugador) {
-		DispareitorModoJuego->JugadorDejaJuego(DispareitorEstadoJugador);
+	if(DModoJuego && DispareitorEstadoJugador) {
+		DModoJuego->JugadorDejaJuego(DispareitorEstadoJugador);
 	}
 }
 

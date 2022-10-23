@@ -4,12 +4,12 @@
 #include "Kismet/GameplayStatics.h"
 
 // Invocado si se une un jugador una vez empezada ya la partida
-void ADispareitorModoJuegoEquipos::PostLogin(APlayerController* ControladorNuevoJugador) {
-    Super::PostLogin(ControladorNuevoJugador);
+void ADispareitorModoJuegoEquipos::PostLogin(APlayerController* CNuevoJugador) {
+    Super::PostLogin(CNuevoJugador);
 
     ADispareitorEstadoJuego* DEstadoJuego = Cast<ADispareitorEstadoJuego>(UGameplayStatics::GetGameState(this));
     if(DEstadoJuego) {
-        ADispareitorEstadoJugador* DEstadoJugador = ControladorNuevoJugador->GetPlayerState<ADispareitorEstadoJugador>();
+        ADispareitorEstadoJugador* DEstadoJugador = CNuevoJugador->GetPlayerState<ADispareitorEstadoJugador>();
         if(DEstadoJugador && DEstadoJugador->ObtenerEquipo() == EEquipo::EE_Ninguno) {
             if(DEstadoJuego->ArrayEstadoJugadoresEquipoAzul.Num() >= DEstadoJuego->ArrayEstadoJugadoresEquipoRojo.Num()) {
                 DEstadoJuego->ArrayEstadoJugadoresEquipoRojo.AddUnique(DEstadoJugador);
@@ -42,9 +42,9 @@ void ADispareitorModoJuegoEquipos::HandleMatchHasStarted() {
     }
 }
 
-void ADispareitorModoJuegoEquipos::Logout(AController* ControladorJugadorSaliendo) {
+void ADispareitorModoJuegoEquipos::Logout(AController* CJugadorSaliendo) {
     ADispareitorEstadoJuego* DEstadoJuego = Cast<ADispareitorEstadoJuego>(UGameplayStatics::GetGameState(this));
-    ADispareitorEstadoJugador* DEstadoJugador = ControladorJugadorSaliendo->GetPlayerState<ADispareitorEstadoJugador>();
+    ADispareitorEstadoJugador* DEstadoJugador = CJugadorSaliendo->GetPlayerState<ADispareitorEstadoJugador>();
     if(DEstadoJuego && DEstadoJugador) {
         if(DEstadoJuego->ArrayEstadoJugadoresEquipoAzul.Contains(DEstadoJugador)) {
             DEstadoJuego->ArrayEstadoJugadoresEquipoAzul.Remove(DEstadoJugador);
@@ -54,3 +54,12 @@ void ADispareitorModoJuegoEquipos::Logout(AController* ControladorJugadorSaliend
     }
 }
 
+float ADispareitorModoJuegoEquipos::CalcularDanio(AController* CAtacante, AController* CVictima, float Danio) {
+    ADispareitorEstadoJugador* DEstadoJugadorAtacante = CAtacante->GetPlayerState<ADispareitorEstadoJugador>();
+    ADispareitorEstadoJugador* DEstadoJugadorVictima = CVictima->GetPlayerState<ADispareitorEstadoJugador>();
+    if((!DEstadoJugadorAtacante || !DEstadoJugadorVictima) || DEstadoJugadorAtacante == DEstadoJugadorVictima || DEstadoJugadorAtacante->ObtenerEquipo() != DEstadoJugadorVictima->ObtenerEquipo()) {
+        return Danio;
+    }
+   
+    return 0.f; // Son jugadores del mismo equipo
+}

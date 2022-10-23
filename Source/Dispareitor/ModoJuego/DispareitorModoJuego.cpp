@@ -184,3 +184,7 @@ void ADispareitorModoJuego::JugadorDejaJuego(ADispareitorEstadoJugador* Disparei
         DispareitorPersonaje->Eliminado(true);
     }
 }
+
+float ADispareitorModoJuego::CalcularDanio(AController* CAtacante, AController* CVictima, float Danio) {
+    return Danio;
+}

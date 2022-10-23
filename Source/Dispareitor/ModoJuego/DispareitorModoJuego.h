@@ -22,6 +22,7 @@ public:
 	UPROPERTY(EditDefaultsOnly)	float TiempoPartida = 300.f;
 	UPROPERTY(EditDefaultsOnly)	float TiempoEnfriamiento = 10.f;
 	float TiempoInicioNivel = 0.f;
+	virtual float CalcularDanio(AController* CAtacante, AController* CVictima, float Danio);
 
 protected:
 	virtual void BeginPlay() override;	
