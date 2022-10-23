@@ -220,6 +220,7 @@ void ADispareitorPersonaje::SondearInicializacion() {
 		if(DispareitorEstadoJugador) {
 			DispareitorEstadoJugador->IncrementarMuertos(0.f);	
 			DispareitorEstadoJugador->IncrementarMuertes(0);
+ 			ActivarColorEquipo(DispareitorEstadoJugador->ObtenerEquipo());
 
 			ADispareitorEstadoJuego* DispareitorEstadoJuego = Cast<ADispareitorEstadoJuego>(UGameplayStatics::GetGameState(this));
 			if(DispareitorEstadoJuego && DispareitorEstadoJuego->ArrayDeEstadoJugadoresConPuntuacionMasAlta.Contains(DispareitorEstadoJugador)) {
@@ -763,11 +764,11 @@ void ADispareitorPersonaje::Eliminado_Multicast_Implementation(bool bJugadorDeja
 	bEliminado = true;
 	EjecutarMontajeEliminado();
 
-	if(InstanciaMaterialParaDisolucion) {
-		InstanciaMaterialDinamicoParaDisolucion = UMaterialInstanceDynamic::Create(InstanciaMaterialParaDisolucion, this);
-		GetMesh()->SetMaterial(0, InstanciaMaterialDinamicoParaDisolucion);
-		InstanciaMaterialDinamicoParaDisolucion->SetScalarParameterValue(TEXT("Disolucion"), 0.55f);
-		InstanciaMaterialDinamicoParaDisolucion->SetScalarParameterValue(TEXT("Brillo"), 200.f);
+	if(IMDisolucion) {
+		IMDDisolucion = UMaterialInstanceDynamic::Create(IMDisolucion, this);
+		GetMesh()->SetMaterial(0, IMDDisolucion);
+		IMDDisolucion->SetScalarParameterValue(TEXT("Disolucion"), 0.55f);
+		IMDDisolucion->SetScalarParameterValue(TEXT("Brillo"), 200.f);
 		EmpezarDisolucion();
 	}
 
@@ -842,8 +843,8 @@ void ADispareitorPersonaje::EmpezarDisolucion() {
 }
 
 void ADispareitorPersonaje::Callback_ActualizarMaterialEnDisolucion(float DisolucionValor) {
-	if(InstanciaMaterialDinamicoParaDisolucion) {
-		InstanciaMaterialDinamicoParaDisolucion->SetScalarParameterValue(TEXT("Disolucion"), DisolucionValor);
+	if(IMDDisolucion) {
+		IMDDisolucion->SetScalarParameterValue(TEXT("Disolucion"), DisolucionValor);
 	}
 }
 
@@ -918,5 +919,26 @@ void ADispareitorPersonaje::GanoElLider_Multicast_Implementation() {
 void ADispareitorPersonaje::PerdioElLider_Multicast_Implementation() {
 	if(ComponenteNiagaraCorona) {
 		ComponenteNiagaraCorona->DestroyComponent();
+	}
+}
+
+void ADispareitorPersonaje::ActivarColorEquipo(EEquipo Equipo) {
+	if(!GetMesh() || !IMOriginal) {
+		return;
+	}
+
+	switch(Equipo) {
+		case EEquipo::EE_Ninguno:
+			GetMesh()->SetMaterial(0, IMOriginal);
+			IMDisolucion = IMDisolucionEquipoAzul;
+		break;
+		case EEquipo::EE_Azul:
+			GetMesh()->SetMaterial(0, IMEquipoAzul);
+			IMDisolucion = IMDisolucionEquipoAzul;
+		break;
+		case EEquipo::EE_Rojo:
+			GetMesh()->SetMaterial(0, IMEquipoRojo);
+			IMDisolucion = IMDisolucionEquipoRojo;		
+		break;
 	}
 }

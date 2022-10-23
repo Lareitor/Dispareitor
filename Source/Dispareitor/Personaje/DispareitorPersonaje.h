@@ -6,6 +6,7 @@
 #include "Dispareitor/Interfaces/InteractuarConCrucetaInterfaz.h"
 #include "Components/TimelineComponent.h"
 #include "Dispareitor/Tipos/EstadosCombate.h"
+#include "Dispareitor/Tipos/Equipo.h"
 #include "DispareitorPersonaje.generated.h"
 
 
@@ -48,6 +49,7 @@ public:
 	FDelegadoDejarJuego DelegadoDejarJuego;
 	UFUNCTION(NetMulticast, Reliable) void GanoElLider_Multicast();
 	UFUNCTION(NetMulticast, Reliable) void PerdioElLider_Multicast();
+	void ActivarColorEquipo(EEquipo Equipo);
 
 protected:
 	virtual void BeginPlay() override;
@@ -161,9 +163,15 @@ private:
 	UPROPERTY(EditAnywhere)	UCurveFloat* CurvaDeDisolucion;
 	UFUNCTION()	void Callback_ActualizarMaterialEnDisolucion(float DisolucionValor);
 	void EmpezarDisolucion();
-	UPROPERTY(VisibleAnywhere, Category = Eliminacion) UMaterialInstanceDynamic* InstanciaMaterialDinamicoParaDisolucion;
-	// Se setea en el BP y a partir de ella creamos InstanciaMaterialDinamicoParaDisolucion
-	UPROPERTY(EditAnywhere, Category = Eliminacion)	UMaterialInstance* InstanciaMaterialParaDisolucion;
+	UPROPERTY(VisibleAnywhere, Category = Eliminacion) UMaterialInstanceDynamic* IMDDisolucion;
+	// A partir de ella creamos IMDDisolucion
+	UPROPERTY(VisibleAnywhere, Category = Eliminacion)	UMaterialInstance* IMDisolucion;
+	UPROPERTY(EditAnywhere, Category = Eliminacion)	UMaterialInstance* IMDisolucionEquipoRojo;
+	UPROPERTY(EditAnywhere, Category = Eliminacion)	UMaterialInstance* IMDisolucionEquipoAzul;
+	UPROPERTY(EditAnywhere, Category = Eliminacion)	UMaterialInstance* IMEquipoRojo;
+	UPROPERTY(EditAnywhere, Category = Eliminacion)	UMaterialInstance* IMEquipoAzul;
+	UPROPERTY(EditAnywhere, Category = Eliminacion)	UMaterialInstance* IMOriginal;
+
 	/**
 	 * Eliminacion
 	 */

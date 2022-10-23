@@ -60,3 +60,18 @@ void ADispareitorEstadoJugador::AlReplicar_Muertes() {
    }
 }
 
+
+void ADispareitorEstadoJugador::ActivarEquipo(EEquipo EquipoAAsignar) {
+   Equipo = EquipoAAsignar;
+   ADispareitorPersonaje* DPersonaje = Cast<ADispareitorPersonaje>(GetPawn());
+   if(DPersonaje) {
+      DPersonaje->ActivarColorEquipo(Equipo);
+   }
+}
+
+void ADispareitorEstadoJugador::AlReplicar_Equipo() {
+   ADispareitorPersonaje* DPersonaje = Cast<ADispareitorPersonaje>(GetPawn());
+   if(DPersonaje) {
+      DPersonaje->ActivarColorEquipo(Equipo);
+   }
+}
