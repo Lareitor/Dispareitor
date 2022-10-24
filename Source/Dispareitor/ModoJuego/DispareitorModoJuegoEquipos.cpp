@@ -1,7 +1,9 @@
 #include "DispareitorModoJuegoEquipos.h"
 #include "Dispareitor/EstadoJuego/DispareitorEstadoJuego.h"
 #include "Dispareitor/EstadoJugador/DispareitorEstadoJugador.h"
+#include "Dispareitor/ControladorJugador/DispareitorControladorJugador.h"
 #include "Kismet/GameplayStatics.h"
+
 
 ADispareitorModoJuegoEquipos::ADispareitorModoJuegoEquipos() {    
     bPartidaPorEquipos = true;
@@ -67,3 +69,18 @@ float ADispareitorModoJuegoEquipos::CalcularDanio(AController* CAtacante, AContr
    
     return 0.f; // Son jugadores del mismo equipo
 }
+
+void ADispareitorModoJuegoEquipos::JugadorEliminado(ADispareitorPersonaje* DPersonajeVictima, ADispareitorControladorJugador* DControladorJugadorVictima, ADispareitorControladorJugador* DControladorJugadorAtacante) {
+    Super::JugadorEliminado(DPersonajeVictima, DControladorJugadorVictima,  DControladorJugadorAtacante);
+
+    ADispareitorEstadoJuego* DEstadoJuego = Cast<ADispareitorEstadoJuego>(UGameplayStatics::GetGameState(this));
+    ADispareitorEstadoJugador* DEstadoJugador = DControladorJugadorAtacante ? Cast<ADispareitorEstadoJugador>(DControladorJugadorAtacante->PlayerState) : nullptr;
+    if(DEstadoJuego && DEstadoJugador){
+        if(DEstadoJugador->ObtenerEquipo() == EEquipo::EE_Azul) {
+            DEstadoJuego->ActualizarPuntuacionEquipoAzul();
+        } else if(DEstadoJugador->ObtenerEquipo() == EEquipo::EE_Rojo) {
+            DEstadoJuego->ActualizarPuntuacionEquipoRojo();
+        }
+
+    }
+}	
