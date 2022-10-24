@@ -57,7 +57,7 @@ void ADispareitorModoJuego::OnMatchStateSet() {
     for(FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It) {
         ADispareitorControladorJugador* DispareitorControladorJugador = Cast<ADispareitorControladorJugador>(*It);
         if(DispareitorControladorJugador) {
-            DispareitorControladorJugador->ActualizarEstadoPartida(MatchState);
+            DispareitorControladorJugador->ActualizarEstadoPartida(MatchState, bPartidaPorEquipos);
         }
     }
 }

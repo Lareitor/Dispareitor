@@ -20,6 +20,8 @@ public:
 	UPROPERTY(meta = (BindWidget)) UTextBlock* MunicionPersonaje;
 	UPROPERTY(meta = (BindWidget)) UTextBlock* Tiempo;
 	UPROPERTY(meta = (BindWidget)) UTextBlock* CantidadGranadas;
+	UPROPERTY(meta = (BindWidget)) UTextBlock* PuntuacionEquipoAzul;
+	UPROPERTY(meta = (BindWidget)) UTextBlock* PuntuacionEquipoRojo;
 	UPROPERTY(meta = (BindWidget)) class UImage* ImagenPingAlto;
 	UPROPERTY(meta = (BindWidgetAnim), Transient) class UWidgetAnimation* AnimacionPingAlto;
 };

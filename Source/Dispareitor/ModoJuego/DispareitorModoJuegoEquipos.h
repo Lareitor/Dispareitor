@@ -9,6 +9,7 @@ class DISPAREITOR_API ADispareitorModoJuegoEquipos : public ADispareitorModoJueg
 	GENERATED_BODY()
 
 public :	
+	ADispareitorModoJuegoEquipos();
 	virtual void PostLogin(APlayerController* CNuevoJugador) override;
 	virtual void Logout(AController* CJugadorSaliendo) override;
 	virtual float CalcularDanio(AController* CAtacante, AController* CVictima, float Danio) override;

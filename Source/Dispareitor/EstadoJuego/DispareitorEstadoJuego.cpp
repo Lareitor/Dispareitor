@@ -26,6 +26,16 @@ void ADispareitorEstadoJuego::ActualizarArrayDeEstadoJugadoresConPuntuacionMasAl
     }  
 }
 
+void ADispareitorEstadoJuego::ActualizarPuntuacionEquipoRojo() {
+    PuntuacionEquipoRojo++;
+}
+
+
+void ADispareitorEstadoJuego::ActualizarPuntuacionEquipoAzul() {
+    PuntuacionEquipoAzul++;
+}
+
+
 void ADispareitorEstadoJuego::AlReplicar_PuntuacionEquipoRojo() {
 
 }

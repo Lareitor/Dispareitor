@@ -3,6 +3,10 @@
 #include "Dispareitor/EstadoJugador/DispareitorEstadoJugador.h"
 #include "Kismet/GameplayStatics.h"
 
+ADispareitorModoJuegoEquipos::ADispareitorModoJuegoEquipos() {    
+    bPartidaPorEquipos = true;
+}
+
 // Invocado si se une un jugador una vez empezada ya la partida
 void ADispareitorModoJuegoEquipos::PostLogin(APlayerController* CNuevoJugador) {
     Super::PostLogin(CNuevoJugador);

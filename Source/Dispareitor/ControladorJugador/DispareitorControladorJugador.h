@@ -26,13 +26,18 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual float ObtenerTiempoServidor();
 	virtual void ReceivedPlayer() override;
-	void ActualizarEstadoPartida(FName Estado);
-	void ManejarEstadoPartida();
+	void ActualizarEstadoPartida(FName Estado, bool bPartidaPorEquipos = false);
+	void ManejarEstadoPartida(bool bPartidaPorEquipos = false);
 	void ManejarEnfriamiento();
 	float STT = 0.f; // Single Trip Time es la mitad aprox. de RTT
 	FDelegadoPingAlto DelegadoPingAlto;
 	
 	void AnunciarEliminacion(APlayerState* EstadoJugadorGanador, APlayerState* EstadoJugadorPerdedor);
+	void EsconderPuntuacionEquipos();
+	void InicializarPuntuacionEquipos();
+	void ActualizarPuntuacionEquipoRojoHUD(int32 Puntuacion);
+	void ActualizarPuntuacionEquipoAzulHUD(int32 Puntuacion);
+
 	
 protected:
 	virtual void BeginPlay() override;
@@ -56,6 +61,9 @@ protected:
 	void MostrarRegresarAMenuPrincipal();
 
 	UFUNCTION(Client, Reliable) void AnunciarEliminacion_EnCliente(APlayerState* EstadoJugadorGanador, APlayerState* EstadoJugadorPerdedor);
+
+	UPROPERTY(ReplicatedUsing = AlReplicar_MostrarPuntuacionEquipos) bool bMostrarPuntuacionEquipos = false;
+	UFUNCTION() void AlReplicar_MostrarPuntuacionEquipos();
 
 private:
 	UPROPERTY() class ADispareitorHUD* DispareitorHUD;	

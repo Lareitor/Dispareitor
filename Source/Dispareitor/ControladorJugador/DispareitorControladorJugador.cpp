@@ -39,6 +39,7 @@ void ADispareitorControladorJugador::GetLifetimeReplicatedProps(TArray<FLifetime
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
     DOREPLIFETIME(ADispareitorControladorJugador, EstadoPartida);
+    DOREPLIFETIME(ADispareitorControladorJugador, bMostrarPuntuacionEquipos);
 }
 
 
@@ -319,16 +320,20 @@ void ADispareitorControladorJugador::ComprobarTiempoSincronizacion(float DeltaTi
 }
 
 // Llamado por ADispareitorModoJuego::OnMatchStateSet
-void ADispareitorControladorJugador::ActualizarEstadoPartida(FName Estado) {
+void ADispareitorControladorJugador::ActualizarEstadoPartida(FName Estado,  bool bPartidaPorEquipos) {
     EstadoPartida = Estado;
-    ManejarEstadoPartida();
+    ManejarEstadoPartida(bPartidaPorEquipos);
 }
 
 void ADispareitorControladorJugador::AlReplicar_EstadoPartida() {
     ManejarEstadoPartida();
 }
 
-void ADispareitorControladorJugador::ManejarEstadoPartida() {
+void ADispareitorControladorJugador::ManejarEstadoPartida(bool bPartidaPorEquipos) {
+    if(HasAuthority()) {
+        bMostrarPuntuacionEquipos = bPartidaPorEquipos;
+    }
+
     DispareitorHUD = DispareitorHUD ? DispareitorHUD : Cast<ADispareitorHUD>(GetHUD());
     if(DispareitorHUD) {
         if(EstadoPartida == MatchState::InProgress) {
@@ -338,6 +343,13 @@ void ADispareitorControladorJugador::ManejarEstadoPartida() {
             if(DispareitorHUD->AnunciosWidget) {
                 DispareitorHUD->AnunciosWidget->SetVisibility(ESlateVisibility::Hidden);
             }
+            if(HasAuthority()) {
+                if(bPartidaPorEquipos) {
+                    InicializarPuntuacionEquipos();
+                } else {
+                    EsconderPuntuacionEquipos();
+                }
+            }            
         } else if(EstadoPartida == MatchState::Enfriamiento) {
             DispareitorHUD->PantallaDelPersonaje->RemoveFromParent();
             if(DispareitorHUD->AnunciosWidget && DispareitorHUD->AnunciosWidget->PartidaComienza && DispareitorHUD->AnunciosWidget->Informacion) {
@@ -454,5 +466,50 @@ void ADispareitorControladorJugador::AnunciarEliminacion_EnCliente_Implementatio
     DispareitorHUD = DispareitorHUD ? DispareitorHUD : Cast<ADispareitorHUD>(GetHUD());
     if(DispareitorHUD) {
         DispareitorHUD->MostrarAnunciosEliminacion(EstadoJugadorGanador->GetPlayerName(), EstadoJugadorPerdedor->GetPlayerName());
+    }
+}
+
+void ADispareitorControladorJugador::EsconderPuntuacionEquipos() {
+    DispareitorHUD = DispareitorHUD ? DispareitorHUD : Cast<ADispareitorHUD>(GetHUD());
+
+    if(DispareitorHUD && DispareitorHUD->PantallaDelPersonaje && DispareitorHUD->PantallaDelPersonaje->PuntuacionEquipoAzul && DispareitorHUD->PantallaDelPersonaje->PuntuacionEquipoRojo) {
+        DispareitorHUD->PantallaDelPersonaje->PuntuacionEquipoRojo->SetText(FText());
+        DispareitorHUD->PantallaDelPersonaje->PuntuacionEquipoAzul->SetText(FText());
+    } 
+}
+
+void ADispareitorControladorJugador::InicializarPuntuacionEquipos() {
+    DispareitorHUD = DispareitorHUD ? DispareitorHUD : Cast<ADispareitorHUD>(GetHUD());
+
+    if(DispareitorHUD && DispareitorHUD->PantallaDelPersonaje && DispareitorHUD->PantallaDelPersonaje->PuntuacionEquipoAzul && DispareitorHUD->PantallaDelPersonaje->PuntuacionEquipoRojo) {
+        FString Cero("0");
+        DispareitorHUD->PantallaDelPersonaje->PuntuacionEquipoRojo->SetText(FText::FromString(Cero));
+        DispareitorHUD->PantallaDelPersonaje->PuntuacionEquipoAzul->SetText(FText::FromString(Cero));
+    } 
+}
+
+void ADispareitorControladorJugador::ActualizarPuntuacionEquipoRojoHUD(int32 Puntuacion) {
+    DispareitorHUD = DispareitorHUD ? DispareitorHUD : Cast<ADispareitorHUD>(GetHUD());
+
+    if(DispareitorHUD && DispareitorHUD->PantallaDelPersonaje && DispareitorHUD->PantallaDelPersonaje->PuntuacionEquipoRojo) {
+        FString PuntuacionTexto = FString::Printf(TEXT("%d"), Puntuacion);
+        DispareitorHUD->PantallaDelPersonaje->PuntuacionEquipoRojo->SetText(FText::FromString(PuntuacionTexto));
+    } 
+}
+	
+void ADispareitorControladorJugador::ActualizarPuntuacionEquipoAzulHUD(int32 Puntuacion) {
+    DispareitorHUD = DispareitorHUD ? DispareitorHUD : Cast<ADispareitorHUD>(GetHUD());
+
+    if(DispareitorHUD && DispareitorHUD->PantallaDelPersonaje && DispareitorHUD->PantallaDelPersonaje->PuntuacionEquipoAzul) {
+        FString PuntuacionTexto = FString::Printf(TEXT("%d"), Puntuacion);
+        DispareitorHUD->PantallaDelPersonaje->PuntuacionEquipoAzul->SetText(FText::FromString(PuntuacionTexto));
+    } 
+}
+
+void ADispareitorControladorJugador::AlReplicar_MostrarPuntuacionEquipos() {
+    if(bMostrarPuntuacionEquipos) {
+        InicializarPuntuacionEquipos();
+    } else {
+        EsconderPuntuacionEquipos();
     }
 }
