@@ -14,6 +14,7 @@
 #include "Dispareitor/EstadoJugador/DispareitorEstadoJugador.h"
 #include "Components/Image.h"
 #include "Dispareitor/HUD/RegresarAMenuPrincipal.h"
+#include "Dispareitor/Tipos/Anuncio.h"
 
 // APlayerController solo existe en el servidor y en el cliente propietario. Permite el acceso al HUD: vida, muertos, muertes, municion...
 
@@ -322,75 +323,67 @@ void ADispareitorControladorJugador::ComprobarTiempoSincronizacion(float DeltaTi
 // Llamado por ADispareitorModoJuego::OnMatchStateSet
 void ADispareitorControladorJugador::ActualizarEstadoPartida(FName Estado,  bool bPartidaPorEquipos) {
     EstadoPartida = Estado;
-    ManejarEstadoPartida(bPartidaPorEquipos);
+    if(EstadoPartida == MatchState::InProgress) {
+        ManejarEstadoPartidaHaEmpezado(bPartidaPorEquipos);
+    }  else if(EstadoPartida == MatchState::Enfriamiento) {
+        ManejarEstadoPartidaEnfriamiento();
+    }
 }
 
 void ADispareitorControladorJugador::AlReplicar_EstadoPartida() {
-    ManejarEstadoPartida();
+    if(EstadoPartida == MatchState::InProgress) {
+        ManejarEstadoPartidaHaEmpezado();
+    }  else if(EstadoPartida == MatchState::Enfriamiento) {
+        ManejarEstadoPartidaEnfriamiento();
+    }
 }
 
-void ADispareitorControladorJugador::ManejarEstadoPartida(bool bPartidaPorEquipos) {
+void ADispareitorControladorJugador::ManejarEstadoPartidaHaEmpezado(bool bPartidaPorEquipos) {
     if(HasAuthority()) {
         bMostrarPuntuacionEquipos = bPartidaPorEquipos;
     }
 
     DispareitorHUD = DispareitorHUD ? DispareitorHUD : Cast<ADispareitorHUD>(GetHUD());
     if(DispareitorHUD) {
-        if(EstadoPartida == MatchState::InProgress) {
-            if(!DispareitorHUD->PantallaDelPersonaje) {
-                DispareitorHUD->MostrarPantallaDelPersonaje();
+        if(!DispareitorHUD->PantallaDelPersonaje) {
+            DispareitorHUD->MostrarPantallaDelPersonaje();
+        }
+        if(DispareitorHUD->AnunciosWidget) {
+            DispareitorHUD->AnunciosWidget->SetVisibility(ESlateVisibility::Hidden);
+        }
+        if(HasAuthority()) {
+            if(bPartidaPorEquipos) {
+                InicializarPuntuacionEquipos();
+            } else {
+                EsconderPuntuacionEquipos();
             }
-            if(DispareitorHUD->AnunciosWidget) {
-                DispareitorHUD->AnunciosWidget->SetVisibility(ESlateVisibility::Hidden);
-            }
-            if(HasAuthority()) {
-                if(bPartidaPorEquipos) {
-                    InicializarPuntuacionEquipos();
-                } else {
-                    EsconderPuntuacionEquipos();
-                }
-            }            
-        } else if(EstadoPartida == MatchState::Enfriamiento) {
-            DispareitorHUD->PantallaDelPersonaje->RemoveFromParent();
-            if(DispareitorHUD->AnunciosWidget && DispareitorHUD->AnunciosWidget->PartidaComienza && DispareitorHUD->AnunciosWidget->Informacion) {
-                DispareitorHUD->AnunciosWidget->SetVisibility(ESlateVisibility::Visible);
-                
-                FString TextoPartidaComienza("Nueva partida comienza en:");
-                DispareitorHUD->AnunciosWidget->PartidaComienza->SetText(FText::FromString(TextoPartidaComienza));
-                
-                ADispareitorEstadoJuego* DispareitorEstadoJuego = Cast<ADispareitorEstadoJuego>(UGameplayStatics::GetGameState(this));
-                ADispareitorEstadoJugador* DispareitorEstadoJugador = GetPlayerState<ADispareitorEstadoJugador>();
-                if(DispareitorEstadoJuego && DispareitorEstadoJugador) {
-                    TArray<ADispareitorEstadoJugador*> ArrayDeEstadoJugadoresConPuntuacionMasAlta = DispareitorEstadoJuego->ArrayDeEstadoJugadoresConPuntuacionMasAlta;
-                    FString JugadoresPuntuacionMasAltaTexto;
-                    if(ArrayDeEstadoJugadoresConPuntuacionMasAlta.Num() == 0) {
-                        JugadoresPuntuacionMasAltaTexto = FString("No hay ganador. Sois todos unos losers!"); 
-                    } else if(ArrayDeEstadoJugadoresConPuntuacionMasAlta.Num() == 1) {
-                        if(ArrayDeEstadoJugadoresConPuntuacionMasAlta[0] == DispareitorEstadoJugador) {
-                            JugadoresPuntuacionMasAltaTexto = FString("Eres el ganador. El puto amo de Dispareitor!");
-                        } else {
-                            JugadoresPuntuacionMasAltaTexto = FString::Printf(TEXT("Toma nota de su nombre para la siguiente...\n Os ha barrido de la partida: %s"), *ArrayDeEstadoJugadoresConPuntuacionMasAlta[0]->GetPlayerName());
-                        }
-                    } else if(ArrayDeEstadoJugadoresConPuntuacionMasAlta.Num() > 1) {
-                        JugadoresPuntuacionMasAltaTexto = FString("Han quedado empatados en el 'namber guan':\n");
-                        for(auto EstadoJugador : ArrayDeEstadoJugadoresConPuntuacionMasAlta) {
-                            JugadoresPuntuacionMasAltaTexto.Append(FString::Printf(TEXT("%s\n"), *EstadoJugador->GetPlayerName()));    
-                        }
-                    }
+        }            
+    }
+}
 
-                    DispareitorHUD->AnunciosWidget->Informacion->SetText(FText::FromString(JugadoresPuntuacionMasAltaTexto));
-                }
+void ADispareitorControladorJugador::ManejarEstadoPartidaEnfriamiento() {    
+    DispareitorHUD = DispareitorHUD ? DispareitorHUD : Cast<ADispareitorHUD>(GetHUD());
+    if(DispareitorHUD) {        
+        DispareitorHUD->PantallaDelPersonaje->RemoveFromParent();
+        if(DispareitorHUD->AnunciosWidget && DispareitorHUD->AnunciosWidget->PartidaComienza && DispareitorHUD->AnunciosWidget->Informacion) {
+            DispareitorHUD->AnunciosWidget->SetVisibility(ESlateVisibility::Visible);
+                
+            FString TextoPartidaComienza = Anuncio::NuevaPartidaComienzaEn;
+            DispareitorHUD->AnunciosWidget->PartidaComienza->SetText(FText::FromString(TextoPartidaComienza));
+                
+            ADispareitorEstadoJuego* DEstadoJuego = Cast<ADispareitorEstadoJuego>(UGameplayStatics::GetGameState(this));
+            if(DEstadoJuego) {
+                FString AnuncioGanador = bMostrarPuntuacionEquipos ? ObtenerAnuncioEquipos(DEstadoJuego) : ObtenerAnuncio(DEstadoJuego->ArrayDeEstadoJugadoresConPuntuacionMasAlta);                    
+                DispareitorHUD->AnunciosWidget->Informacion->SetText(FText::FromString(AnuncioGanador));
             }
         }
     } 
     
-    if(EstadoPartida == MatchState::Enfriamiento) {
-        ADispareitorPersonaje* DispareitorPersonaje = Cast<ADispareitorPersonaje>(GetPawn());
-        if(DispareitorPersonaje && DispareitorPersonaje->ObtenerCombateComponente()) {
-            DispareitorPersonaje->bSoloGirarCamara = true;
-            DispareitorPersonaje->ObtenerCombateComponente()->DispararPresionado(false);
-        }
-    }
+    ADispareitorPersonaje* DispareitorPersonaje = Cast<ADispareitorPersonaje>(GetPawn());
+    if(DispareitorPersonaje && DispareitorPersonaje->ObtenerCombateComponente()) {
+        DispareitorPersonaje->bSoloGirarCamara = true;
+        DispareitorPersonaje->ObtenerCombateComponente()->DispararPresionado(false);
+    }    
 }
 
 void ADispareitorControladorJugador::ComprobarPingAlto(float DeltaTime) {
@@ -512,4 +505,55 @@ void ADispareitorControladorJugador::AlReplicar_MostrarPuntuacionEquipos() {
     } else {
         EsconderPuntuacionEquipos();
     }
+}
+
+FString ADispareitorControladorJugador::ObtenerAnuncio(const TArray<class ADispareitorEstadoJugador*>& DEstadoJugadoresPuntuacionMasAlta) {
+    FString AnuncioTexto;
+    ADispareitorEstadoJugador* DEstadoJugador = GetPlayerState<ADispareitorEstadoJugador>();
+
+    if(!DEstadoJugador) {
+        return FString();
+    }
+
+    if(DEstadoJugadoresPuntuacionMasAlta.Num() == 0) {
+        AnuncioTexto = Anuncio::NoHayGanador; 
+    } else if(DEstadoJugadoresPuntuacionMasAlta.Num() == 1) {
+        if(DEstadoJugadoresPuntuacionMasAlta[0] == DEstadoJugador) {
+            AnuncioTexto = Anuncio::EresElGanador;
+        } else { 
+            AnuncioTexto = FString::Printf(TEXT("%s %s"), *Anuncio::TomaNota, *DEstadoJugadoresPuntuacionMasAlta[0]->GetPlayerName());
+        }
+    } else if(DEstadoJugadoresPuntuacionMasAlta.Num() > 1) {
+        AnuncioTexto = Anuncio::HanQuedadoEmpatados;
+        for(auto EstadoJugador : DEstadoJugadoresPuntuacionMasAlta) {
+            AnuncioTexto.Append(FString::Printf(TEXT("%s\n"), *EstadoJugador->GetPlayerName()));    
+        }
+    }    
+
+    return AnuncioTexto;
+}
+
+FString ADispareitorControladorJugador::ObtenerAnuncioEquipos(ADispareitorEstadoJuego* DEstadoJuego) {
+    FString AnuncioTexto;  
+
+    UE_LOG(LogTemp, Warning, TEXT("ObtenerAnuncioEquipos1"));  
+
+    if(!DEstadoJuego) {
+        return FString();
+    }
+
+    const int32 PuntuacionEquipoRojo = DEstadoJuego->PuntuacionEquipoRojo;
+    const int32 PuntuacionEquipoAzul = DEstadoJuego->PuntuacionEquipoAzul;
+
+    if(PuntuacionEquipoRojo == 0 && PuntuacionEquipoAzul == 0) {
+        AnuncioTexto = Anuncio::NoHayGanador; 
+    } else if(PuntuacionEquipoRojo == PuntuacionEquipoAzul) {
+        AnuncioTexto = FString::Printf(TEXT("%s\n%s y %s"), *Anuncio::EquipoosHanQuedadoEmpatados, *Anuncio::EquipoRojo, *Anuncio::EquipoAzul);
+    } else if(PuntuacionEquipoRojo > PuntuacionEquipoAzul) {
+        AnuncioTexto = FString::Printf(TEXT("%s\n%s: %d  %s: %d"), *Anuncio::EquipoRojoGano, *Anuncio::EquipoRojo, PuntuacionEquipoRojo, *Anuncio::EquipoAzul, PuntuacionEquipoAzul);
+    } else if(PuntuacionEquipoAzul > PuntuacionEquipoRojo) {
+        AnuncioTexto = FString::Printf(TEXT("%s\n%s: %d  %s: %d"), *Anuncio::EquipoAzulGano, *Anuncio::EquipoAzul, PuntuacionEquipoAzul, *Anuncio::EquipoRojo, PuntuacionEquipoRojo);
+    }   
+
+    return AnuncioTexto;
 }

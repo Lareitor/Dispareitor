@@ -27,8 +27,8 @@ public:
 	virtual float ObtenerTiempoServidor();
 	virtual void ReceivedPlayer() override;
 	void ActualizarEstadoPartida(FName Estado, bool bPartidaPorEquipos = false);
-	void ManejarEstadoPartida(bool bPartidaPorEquipos = false);
-	void ManejarEnfriamiento();
+	void ManejarEstadoPartidaHaEmpezado(bool bPartidaPorEquipos = false);
+	void ManejarEstadoPartidaEnfriamiento();
 	float STT = 0.f; // Single Trip Time es la mitad aprox. de RTT
 	FDelegadoPingAlto DelegadoPingAlto;
 	
@@ -64,6 +64,9 @@ protected:
 
 	UPROPERTY(ReplicatedUsing = AlReplicar_MostrarPuntuacionEquipos) bool bMostrarPuntuacionEquipos = false;
 	UFUNCTION() void AlReplicar_MostrarPuntuacionEquipos();
+
+	FString ObtenerAnuncio(const TArray<class ADispareitorEstadoJugador*>& DEstadoJugadores);
+	FString ObtenerAnuncioEquipos(class ADispareitorEstadoJuego* DEstadoJuego);
 
 private:
 	UPROPERTY() class ADispareitorHUD* DispareitorHUD;	
