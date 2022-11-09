@@ -344,7 +344,7 @@ void ADispareitorControladorJugador::ManejarEstadoPartidaHaEmpezado(bool bPartid
     }
 
     DispareitorHUD = DispareitorHUD ? DispareitorHUD : Cast<ADispareitorHUD>(GetHUD());
-    if(DispareitorHUD) {
+    if(DispareitorHUD) {        
         if(!DispareitorHUD->PantallaDelPersonaje) {
             DispareitorHUD->MostrarPantallaDelPersonaje();
         }
