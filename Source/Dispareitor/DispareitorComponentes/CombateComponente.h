@@ -122,6 +122,7 @@ private:
 	UFUNCTION()	void AlReplicar_GranadasActuales();
 	UPROPERTY(EditAnywhere)	int32 GranadasMaximo = 4;
 	void ActualizarGranadasHUD();
+	bool bSosteniendoBandera = false;
 	
 public:		
 	FORCEINLINE int32 ObtenerGranadasActuales() const { return GranadasActuales; }

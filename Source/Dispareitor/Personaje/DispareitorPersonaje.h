@@ -7,6 +7,7 @@
 #include "Components/TimelineComponent.h"
 #include "Dispareitor/Tipos/EstadosCombate.h"
 #include "Dispareitor/Tipos/Equipo.h"
+#include "Dispareitor/DispareitorComponentes/CombateComponente.h"
 #include "DispareitorPersonaje.generated.h"
 
 
@@ -215,4 +216,5 @@ public:
 	FORCEINLINE UBuffComponente* ObtenerBuffComponente() const { return BuffComponente; } 
 	bool EstaRecargandoLocalmente();
 	FORCEINLINE UCompensacionLagComponente* ObtenerCompensacionLagComponente() const { return CompensacionLagComponente; } 
+	FORCEINLINE bool EstaSosteniendoBandera() const { return CombateComponente ? CombateComponente->bSosteniendoBandera : false;}
 };
