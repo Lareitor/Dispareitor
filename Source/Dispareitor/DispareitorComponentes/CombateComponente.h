@@ -64,6 +64,7 @@ protected:
 	void SoltarArmaEquipada();
 	void UnirActorAManoDerecha(AActor* Actor);
 	void UnirActorAManoIzquierda(AActor* Actor);
+	void UnirBanderaAManoIzquierda(AArma* Bandera);
 	void UnirActorAMochila(AActor* Actor);
 	void ActualizarMunicionPersonaje();
 	void RecargarArmaVacia();
@@ -122,7 +123,9 @@ private:
 	UFUNCTION()	void AlReplicar_GranadasActuales();
 	UPROPERTY(EditAnywhere)	int32 GranadasMaximo = 4;
 	void ActualizarGranadasHUD();
-	bool bSosteniendoBandera = false;
+	
+	UPROPERTY(ReplicatedUsing = AlReplicar_SosteniendoBandera) bool bSosteniendoBandera = false;
+	UFUNCTION() void AlReplicar_SosteniendoBandera();
 	
 public:		
 	FORCEINLINE int32 ObtenerGranadasActuales() const { return GranadasActuales; }

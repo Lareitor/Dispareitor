@@ -48,6 +48,7 @@ void UCombateComponente::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	DOREPLIFETIME_CONDITION(UCombateComponente, MunicionPersonaje, COND_OwnerOnly);
 	DOREPLIFETIME(UCombateComponente, EstadoCombate);
 	DOREPLIFETIME(UCombateComponente, GranadasActuales);
+	DOREPLIFETIME(UCombateComponente, bSosteniendoBandera);	
 }
 
 void UCombateComponente::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) {
@@ -171,15 +172,22 @@ void UCombateComponente::EquiparArma(class AArma* ArmaAEquipar) {
 		return;
 	}
 
-	if(ArmaEquipada && !ArmaSecundariaEquipada) {
-		EquiparArmaSecundaria(ArmaAEquipar);
+	if(ArmaAEquipar->ObtenerTipoArma() == ETipoArma::ETA_Bandera) {
+		DispareitorPersonaje->Crouch();
+		bSosteniendoBandera = true;
+		UnirBanderaAManoIzquierda(ArmaAEquipar);
+		ArmaAEquipar->ActualizarEstado(EEstado::EEA_Equipada);		
+		ArmaAEquipar->SetOwner(DispareitorPersonaje);
 	} else {
-		EquiparArmaPrimaria(ArmaAEquipar);
-	}
+		if(ArmaEquipada && !ArmaSecundariaEquipada) {
+			EquiparArmaSecundaria(ArmaAEquipar);
+		} else {
+			EquiparArmaPrimaria(ArmaAEquipar);
+		}
 
-
-	DispareitorPersonaje->GetCharacterMovement()->bOrientRotationToMovement = false;
-	DispareitorPersonaje->bUseControllerRotationYaw = true;
+		DispareitorPersonaje->GetCharacterMovement()->bOrientRotationToMovement = false;
+		DispareitorPersonaje->bUseControllerRotationYaw = true;
+	}	
 }
 
 void UCombateComponente::EquiparArmaPrimaria(AArma* ArmaAEquipar) {
@@ -269,6 +277,17 @@ void UCombateComponente::UnirActorAManoIzquierda(AActor* Actor) {
 	const USkeletalMeshSocket* ManoIzquierdaSocket = DispareitorPersonaje->GetMesh()->GetSocketByName(FName("ManoIzquierdaSocket"));
 	if(ManoIzquierdaSocket) {
 		ManoIzquierdaSocket->AttachActor(Actor, DispareitorPersonaje->GetMesh()); // Tambien se propaga a los clientes, pero no hay garantias de cual se propaga antes 
+	}
+}
+
+void UCombateComponente::UnirBanderaAManoIzquierda(AArma* Bandera) {
+	if(!DispareitorPersonaje || !DispareitorPersonaje->GetMesh() || !Bandera) {
+		return;	
+	}  
+
+	const USkeletalMeshSocket* BanderaSocket = DispareitorPersonaje->GetMesh()->GetSocketByName(FName("BanderaSocket"));
+	if(BanderaSocket) {
+		BanderaSocket->AttachActor(Bandera, DispareitorPersonaje->GetMesh()); 
 	}
 }
 
@@ -761,3 +780,8 @@ bool UCombateComponente::PuedoIntercambiarArmas() {
 	return ArmaEquipada && ArmaSecundariaEquipada && EstadoCombate == EEstadosCombate::EEC_Desocupado;
 }
 
+void UCombateComponente::AlReplicar_SosteniendoBandera() {
+	if(bSosteniendoBandera && DispareitorPersonaje && DispareitorPersonaje->IsLocallyControlled()) {
+		DispareitorPersonaje->Crouch();
+	}
+}

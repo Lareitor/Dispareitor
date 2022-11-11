@@ -193,6 +193,13 @@ void ADispareitorPersonaje::Tick(float DeltaTime) {
 }
 
 void ADispareitorPersonaje::CalcularRotarEnSitio(float DeltaTime) {
+	if(CombateComponente && CombateComponente->bSosteniendoBandera) {
+		bUseControllerRotationYaw = false;
+		GetCharacterMovement()->bOrientRotationToMovement = true;
+		GirarEnSitio = EGirarEnSitio::EGES_NoGirar;	
+		return;
+	}
+
 	if(bSoloGirarCamara) {
 		bUseControllerRotationYaw = false;
 		GirarEnSitio = EGirarEnSitio::EGES_NoGirar;	
