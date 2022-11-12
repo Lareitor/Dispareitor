@@ -332,7 +332,7 @@ void ADispareitorPersonaje::GirarArribaAbajoPulsado(float Valor) {
 }
 
 void ADispareitorPersonaje::AgacharPulsado() {
-	if(bSoloGirarCamara) {
+	if(bSoloGirarCamara || !CombateComponente || CombateComponente->bSosteniendoBandera) {
 		return;
 	}
 
@@ -356,76 +356,66 @@ void ADispareitorPersonaje::Jump() {
 }
 
 void ADispareitorPersonaje::ApuntarPulsado() {
-	if(bSoloGirarCamara) {
+	if(bSoloGirarCamara || !CombateComponente || CombateComponente->bSosteniendoBandera) {
 		return;
 	}
-
-	if(CombateComponente) {
-		CombateComponente->ActualizarApuntando(true);
-	}
+	
+	CombateComponente->ActualizarApuntando(true);	
 }
 
 void ADispareitorPersonaje::ApuntarLiberado() {
-	if(bSoloGirarCamara) {
+	if(bSoloGirarCamara || !CombateComponente || CombateComponente->bSosteniendoBandera) {
 		return;
 	}
 
-	if(CombateComponente) {
-		CombateComponente->ActualizarApuntando(false);
-	}
+	CombateComponente->ActualizarApuntando(false);	
 }
 
 void ADispareitorPersonaje::DispararPulsado() {
-	if(bSoloGirarCamara) {
+	if(bSoloGirarCamara || !CombateComponente || CombateComponente->bSosteniendoBandera) {
 		return;
 	}
-
-	if(CombateComponente) {
-		CombateComponente->DispararPresionado(true);
-	}
+	
+	CombateComponente->DispararPresionado(true);	
 }
 
 void ADispareitorPersonaje::DispararLiberado() {
-	if(bSoloGirarCamara) {
+	if(bSoloGirarCamara || !CombateComponente || CombateComponente->bSosteniendoBandera) {
 		return;
 	}
 
-	if(CombateComponente) {
-		CombateComponente->DispararPresionado(false);
-	}
+	CombateComponente->DispararPresionado(false);
 }
 
 void ADispareitorPersonaje::ArrojarGranadaPulsado() {
-	if(CombateComponente) {
-		CombateComponente->ArrojarGranada();
+	if(bSoloGirarCamara || !CombateComponente || CombateComponente->bSosteniendoBandera) {
+		return;
 	}
+	
+	CombateComponente->ArrojarGranada();	
 }
 
 void ADispareitorPersonaje::RecargarPulsado() {
-	if(bSoloGirarCamara) {
+	if(bSoloGirarCamara || !CombateComponente || CombateComponente->bSosteniendoBandera) {
 		return;
 	}
 
-	if(CombateComponente) {
-		CombateComponente->Recargar();
-	}
+	CombateComponente->Recargar();	
 }
 
 void ADispareitorPersonaje::EquiparPulsado() {
-	if(bSoloGirarCamara) {
+	if(bSoloGirarCamara || !CombateComponente || CombateComponente->bSosteniendoBandera) {
 		return;
 	}
 
-	if(CombateComponente) {
-		if(CombateComponente->EstadoCombate == EEstadosCombate::EEC_Desocupado) {
-			EquiparIntercambiar_EnServidor();	
-		}
-		if(CombateComponente->PuedoIntercambiarArmas() && !HasAuthority() && CombateComponente->EstadoCombate == EEstadosCombate::EEC_Desocupado && !ArmaSolapada) {
-			EjecutarMontajeIntercambiarArmas();
-			CombateComponente->EstadoCombate = EEstadosCombate::EEC_IntercambiandoArmas;
-			bIntercambiarArmasFinalizado = false;
-		}	
+	if(CombateComponente->EstadoCombate == EEstadosCombate::EEC_Desocupado) {
+		EquiparIntercambiar_EnServidor();	
 	}
+	if(CombateComponente->PuedoIntercambiarArmas() && !HasAuthority() && CombateComponente->EstadoCombate == EEstadosCombate::EEC_Desocupado && !ArmaSolapada) {
+		EjecutarMontajeIntercambiarArmas();
+		CombateComponente->EstadoCombate = EEstadosCombate::EEC_IntercambiandoArmas;
+		bIntercambiarArmasFinalizado = false;
+	}		
 }
 
 // Aunque la definicion de la funcion es EquiparIntercambiar_EnServidor hay que añadirle _Implementation, ya que UE creará EquiparIntercambiar_EnServidor y nosotros _Implementation que incluirá el codigo que se ejecuta en el servidor  
