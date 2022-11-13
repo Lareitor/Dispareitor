@@ -175,9 +175,10 @@ void UCombateComponente::EquiparArma(class AArma* ArmaAEquipar) {
 	if(ArmaAEquipar->ObtenerTipoArma() == ETipoArma::ETA_Bandera) {
 		DispareitorPersonaje->Crouch();
 		bSosteniendoBandera = true;
-		UnirBanderaAManoIzquierda(ArmaAEquipar);
 		ArmaAEquipar->ActualizarEstado(EEstado::EEA_Equipada);		
+		UnirBanderaAManoIzquierda(ArmaAEquipar);
 		ArmaAEquipar->SetOwner(DispareitorPersonaje);
+		ArmaBandera = ArmaAEquipar;
 	} else {
 		if(ArmaEquipada && !ArmaSecundariaEquipada) {
 			EquiparArmaSecundaria(ArmaAEquipar);

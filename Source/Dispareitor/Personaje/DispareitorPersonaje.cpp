@@ -820,14 +820,17 @@ void ADispareitorPersonaje::SoltarODestruirArmas() {
 		if(CombateComponente->ArmaSecundariaEquipada) {
 			SoltarODestruirArma(CombateComponente->ArmaSecundariaEquipada);
 		}
+		if(CombateComponente->ArmaBandera) {
+			CombateComponente->ArmaBandera->Soltar();
+		}
 	}
 }
 
 void ADispareitorPersonaje::SoltarODestruirArma(AArma* Arma) {
-	if(Arma == nullptr) {
+	if(!Arma) {
 		return;
 	}
-
+	
 	if(Arma->bDestruirArma) { // Destruir el arma solo si es el arma por defecto
 		Arma->Destroy();
 	} else {

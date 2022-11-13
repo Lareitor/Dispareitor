@@ -151,6 +151,7 @@ void AArma::ManejarActualizacionEstadoAlSoltar() {
 	if(HasAuthority()) {
 		Esfera->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	}
+	UE_LOG(LogTemp, Warning, TEXT("ManejarActualizacionEstadoAlSoltar: %d"), TipoArma);
 	Malla->SetSimulatePhysics(true);
 	Malla->SetEnableGravity(true);
 	Malla->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
@@ -162,7 +163,7 @@ void AArma::ManejarActualizacionEstadoAlSoltar() {
 	Malla->MarkRenderStateDirty();
 	PermitirProfundidadPersonalizadaAlRenderizar(true);	
 
-	DispareitorPersonaje = DispareitorPersonaje != nullptr ? DispareitorPersonaje : Cast<ADispareitorPersonaje>(GetOwner());
+	DispareitorPersonaje = DispareitorPersonaje ? DispareitorPersonaje : Cast<ADispareitorPersonaje>(GetOwner());
 	if(DispareitorPersonaje && bRebobinarLadoServidor) {
 		DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(DispareitorPersonaje->Controller);
 		if(DispareitorControladorJugador && HasAuthority() && DispareitorControladorJugador->DelegadoPingAlto.IsBound()) {

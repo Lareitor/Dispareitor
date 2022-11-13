@@ -126,6 +126,7 @@ private:
 	
 	UPROPERTY(ReplicatedUsing = AlReplicar_SosteniendoBandera) bool bSosteniendoBandera = false;
 	UFUNCTION() void AlReplicar_SosteniendoBandera();
+	UPROPERTY() AArma* ArmaBandera;
 	
 public:		
 	FORCEINLINE int32 ObtenerGranadasActuales() const { return GranadasActuales; }
