@@ -61,16 +61,22 @@ void AArma::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimePro
 
 
 void AArma::Callback_EsferaSolapadaInicio(UPrimitiveComponent* ComponenteSolapado, AActor* OtroActor, UPrimitiveComponent* OtroComponente, int32 OtroIndice, bool bFromSweep, const FHitResult& SweepResult) { 
-	ADispareitorPersonaje* DispareitorPersonajeEntraEnEsfera = Cast<ADispareitorPersonaje>(OtroActor);
-	if(DispareitorPersonajeEntraEnEsfera) {
-		DispareitorPersonajeEntraEnEsfera->ActivarArmaSolapada(this);
+	ADispareitorPersonaje* DPersonajeEntraEnEsfera = Cast<ADispareitorPersonaje>(OtroActor);
+	if(DPersonajeEntraEnEsfera) {
+		if((TipoArma == ETipoArma::ETA_Bandera && DPersonajeEntraEnEsfera->ObtenerEquipo() == Equipo) || DPersonajeEntraEnEsfera->EstaSosteniendoBandera()) {
+			return;
+		}
+		DPersonajeEntraEnEsfera->ActivarArmaSolapada(this);
 	}
 }
 
 void AArma::Callback_EsferaSolapadaFin(UPrimitiveComponent* ComponenteSolapado, AActor* OtroActor, UPrimitiveComponent* OtroComponente, int32 OtroIndice) {
-	ADispareitorPersonaje* DispareitorPersonajeSaleEsfera = Cast<ADispareitorPersonaje>(OtroActor);
-	if(DispareitorPersonajeSaleEsfera) {
-		DispareitorPersonajeSaleEsfera->ActivarArmaSolapada(nullptr);
+	ADispareitorPersonaje* DPersonajeSaleEsfera = Cast<ADispareitorPersonaje>(OtroActor);
+	if(DPersonajeSaleEsfera) {
+		if((TipoArma == ETipoArma::ETA_Bandera && DPersonajeSaleEsfera->ObtenerEquipo() == Equipo) || DPersonajeSaleEsfera->EstaSosteniendoBandera()) {
+			return;
+		}
+		DPersonajeSaleEsfera->ActivarArmaSolapada(nullptr);
 	}
 }
 

@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Dispareitor/Tipos/TiposArma.h"
+#include "Dispareitor/Tipos/Equipo.h"
 #include "Arma.generated.h"
 
 UENUM(BlueprintType)
@@ -88,6 +89,7 @@ private:
 	void GastarMunicion();
 	UPROPERTY(EditAnywhere)	int32 CapacidadCargador;  
 	UPROPERTY(EditAnywhere)	ETipoArma TipoArma;
+	UPROPERTY(EditAnywhere)	EEquipo Equipo;
 	
 public:		
 	void ActualizarEstado(EEstado EstadoAActualizar);

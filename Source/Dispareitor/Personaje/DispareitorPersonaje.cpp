@@ -947,3 +947,9 @@ void ADispareitorPersonaje::ActivarColorEquipo(EEquipo Equipo) {
 		break;
 	}
 }
+
+EEquipo ADispareitorPersonaje::ObtenerEquipo() {
+	DispareitorEstadoJugador =  DispareitorEstadoJugador ? DispareitorEstadoJugador : GetPlayerState<ADispareitorEstadoJugador>();
+	return DispareitorEstadoJugador ? DispareitorEstadoJugador->ObtenerEquipo() : EEquipo::EE_Ninguno;		
+}
+
