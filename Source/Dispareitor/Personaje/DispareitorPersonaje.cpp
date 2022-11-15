@@ -25,6 +25,7 @@
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Dispareitor/EstadoJuego/DispareitorEstadoJuego.h"
+#include "Dispareitor/InicioJugador/InicioJugadorEquipo.h"
 
 ADispareitorPersonaje::ADispareitorPersonaje() {
 	PrimaryActorTick.bCanEverTick = true;
@@ -228,6 +229,7 @@ void ADispareitorPersonaje::SondearInicializacion() {
 			DispareitorEstadoJugador->IncrementarMuertos(0.f);	
 			DispareitorEstadoJugador->IncrementarMuertes(0);
  			ActivarColorEquipo(DispareitorEstadoJugador->ObtenerEquipo());
+			ActivarPuntoReaparicionParaModoEquipo();
 
 			ADispareitorEstadoJuego* DispareitorEstadoJuego = Cast<ADispareitorEstadoJuego>(UGameplayStatics::GetGameState(this));
 			if(DispareitorEstadoJuego && DispareitorEstadoJuego->ArrayDeEstadoJugadoresConPuntuacionMasAlta.Contains(DispareitorEstadoJugador)) {
@@ -952,4 +954,23 @@ EEquipo ADispareitorPersonaje::ObtenerEquipo() {
 	DispareitorEstadoJugador =  DispareitorEstadoJugador ? DispareitorEstadoJugador : GetPlayerState<ADispareitorEstadoJugador>();
 	return DispareitorEstadoJugador ? DispareitorEstadoJugador->ObtenerEquipo() : EEquipo::EE_Ninguno;		
 }
+
+void ADispareitorPersonaje::ActivarPuntoReaparicionParaModoEquipo() {
+	if(HasAuthority() && DispareitorEstadoJugador->ObtenerEquipo() != EEquipo::EE_Ninguno) {
+		TArray<AActor*> IniciosJugadores;
+		UGameplayStatics::GetAllActorsOfClass(this, AInicioJugadorEquipo::StaticClass(), IniciosJugadores);
+		TArray<AInicioJugadorEquipo*> IniciosJugadoresEquipo;
+		for(auto Inicio : IniciosJugadores) {
+			AInicioJugadorEquipo* InicioJugadorEquipo = Cast<AInicioJugadorEquipo>(Inicio);
+			if(InicioJugadorEquipo && InicioJugadorEquipo->Equipo == DispareitorEstadoJugador->ObtenerEquipo()) {
+				IniciosJugadoresEquipo.Add(InicioJugadorEquipo);
+			}
+		}
+		if(IniciosJugadoresEquipo.Num() > 0) {
+			AInicioJugadorEquipo* InicioJugadorEquipoElegido = IniciosJugadoresEquipo[FMath::RandRange(0, IniciosJugadoresEquipo.Num() - 1)];
+			SetActorLocationAndRotation(InicioJugadorEquipoElegido->GetActorLocation(), InicioJugadorEquipoElegido->GetActorRotation());
+		}
+	}
+}
+
 

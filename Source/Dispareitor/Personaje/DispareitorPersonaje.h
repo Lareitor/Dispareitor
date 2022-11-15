@@ -74,6 +74,8 @@ protected:
 	UFUNCTION() void RecibirDanio(AActor* ActorDaniado, float Danio, const UDamageType* TipoDanio, class AController* ControladorInstigador, AActor* ActorCausante);
 	void SoltarODestruirArma(AArma* Arma);
 	void SoltarODestruirArmas();
+	void ActivarPuntoReaparicionParaModoEquipo();
+
 	// Cajas de impacto usadas para server-side rewind
 	UPROPERTY(EditAnywhere)	class UBoxComponent* CajaCabeza;
 	UPROPERTY(EditAnywhere)	class UBoxComponent* CajaPelvis; 
@@ -93,6 +95,7 @@ protected:
 	UPROPERTY(EditAnywhere)	class UBoxComponent* CajaGemeloD;
 	UPROPERTY(EditAnywhere)	class UBoxComponent* CajaPieI;
 	UPROPERTY(EditAnywhere)	class UBoxComponent* CajaPieD;
+
 
 private:
 	// Inicializa la variable a nullptr, en otro caso tendria basura y podría producir errores de codigo como crasheos. Otra forma de hacerlo seria usando directamente = nullptr;
