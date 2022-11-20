@@ -221,4 +221,5 @@ public:
 	FORCEINLINE UCompensacionLagComponente* ObtenerCompensacionLagComponente() const { return CompensacionLagComponente; } 
 	FORCEINLINE bool EstaSosteniendoBandera() const { return CombateComponente ? CombateComponente->bSosteniendoBandera : false;}
 	EEquipo ObtenerEquipo();
+	void ActualizarSosteniendoBandera(bool bSosteniendoBandera);
 };

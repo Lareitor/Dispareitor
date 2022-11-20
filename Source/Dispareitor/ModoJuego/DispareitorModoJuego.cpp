@@ -155,7 +155,7 @@ void ADispareitorModoJuego::PeticionReaparecer(ACharacter* PersonajeEliminado, A
     }
 }
 
-//LLamado por BeginPlay
+//Llamado por BeginPlay
 void ADispareitorModoJuego::SituarArmas() {
 	TArray<AActor*> PuntosReaparicionArmas; 
     UGameplayStatics::GetAllActorsWithTag(this, "PuntoReaparicionArma", PuntosReaparicionArmas);
@@ -164,8 +164,11 @@ void ADispareitorModoJuego::SituarArmas() {
     UGameplayStatics::GetAllActorsOfClass(this, AArma::StaticClass(), Armas);
 
     int32 IndicePuntosReaparicionArmas = 0;
-    for(AActor* Arma : Armas) {
-        Arma->SetActorLocation(PuntosReaparicionArmas[IndicePuntosReaparicionArmas++]->GetActorLocation());
+    for(AActor* ActorArma : Armas) {  
+        AArma* Arma = Cast<AArma>(ActorArma);      
+        if(Arma && Arma->ObtenerTipoArma() != ETipoArma::ETA_Bandera) {
+            Arma->SetActorLocation(PuntosReaparicionArmas[IndicePuntosReaparicionArmas++]->GetActorLocation());
+        }
     }
 }
 

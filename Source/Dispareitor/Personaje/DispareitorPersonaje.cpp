@@ -194,13 +194,18 @@ void ADispareitorPersonaje::Tick(float DeltaTime) {
 }
 
 void ADispareitorPersonaje::CalcularRotarEnSitio(float DeltaTime) {
-	if(CombateComponente && CombateComponente->bSosteniendoBandera) {
-		bUseControllerRotationYaw = false;
-		GetCharacterMovement()->bOrientRotationToMovement = true;
-		GirarEnSitio = EGirarEnSitio::EGES_NoGirar;	
-		return;
-	}
-
+	if(CombateComponente) {
+		if(CombateComponente->bSosteniendoBandera) {
+			bUseControllerRotationYaw = false;
+			GetCharacterMovement()->bOrientRotationToMovement = true;
+			GirarEnSitio = EGirarEnSitio::EGES_NoGirar;	
+			return;
+		} else if(CombateComponente->ArmaEquipada) {
+			bUseControllerRotationYaw = true;
+			GetCharacterMovement()->bOrientRotationToMovement = false;
+		}		
+	} 
+	
 	if(bSoloGirarCamara) {
 		bUseControllerRotationYaw = false;
 		GirarEnSitio = EGirarEnSitio::EGES_NoGirar;	
@@ -973,4 +978,9 @@ void ADispareitorPersonaje::ActivarPuntoReaparicionParaModoEquipo() {
 	}
 }
 
+void ADispareitorPersonaje::ActualizarSosteniendoBandera(bool bSosteniendoBandera) {
+	if(CombateComponente) {
+		CombateComponente->bSosteniendoBandera = bSosteniendoBandera;
+	}
+}
 

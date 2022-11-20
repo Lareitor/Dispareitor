@@ -104,5 +104,5 @@ public:
 	FORCEINLINE int32 ObtenerCapacidadCargador() const { return CapacidadCargador; }
 	FORCEINLINE float ObtenerDanio() const { return Danio; }
 	FORCEINLINE float ObtenerDanioEnCabeza() const { return DanioEnCabeza; }
-
+	FORCEINLINE EEquipo ObtenerEquipo() const { return Equipo; }
 };
