@@ -10,8 +10,7 @@ USubsistemaInstanciaJuego::USubsistemaInstanciaJuego() :
 	DelegadoCompletadoEncontrarSesiones(FOnFindSessionsCompleteDelegate::CreateUObject(this, &ThisClass::CallbackCompletadoEncontrarSesiones)),
 	DelegadoCompletadoUnirSesion(FOnJoinSessionCompleteDelegate::CreateUObject(this, &ThisClass::CallbackCompletadoUnirSesion)),
 	DelegadoCompletadoDestruirSesion(FOnDestroySessionCompleteDelegate::CreateUObject(this, &ThisClass::CallbackCompletadoDestruirSesion)),
-	DelegadoCompletadoEmpezarSesion(FOnStartSessionCompleteDelegate::CreateUObject(this, &ThisClass::CallbackCompletadoEmpezarSesion))
-{
+	DelegadoCompletadoEmpezarSesion(FOnStartSessionCompleteDelegate::CreateUObject(this, &ThisClass::CallbackCompletadoEmpezarSesion)) {
 
 	IOnlineSubsystem* SubsistemaOnline = IOnlineSubsystem::Get();
 	if (SubsistemaOnline) {
@@ -20,6 +19,9 @@ USubsistemaInstanciaJuego::USubsistemaInstanciaJuego() :
 }
 
 void USubsistemaInstanciaJuego::CrearSesion(int32 NumeroConexiones, FString ModoJuego) {
+	NumeroConexionesDeseadas = NumeroConexiones;
+	ModoJuegoDeseado = ModoJuego;
+	
 	if (!InterfazSesion.IsValid()) {
 		return;
 	}

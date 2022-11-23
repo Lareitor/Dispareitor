@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -7,10 +5,10 @@
 #include "Interfaces/OnlineSessionInterface.h"
 #include "SubsistemaInstanciaJuego.generated.h"
 
-// Declaración de nuestros propios delegados para que la clase Menu pueda enlazarles callbacks
-// MULTICAST = Multiples clases puede enlazarse a él
+// DeclaraciÃ³n de nuestros propios delegados para que la clase Menu pueda enlazarles callbacks
+// MULTICAST = Multiples clases puede enlazarse a Ã©l
 // DYNAMIC = Se puede serializar y puede ser salvado y cargado desde una clase BluePrint. En BluePrint se llaman Event Dispatchers. 
-// DYNAMIC implica también que las callbacks que se enlacen deben ser UFUNCTION
+// DYNAMIC implica tambiÃ©n que las callbacks que se enlacen deben ser UFUNCTION
 // En los DYNAMICs separamos el tipo del parametro con la ,
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDelegadoMultijugadorCompletadoCrearSesion, bool, fueOk);
 // No es DYNAMIC ya que para que lo fuera todos los argumentos pasados deben ser compatibles con BPs, y FOnlineSessionSearchResult no lo es ya que no es un UFUNCTION
@@ -24,8 +22,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDelegadoMultijugadorCompletadoEmpez
  * Subsistema para manejar todas las funciones de sesion online
  */
 UCLASS()
-class MULTIJUGADORSESIONES_API USubsistemaInstanciaJuego : public UGameInstanceSubsystem
-{
+class MULTIJUGADORSESIONES_API USubsistemaInstanciaJuego : public UGameInstanceSubsystem {
 	GENERATED_BODY()
 public:
 	USubsistemaInstanciaJuego();
@@ -44,6 +41,9 @@ public:
 	FDelegadoMultijugadorCompletadoDestruirSesion DelegadoMultijugadorCompletadoDestruirSesion;
 	FDelegadoMultijugadorCompletadoEmpezarSesion DelegadoMultijugadorCompletadoEmpezarSesion;
 
+	int32 NumeroConexionesDeseadas{}; // Inicializado a 0
+	FString ModoJuegoDeseado{}; // Inicializado a cadena vacia
+
 protected:
 	// Callbacks llamadas por los delegados
 	void CallbackCompletadoCrearSesion(FName NombreSesion, bool fueOk);
@@ -57,8 +57,8 @@ private:
 	TSharedPtr<FOnlineSessionSettings> ConfiguracionUltimaSesion;
 	TSharedPtr<FOnlineSessionSearch> BusquedaUltimaSesion;
 
-	// Delegados para añadir a la lista de delegados de la interfaz Online Session
-	// A cada uno lo enlazaremos con la funcion callback que han de llamar cuando su acción se realice
+	// Delegados para aÃ±adir a la lista de delegados de la interfaz Online Session
+	// A cada uno lo enlazaremos con la funcion callback que han de llamar cuando su acciÃ³n se realice
 	FOnCreateSessionCompleteDelegate DelegadoCompletadoCrearSesion;
 	FDelegateHandle ManejadorDelegadoCompletadoCrearSesion;
 
@@ -76,5 +76,5 @@ private:
 
 	bool bCrearSesionAlDestruir{ false };
 	int32 UltimoNumeroConexiones;
-	FString UltimoModoJuego;
+	FString UltimoModoJuego;	
 };
