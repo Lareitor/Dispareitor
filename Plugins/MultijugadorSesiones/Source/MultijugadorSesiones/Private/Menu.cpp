@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Menu.h"
 #include "Components/Button.h"
 #include "OnlineSubsystem.h"
@@ -27,7 +24,7 @@ void UMenu::MenuConfiguracion(int32 _NumeroDeConexiones, FString  _ModoJuego, FS
 		}
 	}
 
-	// UGameInstance crea e inicializa autom·ticamente todas sus clases derivadas y USubsistemaInstanciaJuego es una de ellas
+	// UGameInstance crea e inicializa autom√°ticamente todas sus clases derivadas y USubsistemaInstanciaJuego es una de ellas
 	UGameInstance* InstanciaJuego = GetGameInstance();
 	if (InstanciaJuego) {
 		SubsistemaInstanciaJuego = InstanciaJuego->GetSubsystem<USubsistemaInstanciaJuego>();
@@ -61,8 +58,8 @@ bool UMenu::Initialize() {
 	return true;
 }
 
-// Se llama cuando el nivel en el que est· es destruido
-// Esto ocurrir· cuando vayamos al nivel de espera
+// Se llama cuando el nivel en el que est√° es destruido
+// Esto ocurrir√° cuando vayamos al nivel de espera
 void UMenu::OnLevelRemovedFromWorld(ULevel* Nivel, UWorld* Mundo) {
 	MenuDeshacerConfiguracion();
 	Super::OnLevelRemovedFromWorld(Nivel, Mundo);

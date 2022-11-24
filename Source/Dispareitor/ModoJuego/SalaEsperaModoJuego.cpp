@@ -25,11 +25,11 @@ void ASalaEsperaModoJuego::PostLogin(APlayerController* ControladorJugador) {
 
                 FString ModoJuego = SubsistemaInstanciaJuego->ModoJuegoDeseado;
                 if(ModoJuego == "TodosContraTodos") {
-                    Mundo->ServerTravel(FString("/Game/Mapas/ChateauGillard?listen"));
+                    Mundo->ServerTravel(FString("/Game/Mapas/TCT_ChateauGillard?listen"));
                 } else if (ModoJuego == "DueloPorEquipos") {
-                    Mundo->ServerTravel(FString("/Game/Mapas/ChateauGillard?listen"));
+                    Mundo->ServerTravel(FString("/Game/Mapas/DPE_ChateauGillard?listen"));
                 } else if (ModoJuego == "CapturaLaBandera") {
-                    Mundo->ServerTravel(FString("/Game/Mapas/ChateauGillard?listen"));
+                    Mundo->ServerTravel(FString("/Game/Mapas/CLB_ChateauGillard?listen"));
                 }
 
             }

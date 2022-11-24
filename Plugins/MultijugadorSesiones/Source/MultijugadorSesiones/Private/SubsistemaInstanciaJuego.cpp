@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "SubsistemaInstanciaJuego.h"
 #include "OnlineSubsystem.h"
 #include "OnlineSessionSettings.h"
@@ -74,7 +71,7 @@ void USubsistemaInstanciaJuego::EncontrarSesiones(int32 NumeroMaximoResultados) 
 
 	const ULocalPlayer* JugadorLocal = GetWorld()->GetFirstLocalPlayerFromController();
 
-	// Si devuelve true se ejecutar� USubsistemaInstanciaJuego::CallbackCompletadoEncontrarSesiones 
+	// Si devuelve true se ejecutará USubsistemaInstanciaJuego::CallbackCompletadoEncontrarSesiones 
 	if (!InterfazSesion->FindSessions(*JugadorLocal->GetPreferredUniqueNetId(), BusquedaUltimaSesion.ToSharedRef())) {
 		InterfazSesion->ClearOnFindSessionsCompleteDelegate_Handle(ManejadorDelegadoCompletadoEncontrarSesiones);
 
@@ -92,7 +89,7 @@ void USubsistemaInstanciaJuego::UnirSesion(const FOnlineSessionSearchResult& Res
 	ManejadorDelegadoCompletadoUnirSesion = InterfazSesion->AddOnJoinSessionCompleteDelegate_Handle(DelegadoCompletadoUnirSesion);
 	const ULocalPlayer* JugadorLocal = GetWorld()->GetFirstLocalPlayerFromController();
 
-	// Si devuelve true se ejecutar� USubsistemaInstanciaJuego::CallbackCompletadoUnirSesion 
+	// Si devuelve true se ejecutará USubsistemaInstanciaJuego::CallbackCompletadoUnirSesion 
 	if (!InterfazSesion->JoinSession(*JugadorLocal->GetPreferredUniqueNetId(), NAME_GameSession, ResultadoBusquedaSesion)) {
 		InterfazSesion->ClearOnJoinSessionCompleteDelegate_Handle(ManejadorDelegadoCompletadoUnirSesion);
 
@@ -109,7 +106,7 @@ void USubsistemaInstanciaJuego::DestruirSesion() {
 
  	ManejadorDelegadoCompletadoDestruirSesion = InterfazSesion->AddOnDestroySessionCompleteDelegate_Handle(DelegadoCompletadoDestruirSesion);
 
-	// Si devuelve true se ejecutar� USubsistemaInstanciaJuego::CallbackCompletadoDestruirSesion 
+	// Si devuelve true se ejecutará USubsistemaInstanciaJuego::CallbackCompletadoDestruirSesion 
 	if (!InterfazSesion->DestroySession(NAME_GameSession)) {
 		InterfazSesion->ClearOnDestroySessionCompleteDelegate_Handle(ManejadorDelegadoCompletadoDestruirSesion);
 		DelegadoMultijugadorCompletadoDestruirSesion.Broadcast(false);
