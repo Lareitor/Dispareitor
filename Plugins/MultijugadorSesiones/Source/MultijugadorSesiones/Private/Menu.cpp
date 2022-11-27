@@ -60,10 +60,11 @@ bool UMenu::Initialize() {
 
 // Se llama cuando el nivel en el que está es destruido
 // Esto ocurrirá cuando vayamos al nivel de espera
-void UMenu::OnLevelRemovedFromWorld(ULevel* Nivel, UWorld* Mundo) {
+void UMenu::NativeDestruct() {
 	MenuDeshacerConfiguracion();
-	Super::OnLevelRemovedFromWorld(Nivel, Mundo);
+	Super::NativeDestruct();
 }
+
 
 void UMenu::CallbackCompletadoCrearSesion(bool fueOk) {
 	if (fueOk) {

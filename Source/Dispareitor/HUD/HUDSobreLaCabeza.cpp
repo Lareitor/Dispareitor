@@ -6,10 +6,11 @@
 
 // El BP_HUDSobreLaCabeza (que hereda de este) esta incluido en el BP_DispareitorPersonaje y se inicia en el nodo BeginPlay
 
-void UHUDSobreLaCabeza::OnLevelRemovedFromWorld(ULevel *Nivel, UWorld* Mundo) {
+void UHUDSobreLaCabeza::NativeDestruct() {
     RemoveFromParent();
-    Super::OnLevelRemovedFromWorld(Nivel, Mundo);
-}	
+    Super::NativeDestruct();
+}
+
 
 void UHUDSobreLaCabeza::MostrarJugadorRolRed(APawn* Peon) {
     ENetRole RolLocal = Peon->GetLocalRole();

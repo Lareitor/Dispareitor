@@ -16,7 +16,7 @@ public:
 
 protected:
 	virtual bool Initialize() override;
-	virtual void OnLevelRemovedFromWorld(ULevel* Nivel, UWorld* Mundo) override;
+	virtual void NativeDestruct() override;
 	// Callbacks para los delegados creados en SubsistemaInstanciaJuego
 	UFUNCTION()	void CallbackCompletadoCrearSesion(bool fueOk);
 	void CallbackCompletadoEncontrarSesiones(const TArray<FOnlineSessionSearchResult>& ResultadoBusquedaSesion, bool fueOk);

@@ -15,7 +15,7 @@ public:
 	UFUNCTION(BlueprintCallable) void MostrarJugadorNombre(APawn* Peon);
 
 protected:
-	virtual void OnLevelRemovedFromWorld(ULevel *Nivel, UWorld* Mundo) override;	
+	virtual void NativeDestruct() override;
 
 private:
 	bool bActualizadoTextoSobreLaCabeza = false;	
