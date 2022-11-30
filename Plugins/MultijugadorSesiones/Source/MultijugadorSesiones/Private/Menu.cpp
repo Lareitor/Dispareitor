@@ -3,6 +3,24 @@
 #include "OnlineSubsystem.h"
 #include "SubsistemaInstanciaJuego.h"
 
+// Es como el constructor del widget
+bool UMenu::Initialize() {
+	if (!Super::Initialize()) {
+		return false;
+	}
+
+	if (BotonAnfitrion) {
+		// OnClicked es como un delegado
+		BotonAnfitrion->OnClicked.AddDynamic(this, &ThisClass::BotonAnfitrionPulsado);
+	}
+
+	if (BotonUnirse) {		
+		BotonUnirse->OnClicked.AddDynamic(this, &ThisClass::BotonUnirsePulsado);
+	}
+
+	return true;
+}
+
 void UMenu::MenuConfiguracion(int32 _NumeroDeConexiones, FString  _ModoJuego, FString _PathSalaEspera) {
 	NumeroDeConexiones = _NumeroDeConexiones;
 	ModoJuego = _ModoJuego;
@@ -35,36 +53,26 @@ void UMenu::MenuConfiguracion(int32 _NumeroDeConexiones, FString  _ModoJuego, FS
 		SubsistemaInstanciaJuego->DelegadoMultijugadorCompletadoCrearSesion.AddDynamic(this, &ThisClass::CallbackCompletadoCrearSesion);
 		SubsistemaInstanciaJuego->DelegadoMultijugadorCompletadoEncontrarSesiones.AddUObject(this, &ThisClass::CallbackCompletadoEncontrarSesiones);
 		SubsistemaInstanciaJuego->DelegadoMultijugadorCompletadoUnirSesion.AddUObject(this, &ThisClass::CallbackCompletadoUnirSesion);
-		SubsistemaInstanciaJuego->DelegadoMultijugadorCompletadoDestruirSesion.AddDynamic(this, &ThisClass::CallbackCompletadoDestruirSesion);
 		SubsistemaInstanciaJuego->DelegadoMultijugadorCompletadoEmpezarSesion.AddDynamic(this, &ThisClass::CallbackCompletadoEmpezarSesion);
+		SubsistemaInstanciaJuego->DelegadoMultijugadorCompletadoDestruirSesion.AddDynamic(this, &ThisClass::CallbackCompletadoDestruirSesion);
 	}
 }
 
-// Es como el constructor del widget
-bool UMenu::Initialize() {
-	if (!Super::Initialize()) {
-		return false;
-	}
+void UMenu::BotonAnfitrionPulsado() {	
+	BotonAnfitrion->SetIsEnabled(false);
 
-	if (BotonAnfitrion) {
-		// OnClicked es como un delegado
-		BotonAnfitrion->OnClicked.AddDynamic(this, &ThisClass::BotonAnfitrionPulsado);
+	if (SubsistemaInstanciaJuego) {
+		SubsistemaInstanciaJuego->CrearSesion(NumeroDeConexiones, ModoJuego);		
 	}
-
-	if (BotonUnirse) {		
-		BotonUnirse->OnClicked.AddDynamic(this, &ThisClass::BotonUnirsePulsado);
-	}
-
-	return true;
 }
 
-// Se llama cuando el nivel en el que está es destruido
-// Esto ocurrirá cuando vayamos al nivel de espera
-void UMenu::NativeDestruct() {
-	MenuDeshacerConfiguracion();
-	Super::NativeDestruct();
-}
+void UMenu::BotonUnirsePulsado() {
+	BotonUnirse->SetIsEnabled(false);
 
+	if (SubsistemaInstanciaJuego) {
+		SubsistemaInstanciaJuego->EncontrarSesiones(10000);
+	}
+}
 
 void UMenu::CallbackCompletadoCrearSesion(bool fueOk) {
 	if (fueOk) {
@@ -81,7 +89,6 @@ void UMenu::CallbackCompletadoCrearSesion(bool fueOk) {
 			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Red, FString(TEXT("Error al crear la sesion!")));
 		}
 		BotonAnfitrion->SetIsEnabled(true);
-
 	}
 }
 
@@ -128,26 +135,16 @@ void UMenu::CallbackCompletadoUnirSesion(EOnJoinSessionCompleteResult::Type Resu
 	}
 }
 
-void UMenu::CallbackCompletadoDestruirSesion(bool fueOk) {
-}
-
 void UMenu::CallbackCompletadoEmpezarSesion(bool fueOk) {
 }
 
-void UMenu::BotonAnfitrionPulsado() {	
-	BotonAnfitrion->SetIsEnabled(false);
-
-	if (SubsistemaInstanciaJuego) {
-		SubsistemaInstanciaJuego->CrearSesion(NumeroDeConexiones, ModoJuego);		
-	}
+void UMenu::CallbackCompletadoDestruirSesion(bool fueOk) {
 }
 
-void UMenu::BotonUnirsePulsado() {
-	BotonUnirse->SetIsEnabled(false);
-
-	if (SubsistemaInstanciaJuego) {
-		SubsistemaInstanciaJuego->EncontrarSesiones(10000);
-	}
+// Se llama cuando el nivel en el que está es destruido. Esto ocurrirá cuando vayamos al nivel de espera
+void UMenu::NativeDestruct() {
+	MenuDeshacerConfiguracion();
+	Super::NativeDestruct();
 }
 
 void UMenu::MenuDeshacerConfiguracion() {

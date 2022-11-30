@@ -3,11 +3,11 @@
 #include "OnlineSessionSettings.h"
 
 USubsistemaInstanciaJuego::USubsistemaInstanciaJuego() :
-	DelegadoCompletadoCrearSesion(FOnCreateSessionCompleteDelegate::CreateUObject(this, &ThisClass::CallbackCompletadoCrearSesion)),
-	DelegadoCompletadoEncontrarSesiones(FOnFindSessionsCompleteDelegate::CreateUObject(this, &ThisClass::CallbackCompletadoEncontrarSesiones)),
-	DelegadoCompletadoUnirSesion(FOnJoinSessionCompleteDelegate::CreateUObject(this, &ThisClass::CallbackCompletadoUnirSesion)),
-	DelegadoCompletadoDestruirSesion(FOnDestroySessionCompleteDelegate::CreateUObject(this, &ThisClass::CallbackCompletadoDestruirSesion)),
-	DelegadoCompletadoEmpezarSesion(FOnStartSessionCompleteDelegate::CreateUObject(this, &ThisClass::CallbackCompletadoEmpezarSesion)) {
+		DelegadoCompletadoCrearSesion(FOnCreateSessionCompleteDelegate::CreateUObject(this, &ThisClass::CallbackCompletadoCrearSesion)),
+		DelegadoCompletadoEncontrarSesiones(FOnFindSessionsCompleteDelegate::CreateUObject(this, &ThisClass::CallbackCompletadoEncontrarSesiones)),
+		DelegadoCompletadoUnirSesion(FOnJoinSessionCompleteDelegate::CreateUObject(this, &ThisClass::CallbackCompletadoUnirSesion)),
+		DelegadoCompletadoDestruirSesion(FOnDestroySessionCompleteDelegate::CreateUObject(this, &ThisClass::CallbackCompletadoDestruirSesion)),
+		DelegadoCompletadoEmpezarSesion(FOnStartSessionCompleteDelegate::CreateUObject(this, &ThisClass::CallbackCompletadoEmpezarSesion)) {
 
 	IOnlineSubsystem* SubsistemaOnline = IOnlineSubsystem::Get();
 	if (SubsistemaOnline) {
@@ -47,14 +47,21 @@ void USubsistemaInstanciaJuego::CrearSesion(int32 NumeroConexiones, FString Modo
 
 	const ULocalPlayer* JugadorLocal = GetWorld()->GetFirstLocalPlayerFromController();
 
-	// Si devuelve true se ejecutar� USubsistemaInstanciaJuego::CallbackCompletadoCrearSesion
+	// Si devuelve true se ejecutará USubsistemaInstanciaJuego::CallbackCompletadoCrearSesion
 	if (!InterfazSesion->CreateSession(*JugadorLocal->GetPreferredUniqueNetId(), NAME_GameSession, *ConfiguracionUltimaSesion)) {
 		InterfazSesion->ClearOnCreateSessionCompleteDelegate_Handle(ManejadorDelegadoCompletadoCrearSesion);
 
 		// Emitir nuestro propio delegado
 		DelegadoMultijugadorCompletadoCrearSesion.Broadcast(false);
 	}
+}
 
+void USubsistemaInstanciaJuego::CallbackCompletadoCrearSesion(FName NombreSesion, bool fueOk) {
+	if (InterfazSesion) {
+		InterfazSesion->ClearOnCreateSessionCompleteDelegate_Handle(ManejadorDelegadoCompletadoCrearSesion);
+	}
+
+	DelegadoMultijugadorCompletadoCrearSesion.Broadcast(fueOk);
 }
 
 void USubsistemaInstanciaJuego::EncontrarSesiones(int32 NumeroMaximoResultados) {
@@ -80,6 +87,18 @@ void USubsistemaInstanciaJuego::EncontrarSesiones(int32 NumeroMaximoResultados) 
 	}
 }
 
+void USubsistemaInstanciaJuego::CallbackCompletadoEncontrarSesiones(bool fueOk) {
+	if (InterfazSesion) {
+		InterfazSesion->ClearOnFindSessionsCompleteDelegate_Handle(ManejadorDelegadoCompletadoEncontrarSesiones);
+	}
+
+	if (BusquedaUltimaSesion->SearchResults.Num() <= 0) {
+		DelegadoMultijugadorCompletadoEncontrarSesiones.Broadcast(TArray<FOnlineSessionSearchResult>(), false);
+	} else {
+		DelegadoMultijugadorCompletadoEncontrarSesiones.Broadcast(BusquedaUltimaSesion->SearchResults, fueOk);
+	}	
+}
+
 void USubsistemaInstanciaJuego::UnirSesion(const FOnlineSessionSearchResult& ResultadoBusquedaSesion) {
 	if (!InterfazSesion.IsValid()) {
 		DelegadoMultijugadorCompletadoUnirSesion.Broadcast(EOnJoinSessionCompleteResult::UnknownError);
@@ -98,6 +117,15 @@ void USubsistemaInstanciaJuego::UnirSesion(const FOnlineSessionSearchResult& Res
 	}
 }
 
+void USubsistemaInstanciaJuego::CallbackCompletadoUnirSesion(FName NombreSesion, EOnJoinSessionCompleteResult::Type Resultado) {
+	if (InterfazSesion) {
+		InterfazSesion->ClearOnJoinSessionCompleteDelegate_Handle(ManejadorDelegadoCompletadoUnirSesion);
+	}
+
+	DelegadoMultijugadorCompletadoUnirSesion.Broadcast(Resultado);
+}
+
+
 void USubsistemaInstanciaJuego::DestruirSesion() {
 	if (!InterfazSesion.IsValid()) {
 		DelegadoMultijugadorCompletadoDestruirSesion.Broadcast(false);
@@ -113,37 +141,6 @@ void USubsistemaInstanciaJuego::DestruirSesion() {
 	}
 }
 
-void USubsistemaInstanciaJuego::EmpezarSesion() {
-}
-
-void USubsistemaInstanciaJuego::CallbackCompletadoCrearSesion(FName NombreSesion, bool fueOk) {
-	if (InterfazSesion) {
-		InterfazSesion->ClearOnCreateSessionCompleteDelegate_Handle(ManejadorDelegadoCompletadoCrearSesion);
-	}
-
-	DelegadoMultijugadorCompletadoCrearSesion.Broadcast(fueOk);
-}
-
-void USubsistemaInstanciaJuego::CallbackCompletadoEncontrarSesiones(bool fueOk) {
-	if (InterfazSesion) {
-		InterfazSesion->ClearOnFindSessionsCompleteDelegate_Handle(ManejadorDelegadoCompletadoEncontrarSesiones);
-	}
-
-	if (BusquedaUltimaSesion->SearchResults.Num() <= 0) {
-		DelegadoMultijugadorCompletadoEncontrarSesiones.Broadcast(TArray<FOnlineSessionSearchResult>(), false);
-	} else {
-		DelegadoMultijugadorCompletadoEncontrarSesiones.Broadcast(BusquedaUltimaSesion->SearchResults, fueOk);
-	}	
-}
-
-void USubsistemaInstanciaJuego::CallbackCompletadoUnirSesion(FName NombreSesion, EOnJoinSessionCompleteResult::Type Resultado) {
-	if (InterfazSesion) {
-		InterfazSesion->ClearOnJoinSessionCompleteDelegate_Handle(ManejadorDelegadoCompletadoUnirSesion);
-	}
-
-	DelegadoMultijugadorCompletadoUnirSesion.Broadcast(Resultado);
-}
-
 void USubsistemaInstanciaJuego::CallbackCompletadoDestruirSesion(FName NombreSesion, bool fueOk) {
 	if (InterfazSesion) {
 		InterfazSesion->ClearOnDestroySessionCompleteDelegate_Handle(ManejadorDelegadoCompletadoDestruirSesion);
@@ -155,6 +152,9 @@ void USubsistemaInstanciaJuego::CallbackCompletadoDestruirSesion(FName NombreSes
 	}
 
 	DelegadoMultijugadorCompletadoDestruirSesion.Broadcast(fueOk);
+}
+
+void USubsistemaInstanciaJuego::EmpezarSesion() {
 }
 
 void USubsistemaInstanciaJuego::CallbackCompletadoEmpezarSesion(FName NombreSesion, bool fueOk) {

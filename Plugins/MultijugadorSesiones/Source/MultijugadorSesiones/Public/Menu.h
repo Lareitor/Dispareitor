@@ -32,7 +32,7 @@ private:
 	UFUNCTION()	void BotonUnirsePulsado();
 	void MenuDeshacerConfiguracion();
 	class USubsistemaInstanciaJuego* SubsistemaInstanciaJuego;
-	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true")) int32 NumeroDeConexiones{4};
-	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true")) FString ModoJuego{TEXT("TodosContraTodos")};
+	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true")) int32 NumeroDeConexiones{ 4 };
+	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true")) FString ModoJuego{ TEXT("TodosContraTodos") };
 	FString PathSalaEspera{ TEXT("") };
 };

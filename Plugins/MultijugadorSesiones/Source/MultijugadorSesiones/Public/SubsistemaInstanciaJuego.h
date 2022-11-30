@@ -7,9 +7,8 @@
 
 // Declaración de nuestros propios delegados para que la clase Menu pueda enlazarles callbacks
 // MULTICAST = Multiples clases puede enlazarse a él
-// DYNAMIC = Se puede serializar y puede ser salvado y cargado desde una clase BluePrint. En BluePrint se llaman Event Dispatchers. 
-// DYNAMIC implica también que las callbacks que se enlacen deben ser UFUNCTION
-// En los DYNAMICs separamos el tipo del parametro con la ,
+// DYNAMIC = Se puede serializar y puede ser salvado y cargado desde una clase Blueprint. En Blueprint se llaman Event Dispatchers. 
+// DYNAMIC implica también que las callbacks que se enlacen deben ser UFUNCTION. En los DYNAMICs separamos el tipo del parametro con la ,
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDelegadoMultijugadorCompletadoCrearSesion, bool, fueOk);
 // No es DYNAMIC ya que para que lo fuera todos los argumentos pasados deben ser compatibles con BPs, y FOnlineSessionSearchResult no lo es ya que no es un UFUNCTION
 // En los solo MULTICAST no separamos el tipo del parametro
