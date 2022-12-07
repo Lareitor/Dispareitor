@@ -157,7 +157,6 @@ ADispareitorPersonaje::ADispareitorPersonaje() {
 			CajaColision.Value->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 			CajaColision.Value->SetCollisionResponseToChannel(ECC_CajaColision, ECollisionResponse::ECR_Block);
 			CajaColision.Value->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
 		}
 	}
 }
@@ -227,25 +226,25 @@ void ADispareitorPersonaje::CalcularRotarEnSitio(float DeltaTime) {
 
 
 void ADispareitorPersonaje::SondearInicializacion() {
-	if(DispareitorEstadoJugador == nullptr) {
+	if(!DEstadoJugador) {
 		// En los primeros frames este casting siempre devolverá null 
-		DispareitorEstadoJugador = GetPlayerState<ADispareitorEstadoJugador>();
-		if(DispareitorEstadoJugador) {
-			DispareitorEstadoJugador->IncrementarMuertos(0.f);	
-			DispareitorEstadoJugador->IncrementarMuertes(0);
- 			ActivarColorEquipo(DispareitorEstadoJugador->ObtenerEquipo());
+		DEstadoJugador = GetPlayerState<ADispareitorEstadoJugador>();
+		if(DEstadoJugador) {
+			DEstadoJugador->IncrementarMuertos(0.f);	
+			DEstadoJugador->IncrementarMuertes(0);
+ 			ActivarColorEquipo(DEstadoJugador->ObtenerEquipo());
 			ActivarPuntoReaparicionParaModoEquipo();
 
-			ADispareitorEstadoJuego* DispareitorEstadoJuego = Cast<ADispareitorEstadoJuego>(UGameplayStatics::GetGameState(this));
-			if(DispareitorEstadoJuego && DispareitorEstadoJuego->ArrayDeEstadoJugadoresConPuntuacionMasAlta.Contains(DispareitorEstadoJugador)) {
+			ADispareitorEstadoJuego* DEstadoJuego = Cast<ADispareitorEstadoJuego>(UGameplayStatics::GetGameState(this));
+			if(DEstadoJuego && DEstadoJuego->ArrayDeEstadoJugadoresConPuntuacionMasAlta.Contains(DEstadoJugador)) {
 				GanoElLider_Multicast();
 			}
 		}
 	}
 
-	if(DispareitorControladorJugador == nullptr) {
-		DispareitorControladorJugador = Cast<ADispareitorControladorJugador>(Controller);
-		if(DispareitorControladorJugador) {
+	if(!DControladorJugador) {
+		DControladorJugador = Cast<ADispareitorControladorJugador>(Controller);
+		if(DControladorJugador) {
 			ReaparecerArmaPorDefecto();
 			ActualizarMunicionHUD();
 			ActualizarVidaHUD();
@@ -255,7 +254,7 @@ void ADispareitorPersonaje::SondearInicializacion() {
 	}	
 
 	/*if(HUDSobreLaCabeza) {
-		HUDSobreLaCabezaReal = HUDSobreLaCabezaReal != nullptr ? HUDSobreLaCabezaReal : Cast<UHUDSobreLaCabeza>(HUDSobreLaCabeza->GetUserWidgetObject());
+		HUDSobreLaCabezaReal = HUDSobreLaCabezaReal ? HUDSobreLaCabezaReal : Cast<UHUDSobreLaCabeza>(HUDSobreLaCabeza->GetUserWidgetObject());
 		HUDSobreLaCabezaReal->MostrarJugadorNombre(this);
 	}*/
 }
@@ -263,6 +262,7 @@ void ADispareitorPersonaje::SondearInicializacion() {
 // Cada vez que el personaje se mueve llama a esta funcion, asi que la podemos usar en lugar del tick para calcular el giro en los proxies simulados
 // El problema es que solo se llama cuando se mueve, pero nos interesa llamarla regularmente, por lo que utilizamos la variable TiempoDesdeUltimaReplicacionDeMovimiento
 // para almacenar el tiempo desde la ultima replicacion de movimiento y si pasa un cierto umbral volvemos a llamar a esta funcion 
+// TODO: No se encarga de esto la variable MinNetUpdateFrequency??
 void ADispareitorPersonaje::OnRep_ReplicatedMovement() {
 	Super::OnRep_ReplicatedMovement();
 	CalcularGiroParadoYArmadoEnProxiesSimulados();	
@@ -708,9 +708,9 @@ void ADispareitorPersonaje::RecibirDanio(AActor* ActorDaniado, float Danio, cons
 
 	if(Vida == 0.f) {
 		if(DModoJuego) {
-			DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(Controller);
+			DControladorJugador = DControladorJugador != nullptr ? DControladorJugador : Cast<ADispareitorControladorJugador>(Controller);
 			ADispareitorControladorJugador* AtacanteDispareitorControladorJugador = Cast<ADispareitorControladorJugador>(CInstigador);
-			DModoJuego->JugadorEliminado(this, DispareitorControladorJugador, AtacanteDispareitorControladorJugador);
+			DModoJuego->JugadorEliminado(this, DControladorJugador, AtacanteDispareitorControladorJugador);
 		}
 	}
 }
@@ -731,31 +731,31 @@ void ADispareitorPersonaje::AlReplicar_Escudo(float EscudoAnterior) {
 }
 
 void ADispareitorPersonaje::ActualizarVidaHUD() {
-	DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(Controller);
-	if(DispareitorControladorJugador) {
-		DispareitorControladorJugador->ActualizarVidaHUD(Vida, VidaMaxima);
+	DControladorJugador = DControladorJugador != nullptr ? DControladorJugador : Cast<ADispareitorControladorJugador>(Controller);
+	if(DControladorJugador) {
+		DControladorJugador->ActualizarVidaHUD(Vida, VidaMaxima);
 	}
 }
 
 void ADispareitorPersonaje::ActualizarEscudoHUD() {
-	DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(Controller);
-	if(DispareitorControladorJugador) {
-		DispareitorControladorJugador->ActualizarEscudoHUD(Escudo, EscudoMaximo);
+	DControladorJugador = DControladorJugador != nullptr ? DControladorJugador : Cast<ADispareitorControladorJugador>(Controller);
+	if(DControladorJugador) {
+		DControladorJugador->ActualizarEscudoHUD(Escudo, EscudoMaximo);
 	}
 }
 
 void ADispareitorPersonaje::ActualizarGranadasHUD() {
-	DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(Controller);
-	if(DispareitorControladorJugador && CombateComponente) {
-		DispareitorControladorJugador->ActualizarGranadasHUD(CombateComponente->ObtenerGranadasActuales());
+	DControladorJugador = DControladorJugador != nullptr ? DControladorJugador : Cast<ADispareitorControladorJugador>(Controller);
+	if(DControladorJugador && CombateComponente) {
+		DControladorJugador->ActualizarGranadasHUD(CombateComponente->ObtenerGranadasActuales());
 	}
 }
 
 void ADispareitorPersonaje::ActualizarMunicionHUD() {
-	DispareitorControladorJugador = DispareitorControladorJugador != nullptr ? DispareitorControladorJugador : Cast<ADispareitorControladorJugador>(Controller);
-	if(DispareitorControladorJugador && CombateComponente && CombateComponente->ArmaEquipada) {
-		DispareitorControladorJugador->ActualizarMunicionPersonajeHUD(CombateComponente->MunicionPersonaje);
-		DispareitorControladorJugador->ActualizarMunicionArmaHUD(CombateComponente->ArmaEquipada->ObtenerMunicion());
+	DControladorJugador = DControladorJugador != nullptr ? DControladorJugador : Cast<ADispareitorControladorJugador>(Controller);
+	if(DControladorJugador && CombateComponente && CombateComponente->ArmaEquipada) {
+		DControladorJugador->ActualizarMunicionPersonajeHUD(CombateComponente->MunicionPersonaje);
+		DControladorJugador->ActualizarMunicionArmaHUD(CombateComponente->ArmaEquipada->ObtenerMunicion());
 	} 
 }
 
@@ -799,8 +799,8 @@ void ADispareitorPersonaje::Eliminado_Multicast_Implementation(bool bJugadorDeja
 	if(HUDSobreLaCabeza) {
 		HUDSobreLaCabeza->SetVisibility(false);
 	}
-	if(DispareitorControladorJugador) {
-		DispareitorControladorJugador->ActualizarMunicionArmaHUD(0);
+	if(DControladorJugador) {
+		DControladorJugador->ActualizarMunicionArmaHUD(0);
 	}
 	if(ComponenteNiagaraCorona) {
 		ComponenteNiagaraCorona->DestroyComponent();
@@ -812,7 +812,7 @@ void ADispareitorPersonaje::TemporizadorEliminadoFinalizado() {
 	DModoJuego = DModoJuego ? DModoJuego : GetWorld()->GetAuthGameMode<ADispareitorModoJuego>();
 
 	if(DModoJuego && !bDejarJuego) {
-		DModoJuego->PeticionReaparecer(this, DispareitorControladorJugador);
+		DModoJuego->PeticionReaparecer(this, DControladorJugador);
 	}
 	if(bDejarJuego && IsLocallyControlled()) {
 		DelegadoDejarJuego.Broadcast();
@@ -910,9 +910,9 @@ bool ADispareitorPersonaje::EstaRecargandoLocalmente() {
 void ADispareitorPersonaje::DejarJuego_EnServidor_Implementation() {
 	DModoJuego = DModoJuego ? DModoJuego : GetWorld()->GetAuthGameMode<ADispareitorModoJuego>();
 
-	DispareitorEstadoJugador =  DispareitorEstadoJugador ? DispareitorEstadoJugador : GetPlayerState<ADispareitorEstadoJugador>();
-	if(DModoJuego && DispareitorEstadoJugador) {
-		DModoJuego->JugadorDejaJuego(DispareitorEstadoJugador);
+	DEstadoJugador =  DEstadoJugador ? DEstadoJugador : GetPlayerState<ADispareitorEstadoJugador>();
+	if(DModoJuego && DEstadoJugador) {
+		DModoJuego->JugadorDejaJuego(DEstadoJugador);
 	}
 }
 
@@ -956,18 +956,18 @@ void ADispareitorPersonaje::ActivarColorEquipo(EEquipo Equipo) {
 }
 
 EEquipo ADispareitorPersonaje::ObtenerEquipo() {
-	DispareitorEstadoJugador =  DispareitorEstadoJugador ? DispareitorEstadoJugador : GetPlayerState<ADispareitorEstadoJugador>();
-	return DispareitorEstadoJugador ? DispareitorEstadoJugador->ObtenerEquipo() : EEquipo::EE_Ninguno;		
+	DEstadoJugador =  DEstadoJugador ? DEstadoJugador : GetPlayerState<ADispareitorEstadoJugador>();
+	return DEstadoJugador ? DEstadoJugador->ObtenerEquipo() : EEquipo::EE_Ninguno;		
 }
 
 void ADispareitorPersonaje::ActivarPuntoReaparicionParaModoEquipo() {
-	if(HasAuthority() && DispareitorEstadoJugador->ObtenerEquipo() != EEquipo::EE_Ninguno) {
+	if(HasAuthority() && DEstadoJugador->ObtenerEquipo() != EEquipo::EE_Ninguno) {
 		TArray<AActor*> IniciosJugadores;
 		UGameplayStatics::GetAllActorsOfClass(this, AInicioJugadorEquipo::StaticClass(), IniciosJugadores);
 		TArray<AInicioJugadorEquipo*> IniciosJugadoresEquipo;
 		for(auto Inicio : IniciosJugadores) {
 			AInicioJugadorEquipo* InicioJugadorEquipo = Cast<AInicioJugadorEquipo>(Inicio);
-			if(InicioJugadorEquipo && InicioJugadorEquipo->Equipo == DispareitorEstadoJugador->ObtenerEquipo()) {
+			if(InicioJugadorEquipo && InicioJugadorEquipo->Equipo == DEstadoJugador->ObtenerEquipo()) {
 				IniciosJugadoresEquipo.Add(InicioJugadorEquipo);
 			}
 		}
