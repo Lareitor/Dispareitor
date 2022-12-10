@@ -311,7 +311,7 @@ void ADispareitorPersonaje::MoverAdelanteAtrasPulsado(float Valor) {
 		return;
 	}
 
-	if(Controller != nullptr && Valor != 0.f) {
+	if(Controller && Valor != 0.f) {
 		const FRotator RotacionGiro(0.f, Controller->GetControlRotation().Yaw, 0.f);
 		const FVector DireccionAdelanteDeRotacionGiro(FRotationMatrix(RotacionGiro).GetUnitAxis(EAxis::X));
 		AddMovementInput(DireccionAdelanteDeRotacionGiro, Valor);
@@ -323,7 +323,7 @@ void ADispareitorPersonaje::MoverIzquierdaDerechaPulsado(float Valor) {
 		return;
 	}
 
-	if(Controller != nullptr && Valor != 0.f) {
+	if(Controller && Valor != 0.f) {
 		const FRotator RotacionGiro(0.f, Controller->GetControlRotation().Yaw, 0.f);
 		const FVector DireccionLateralDeRotacionGiro(FRotationMatrix(RotacionGiro).GetUnitAxis(EAxis::Y));
 		AddMovementInput(DireccionLateralDeRotacionGiro, Valor);
@@ -500,7 +500,7 @@ void ADispareitorPersonaje::CalcularGiroEInclinacionParadoYArmado(float DeltaTim
 void ADispareitorPersonaje::CalcularGirarEnSitio(float DeltaTime) {
 	if(AOGiro > 90.f) {
 		GirarEnSitio = EGirarEnSitio::EGES_Derecha;
-	} else if(AOGiro < -90.f ) {
+	} else if(AOGiro < -90.f) {
 		GirarEnSitio = EGirarEnSitio::EGES_Izquierda;
 	}
 
@@ -530,7 +530,7 @@ void ADispareitorPersonaje::CalcularInclinacion() {
 
 // Llamado solo por los proxies simulados para implementar el giro y evitar de este modo el jittering  
 void ADispareitorPersonaje::CalcularGiroParadoYArmadoEnProxiesSimulados() {
-	if(CombateComponente == nullptr || CombateComponente->ArmaEquipada == nullptr) {
+	if(!CombateComponente || !CombateComponente->ArmaEquipada) {
 		return;
 	}
 
@@ -560,12 +560,12 @@ void ADispareitorPersonaje::CalcularGiroParadoYArmadoEnProxiesSimulados() {
 }
 
 AArma* ADispareitorPersonaje::ObtenerArmaEquipada() {
-	return CombateComponente != nullptr ? CombateComponente->ArmaEquipada : nullptr;
+	return CombateComponente ? CombateComponente->ArmaEquipada : nullptr;
 }
 
 // Llamado por CombateComponente
 void ADispareitorPersonaje::EjecutarMontajeDispararArma(bool bApuntando) {
-	if(CombateComponente == nullptr || CombateComponente->ArmaEquipada == nullptr) {
+	if(!CombateComponente || !CombateComponente->ArmaEquipada) {
 		return;
 	}
 
@@ -579,7 +579,7 @@ void ADispareitorPersonaje::EjecutarMontajeDispararArma(bool bApuntando) {
 
 // Llamado por UCombateComponente::RecargarServidor_Implementation
 void ADispareitorPersonaje::EjecutarMontajeRecargar() {
-	if(CombateComponente == nullptr || CombateComponente->ArmaEquipada == nullptr) {
+	if(!CombateComponente || !CombateComponente->ArmaEquipada) {
 		return;
 	}
 
@@ -617,7 +617,7 @@ void ADispareitorPersonaje::EjecutarMontajeRecargar() {
 
 // Llamado por RecibirDanio y AlReplicar_Vida
 void ADispareitorPersonaje::EjecutarMontajeReaccionAImpacto() {
-	if(CombateComponente == nullptr || CombateComponente->ArmaEquipada == nullptr) {
+	if(!CombateComponente || !CombateComponente->ArmaEquipada) {
 		return;
 	}
 
@@ -652,7 +652,7 @@ void ADispareitorPersonaje::EjecutarMontajeIntercambiarArmas() {
 }
 
 FVector ADispareitorPersonaje::ObtenerObjetoAlcanzado() const {
-	return (CombateComponente != nullptr && CombateComponente->ArmaEquipada != nullptr) ? CombateComponente->ObjetoAlcanzado : FVector();	
+	return CombateComponente && CombateComponente->ArmaEquipada ? CombateComponente->ObjetoAlcanzado : FVector();	
 }
 
 // Llamado por Tick
@@ -706,12 +706,10 @@ void ADispareitorPersonaje::RecibirDanio(AActor* ActorDaniado, float Danio, cons
 	ActualizarEscudoHUD();
 	EjecutarMontajeReaccionAImpacto();
 
-	if(Vida == 0.f) {
-		if(DModoJuego) {
-			DControladorJugador = DControladorJugador != nullptr ? DControladorJugador : Cast<ADispareitorControladorJugador>(Controller);
-			ADispareitorControladorJugador* AtacanteDispareitorControladorJugador = Cast<ADispareitorControladorJugador>(CInstigador);
-			DModoJuego->JugadorEliminado(this, DControladorJugador, AtacanteDispareitorControladorJugador);
-		}
+	if(Vida == 0.f) {		
+		DControladorJugador = DControladorJugador ? DControladorJugador : Cast<ADispareitorControladorJugador>(Controller);
+		ADispareitorControladorJugador* AtacanteDControladorJugador = Cast<ADispareitorControladorJugador>(CInstigador);
+		DModoJuego->JugadorEliminado(this, DControladorJugador, AtacanteDControladorJugador);		
 	}
 }
 
@@ -731,28 +729,28 @@ void ADispareitorPersonaje::AlReplicar_Escudo(float EscudoAnterior) {
 }
 
 void ADispareitorPersonaje::ActualizarVidaHUD() {
-	DControladorJugador = DControladorJugador != nullptr ? DControladorJugador : Cast<ADispareitorControladorJugador>(Controller);
+	DControladorJugador = DControladorJugador ? DControladorJugador : Cast<ADispareitorControladorJugador>(Controller);
 	if(DControladorJugador) {
 		DControladorJugador->ActualizarVidaHUD(Vida, VidaMaxima);
 	}
 }
 
 void ADispareitorPersonaje::ActualizarEscudoHUD() {
-	DControladorJugador = DControladorJugador != nullptr ? DControladorJugador : Cast<ADispareitorControladorJugador>(Controller);
+	DControladorJugador = DControladorJugador ? DControladorJugador : Cast<ADispareitorControladorJugador>(Controller);
 	if(DControladorJugador) {
 		DControladorJugador->ActualizarEscudoHUD(Escudo, EscudoMaximo);
 	}
 }
 
 void ADispareitorPersonaje::ActualizarGranadasHUD() {
-	DControladorJugador = DControladorJugador != nullptr ? DControladorJugador : Cast<ADispareitorControladorJugador>(Controller);
+	DControladorJugador = DControladorJugador ? DControladorJugador : Cast<ADispareitorControladorJugador>(Controller);
 	if(DControladorJugador && CombateComponente) {
 		DControladorJugador->ActualizarGranadasHUD(CombateComponente->ObtenerGranadasActuales());
 	}
 }
 
 void ADispareitorPersonaje::ActualizarMunicionHUD() {
-	DControladorJugador = DControladorJugador != nullptr ? DControladorJugador : Cast<ADispareitorControladorJugador>(Controller);
+	DControladorJugador = DControladorJugador ? DControladorJugador : Cast<ADispareitorControladorJugador>(Controller);
 	if(DControladorJugador && CombateComponente && CombateComponente->ArmaEquipada) {
 		DControladorJugador->ActualizarMunicionPersonajeHUD(CombateComponente->MunicionPersonaje);
 		DControladorJugador->ActualizarMunicionArmaHUD(CombateComponente->ArmaEquipada->ObtenerMunicion());
@@ -790,8 +788,8 @@ void ADispareitorPersonaje::Eliminado_Multicast_Implementation(bool bJugadorDeja
 	Granada->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	if(SistemaParticulasRobotEliminacion) {
-		FVector RobotEliminacionPuntoAparicion(GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z + 200.f);
-		ComponenteSistemaParticulasRobotEliminacion = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SistemaParticulasRobotEliminacion, RobotEliminacionPuntoAparicion, GetActorRotation());
+		FVector PuntoAparicionRobotEliminacion(GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z + 200.f);
+		ComponenteSistemaParticulasRobotEliminacion = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SistemaParticulasRobotEliminacion, PuntoAparicionRobotEliminacion, GetActorRotation());
 	}
 	if(SonidoRobotEliminacion) {
 		UGameplayStatics::SpawnSoundAtLocation(this, SonidoRobotEliminacion, GetActorLocation());
@@ -874,7 +872,7 @@ void ADispareitorPersonaje::Destroyed() {
 }
 
 EEstadosCombate ADispareitorPersonaje::ObtenerEstadoCombate() const {
-	return CombateComponente == nullptr ? EEstadosCombate::EEC_Maximo : CombateComponente->EstadoCombate;
+	return CombateComponente ? CombateComponente->EstadoCombate : EEstadosCombate::EEC_Maximo;
 }
 
 bool ADispareitorPersonaje::HayArmaEquipada() {
@@ -909,7 +907,6 @@ bool ADispareitorPersonaje::EstaRecargandoLocalmente() {
 
 void ADispareitorPersonaje::DejarJuego_EnServidor_Implementation() {
 	DModoJuego = DModoJuego ? DModoJuego : GetWorld()->GetAuthGameMode<ADispareitorModoJuego>();
-
 	DEstadoJugador =  DEstadoJugador ? DEstadoJugador : GetPlayerState<ADispareitorEstadoJugador>();
 	if(DModoJuego && DEstadoJugador) {
 		DModoJuego->JugadorDejaJuego(DEstadoJugador);
