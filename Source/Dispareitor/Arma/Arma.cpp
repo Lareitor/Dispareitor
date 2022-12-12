@@ -10,6 +10,8 @@
 #include "Dispareitor/ControladorJugador/DispareitorControladorJugador.h"
 #include "Dispareitor/DispareitorComponentes/CombateComponente.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Dispareitor/LimitesJuego/LimitesJuego.h"
+#include "Dispareitor/Arma/ArmaBandera.h"
 
 AArma::AArma() {
 	PrimaryActorTick.bCanEverTick = false;
@@ -44,6 +46,7 @@ void AArma::BeginPlay() {
 	
 	Esfera->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	Esfera->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+	Esfera->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Overlap); // Para que colisione con el objeto LimitesJuego
 	Esfera->OnComponentBeginOverlap.AddDynamic(this, &AArma::Callback_EsferaSolapadaInicio);		
 	Esfera->OnComponentEndOverlap.AddDynamic(this, &AArma::Callback_EsferaSolapadaFin);
 
@@ -59,15 +62,25 @@ void AArma::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimePro
 	DOREPLIFETIME_CONDITION(AArma, bRebobinarLadoServidor, COND_OwnerOnly);
 }
 
-
 void AArma::Callback_EsferaSolapadaInicio(UPrimitiveComponent* ComponenteSolapado, AActor* OtroActor, UPrimitiveComponent* OtroComponente, int32 OtroIndice, bool bFromSweep, const FHitResult& SweepResult) { 
 	ADispareitorPersonaje* DPersonajeEntraEnEsfera = Cast<ADispareitorPersonaje>(OtroActor);
 	if(DPersonajeEntraEnEsfera) {
+		bReseteando = false;
 		if((TipoArma == ETipoArma::ETA_Bandera && DPersonajeEntraEnEsfera->ObtenerEquipo() == Equipo) || DPersonajeEntraEnEsfera->EstaSosteniendoBandera()) {
 			return;
 		}
 		DPersonajeEntraEnEsfera->ActivarArmaSolapada(this);
 	}
+
+	ALimitesJuego* LimitesJuego = Cast<ALimitesJuego>(OtroActor);
+	if(LimitesJuego && !bReseteando) {
+		bReseteando = true;
+		if(TipoArma == ETipoArma::ETA_Bandera) {
+			AArmaBandera* ArmaBandera = Cast<AArmaBandera>(this);
+			ArmaBandera->PermitirResetearSiHaCaidoEnLimitesJuego();
+			ArmaBandera->Resetear();
+		}
+	}	
 }
 
 void AArma::Callback_EsferaSolapadaFin(UPrimitiveComponent* ComponenteSolapado, AActor* OtroActor, UPrimitiveComponent* OtroComponente, int32 OtroIndice) {
@@ -157,7 +170,6 @@ void AArma::ManejarActualizacionEstadoAlSoltar() {
 	if(HasAuthority()) {
 		Esfera->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	}
-	UE_LOG(LogTemp, Warning, TEXT("ManejarActualizacionEstadoAlSoltar: %d"), TipoArma);
 	Malla->SetSimulatePhysics(true);
 	Malla->SetEnableGravity(true);
 	Malla->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
@@ -210,7 +222,7 @@ void AArma::Soltar() {
 	Malla->DetachFromComponent(DesvincularReglas);
 	SetOwner(nullptr);
 	DispareitorPersonaje = nullptr;
-	DispareitorControladorJugador = nullptr;
+	DispareitorControladorJugador = nullptr;	
 }
 
 // Llamado por Disparar

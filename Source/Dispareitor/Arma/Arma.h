@@ -90,6 +90,7 @@ private:
 	UPROPERTY(EditAnywhere)	int32 CapacidadCargador;  
 	UPROPERTY(EditAnywhere)	ETipoArma TipoArma;
 	UPROPERTY(EditAnywhere)	EEquipo Equipo;
+	int bReseteando = false; // Se usa para cuando el arma cae en LimitesJuego
 	
 public:		
 	void ActualizarEstado(EEstado EstadoAActualizar);

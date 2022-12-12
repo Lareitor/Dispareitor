@@ -10,6 +10,7 @@ class DISPAREITOR_API AArmaBandera : public AArma {
 
 public:
 	void Resetear();
+	void PermitirResetearSiHaCaidoEnLimitesJuego();
 
 protected:
 	virtual void BeginPlay() override;	

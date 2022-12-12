@@ -18,6 +18,11 @@ void AArmaBandera::ManejarActualizacionEstadoAlEquipar() {
 	PermitirProfundidadPersonalizadaAlRenderizar(false);
 }
 
+void AArmaBandera::PermitirResetearSiHaCaidoEnLimitesJuego() {
+    ManejarActualizacionEstadoAlEquipar();  
+}
+
+
 void AArmaBandera::Resetear() {    
     ADispareitorPersonaje* DPersonajePortadorBandera = Cast<ADispareitorPersonaje>(GetOwner());
     if(DPersonajePortadorBandera) {
