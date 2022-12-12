@@ -8,7 +8,8 @@ public class DispareitorEditorTarget : TargetRules
 	public DispareitorEditorTarget( TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Editor;
-		DefaultBuildSettings = BuildSettingsVersion.V2;
+		DefaultBuildSettings = BuildSettingsVersion.V2;		
 		ExtraModuleNames.AddRange( new string[] { "Dispareitor" } );
+		IncludeOrderVersion = EngineIncludeOrderVersion.Latest;
 	}
 }
