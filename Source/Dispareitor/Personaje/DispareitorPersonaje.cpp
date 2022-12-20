@@ -429,7 +429,7 @@ void ADispareitorPersonaje::EquiparPulsado() {
 void ADispareitorPersonaje::EquiparIntercambiar_EnServidor_Implementation() {
 	if(CombateComponente) {
 		if(ArmaSolapada) {
-			CombateComponente->EquiparArma(ArmaSolapada);
+			CombateComponente->EquiparArma(ArmaSolapada);			
 		} else if(CombateComponente->PuedoIntercambiarArmas()) {
 			CombateComponente->IntercambiarArmas();
 		}
@@ -892,13 +892,14 @@ float ADispareitorPersonaje::CalcularVelocidad() {
 void ADispareitorPersonaje::ReaparecerArmaPorDefecto() {
 	DModoJuego = DModoJuego ? DModoJuego : GetWorld()->GetAuthGameMode<ADispareitorModoJuego>();
 	UWorld* Mundo = GetWorld();
-	if(DModoJuego && Mundo && !bEliminado && ClaseArmaPorDefecto) {
-		AArma* ArmaPorDefecto = Mundo->SpawnActor<AArma>(ClaseArmaPorDefecto);
-		ArmaPorDefecto->bDestruirArma = true;
-		if(CombateComponente) {
-			CombateComponente->EquiparArma(ArmaPorDefecto);
-		}
+
+	if(!DModoJuego || !Mundo || bEliminado || !ClaseArmaPorDefecto || !CombateComponente) {
+		return;
 	}
+
+	AArma* ArmaPorDefecto = Mundo->SpawnActor<AArma>(ClaseArmaPorDefecto);
+	ArmaPorDefecto->bDestruirArma = true;
+	CombateComponente->EquiparArma(ArmaPorDefecto);
 }
 
 bool ADispareitorPersonaje::EstaRecargandoLocalmente() {

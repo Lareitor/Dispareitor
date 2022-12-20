@@ -12,6 +12,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Dispareitor/LimitesJuego/LimitesJuego.h"
 #include "Dispareitor/Arma/ArmaBandera.h"
+#include "Dispareitor/ModoJuego/DispareitorModoJuego.h"
 
 AArma::AArma() {
 	PrimaryActorTick.bCanEverTick = false;
@@ -21,7 +22,8 @@ AArma::AArma() {
 	Malla = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Malla"));
 	SetRootComponent(Malla);	
 	Malla->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
-	Malla->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+	Malla->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);	
+    Malla->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Overlap); // Para que la malla genere overlap con el objeto LimitesJuego
 	Malla->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	Malla->SetCustomDepthStencilValue(PROFUNDIDAD_PERSONALIZADA_AL_RENDERIZAR_AZUL);
@@ -46,7 +48,6 @@ void AArma::BeginPlay() {
 	
 	Esfera->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	Esfera->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
-	Esfera->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Overlap); // Para que colisione con el objeto LimitesJuego
 	Esfera->OnComponentBeginOverlap.AddDynamic(this, &AArma::Callback_EsferaSolapadaInicio);		
 	Esfera->OnComponentEndOverlap.AddDynamic(this, &AArma::Callback_EsferaSolapadaFin);
 
@@ -60,6 +61,7 @@ void AArma::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimePro
 
 	DOREPLIFETIME(AArma, Estado);
 	DOREPLIFETIME_CONDITION(AArma, bRebobinarLadoServidor, COND_OwnerOnly);
+	DOREPLIFETIME(AArma, NombrePuntoReaparicion);	
 }
 
 void AArma::Callback_EsferaSolapadaInicio(UPrimitiveComponent* ComponenteSolapado, AActor* OtroActor, UPrimitiveComponent* OtroComponente, int32 OtroIndice, bool bFromSweep, const FHitResult& SweepResult) { 
@@ -75,11 +77,12 @@ void AArma::Callback_EsferaSolapadaInicio(UPrimitiveComponent* ComponenteSolapad
 	ALimitesJuego* LimitesJuego = Cast<ALimitesJuego>(OtroActor);
 	if(LimitesJuego && !bReseteando) {
 		bReseteando = true;
+		// TODO Lara. Pasar la logica de la bandera igual que las armas a limitejuego
 		if(TipoArma == ETipoArma::ETA_Bandera) {
 			AArmaBandera* ArmaBandera = Cast<AArmaBandera>(this);
 			ArmaBandera->PermitirResetearSiHaCaidoEnLimitesJuego();
 			ArmaBandera->Resetear();
-		}
+		} 								
 	}	
 }
 
@@ -176,6 +179,7 @@ void AArma::ManejarActualizacionEstadoAlSoltar() {
 	Malla->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
 	Malla->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 	Malla->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+    Malla->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Overlap); // Para que la malla genere overlap con el objeto LimitesJuego
 			
 	Malla->SetCustomDepthStencilValue(PROFUNDIDAD_PERSONALIZADA_AL_RENDERIZAR_AZUL);
 	Malla->MarkRenderStateDirty();
@@ -322,4 +326,28 @@ FVector AArma::CalcularPuntoFinalConDispersion(const FVector& Objetivo) {
     } else {
         return FVector();
     }
+}
+
+void AArma::ActualizarNombrePuntoReaparicion(FString Nombre) {
+	NombrePuntoReaparicion = FString::FString(Nombre);
+}
+
+void AArma::DeshabilitarColisiones() {
+	Esfera->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Malla->SetSimulatePhysics(false);
+	Malla->SetEnableGravity(false);
+	Malla->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
+void AArma::HabilitarColisiones() {
+	if(HasAuthority()) {
+		Esfera->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	}
+
+	Malla->SetSimulatePhysics(true);
+	Malla->SetEnableGravity(true);
+	Malla->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	Malla->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
+	Malla->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+	Malla->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 }

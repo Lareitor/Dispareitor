@@ -54,6 +54,10 @@ public:
 	UPROPERTY(EditAnywhere)	ETipoDisparo TipoDisparo;
 	UPROPERTY(EditAnywhere, Category = "Dispersion") bool bUsarDispersion = false; // subfusil y escopeta
 
+	void ActualizarNombrePuntoReaparicion(FString Nombre);
+
+	void DeshabilitarColisiones();
+	void HabilitarColisiones();
 
 protected:	
 	UPROPERTY()	class ADispareitorPersonaje* DispareitorPersonaje;
@@ -70,7 +74,7 @@ protected:
 	UPROPERTY(EditAnywhere)	float Danio = 20.f;	
 	UPROPERTY(EditAnywhere)	float DanioEnCabeza = 40.f;	
 	UPROPERTY(Replicated, EditAnywhere)	bool bRebobinarLadoServidor = false;
-	UFUNCTION() void Callback_PingAlto(bool bPingAlto);
+	UFUNCTION() void Callback_PingAlto(bool bPingAlto);	
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = Propiedades) USkeletalMeshComponent* Malla;
@@ -91,6 +95,7 @@ private:
 	UPROPERTY(EditAnywhere)	ETipoArma TipoArma;
 	UPROPERTY(EditAnywhere)	EEquipo Equipo;
 	int bReseteando = false; // Se usa para cuando el arma cae en LimitesJuego
+	UPROPERTY(Replicated, EditAnywhere) FString NombrePuntoReaparicion;	
 	
 public:		
 	void ActualizarEstado(EEstado EstadoAActualizar);
@@ -105,5 +110,6 @@ public:
 	FORCEINLINE int32 ObtenerCapacidadCargador() const { return CapacidadCargador; }
 	FORCEINLINE float ObtenerDanio() const { return Danio; }
 	FORCEINLINE float ObtenerDanioEnCabeza() const { return DanioEnCabeza; }
-	FORCEINLINE EEquipo ObtenerEquipo() const { return Equipo; }
+	FORCEINLINE EEquipo ObtenerEquipo() const { return Equipo; }	
+	FORCEINLINE FString ObtenerNombrePuntoReaparicion() const { return NombrePuntoReaparicion; }
 };

@@ -13,6 +13,7 @@
 #include "Dispareitor/Personaje/DispareitorInstanciaAnimacion.h"
 #include "Dispareitor/Arma/Proyectil.h"
 #include "Dispareitor/Arma/Escopeta.h"
+#include "Dispareitor/ModoJuego/DispareitorModoJuego.h"
 
 UCombateComponente::UCombateComponente() {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -181,10 +182,16 @@ void UCombateComponente::EquiparArma(class AArma* ArmaAEquipar) {
 		ArmaBandera = ArmaAEquipar;
 	} else {
 		if(ArmaEquipada && !ArmaSecundariaEquipada) {
-			EquiparArmaSecundaria(ArmaAEquipar);
+			EquiparArmaSecundaria(ArmaAEquipar);					
 		} else {
-			EquiparArmaPrimaria(ArmaAEquipar);
+			EquiparArmaPrimaria(ArmaAEquipar);			
 		}
+
+		ADispareitorModoJuego* DModoJuego = GetWorld()->GetAuthGameMode<ADispareitorModoJuego>();
+		if(DModoJuego && !ArmaAEquipar->bDestruirArma) {
+			UE_LOG(LogTemp, Warning, TEXT("UCombateComponente::EquiparArma. NombrePuntoReaparicion: %s"), *ArmaAEquipar->ObtenerNombrePuntoReaparicion());
+			DModoJuego->ActualizarPuntoReaparicionArmaALibre(*ArmaAEquipar->ObtenerNombrePuntoReaparicion());				
+		}	
 
 		DispareitorPersonaje->GetCharacterMovement()->bOrientRotationToMovement = false;
 		DispareitorPersonaje->bUseControllerRotationYaw = true;

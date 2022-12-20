@@ -155,20 +155,61 @@ void ADispareitorModoJuego::PeticionReaparecer(ACharacter* PersonajeEliminado, A
     }
 }
 
-//Llamado por BeginPlay
+// Llamado por BeginPlay
 void ADispareitorModoJuego::SituarArmas() {
-	TArray<AActor*> PuntosReaparicionArmas; 
     UGameplayStatics::GetAllActorsWithTag(this, "PuntoReaparicionArma", PuntosReaparicionArmas);
 
-    TArray<AActor*> Armas; 
-    UGameplayStatics::GetAllActorsOfClass(this, AArma::StaticClass(), Armas);
+    TArray<AActor*> ArmasYBanderas;     
+    UGameplayStatics::GetAllActorsOfClass(this, AArma::StaticClass(), ArmasYBanderas);
 
-    int32 IndicePuntosReaparicionArmas = 0;
-    for(AActor* ActorArma : Armas) {  
-        AArma* Arma = Cast<AArma>(ActorArma);      
-        if(Arma && Arma->ObtenerTipoArma() != ETipoArma::ETA_Bandera) {
-            Arma->SetActorLocation(PuntosReaparicionArmas[IndicePuntosReaparicionArmas++]->GetActorLocation());
+    for(AActor* PuntoReaparicionArma : PuntosReaparicionArmas) {
+        MapaNombrePuntoReaparicionArmaOcupado.Add(PuntoReaparicionArma->GetActorNameOrLabel(), false);
+    }
+
+    TArray<AActor*> Armas; 
+    for(AActor* ActorArmaOBandera : ArmasYBanderas) { 
+        AArma* ArmaOBandera = Cast<AArma>(ActorArmaOBandera);
+        if(ArmaOBandera && ArmaOBandera->ObtenerTipoArma() != ETipoArma::ETA_Bandera) {            
+            Armas.Add(ArmaOBandera);
         }
+    }
+    
+    int32 NumeroPuntosReaparicionOcupados = 0;    
+    if(PuntosReaparicionArmas.Num() > 0) {
+        for(AActor* ActorArma : Armas) {  
+            if(NumeroPuntosReaparicionOcupados < PuntosReaparicionArmas.Num()) {
+                AArma* Arma = Cast<AArma>(ActorArma);      
+                int32 i = FMath::RandRange(0, PuntosReaparicionArmas.Num() - 1);                
+                while(MapaNombrePuntoReaparicionArmaOcupado[PuntosReaparicionArmas[i]->GetActorNameOrLabel()]) {
+                    i = (i + 1) % PuntosReaparicionArmas.Num();                    
+                } 
+                NumeroPuntosReaparicionOcupados++;
+
+                MapaNombrePuntoReaparicionArmaOcupado[PuntosReaparicionArmas[i]->GetActorNameOrLabel()] = true;
+                Arma->SetActorLocation(PuntosReaparicionArmas[i]->GetActorLocation());
+                Arma->ActualizarNombrePuntoReaparicion(PuntosReaparicionArmas[i]->GetActorNameOrLabel());  
+   				UE_LOG(LogTemp, Warning, TEXT("%s"), *Arma->ObtenerNombrePuntoReaparicion());
+            }                  
+        }
+    }    
+}
+
+void ADispareitorModoJuego::ActualizarPuntoReaparicionArmaALibre(FString NombrePuntoReaparicionArma) {     
+	UE_LOG(LogTemp, Warning, TEXT("ADispareitorModoJuego::ActualizarPuntoReaparicionArmaALibre: %s"), *NombrePuntoReaparicionArma);  
+    MapaNombrePuntoReaparicionArmaOcupado[NombrePuntoReaparicionArma] = false;            
+}
+
+void ADispareitorModoJuego::SituarArmaTrasCaerEnLimitesJuego(AArma* Arma) {
+    if(PuntosReaparicionArmas.Num() > 0) {
+        int32 i = FMath::RandRange(0, PuntosReaparicionArmas.Num() - 1);                
+        while(MapaNombrePuntoReaparicionArmaOcupado[PuntosReaparicionArmas[i]->GetActorNameOrLabel()]) {
+            i = (i + 1) % PuntosReaparicionArmas.Num();     
+       		UE_LOG(LogTemp, Warning, TEXT("ADispareitorModoJuego::SituarArmaTrasCaerEnLimitesJuego. Comprobando i= %d"), i);               
+        } 
+        MapaNombrePuntoReaparicionArmaOcupado[PuntosReaparicionArmas[i]->GetActorNameOrLabel()] = true;
+        Arma->SetActorLocation(PuntosReaparicionArmas[i]->GetActorLocation());
+        Arma->ActualizarNombrePuntoReaparicion(PuntosReaparicionArmas[i]->GetActorNameOrLabel());
+		UE_LOG(LogTemp, Warning, TEXT("ADispareitorModoJuego::SituarArmaTrasCaerEnLimitesJuego. Arma situada en : %s"), *PuntosReaparicionArmas[i]->GetActorNameOrLabel());
     }
 }
 

@@ -24,6 +24,8 @@ public:
 	float TiempoInicioNivel = 0.f;
 	virtual float CalcularDanio(AController* CAtacante, AController* CVictima, float Danio);
 	bool bPartidaPorEquipos = false;
+	void SituarArmaTrasCaerEnLimitesJuego(class AArma* Arma);
+	void ActualizarPuntoReaparicionArmaALibre(FString NombrePuntoReaparicion);
 
 protected:
 	virtual void BeginPlay() override;	
@@ -32,6 +34,8 @@ protected:
 private:
 	float TiempoCuentaAtras = 0.f;
 	void SituarArmas();
+	UPROPERTY() TMap<FString, bool> MapaNombrePuntoReaparicionArmaOcupado;
+	UPROPERTY()	TArray<AActor*> PuntosReaparicionArmas; 
 
 public:
 	FORCEINLINE float ObtenerTiempoCuentaAtras() const { return TiempoCuentaAtras; }	

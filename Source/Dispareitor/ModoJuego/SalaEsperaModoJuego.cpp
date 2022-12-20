@@ -24,8 +24,8 @@ void ASalaEsperaModoJuego::PostLogin(APlayerController* ControladorJugador) {
                 bUseSeamlessTravel = true;
 
                 FString ModoJuego = SubsistemaInstanciaJuego->ModoJuegoDeseado;
-                if(ModoJuego == "TodosContraTodos") {
-                    Mundo->ServerTravel(FString("/Game/Mapas/TCT_ChateauGillard?listen"));
+                if(ModoJuego == "TodosContraTodos") {        
+                    Mundo->ServerTravel(FString("/Game/Mapas/TCT_ChateauGuillard?listen"));
                 } else if (ModoJuego == "DueloPorEquipos") {
                     Mundo->ServerTravel(FString("/Game/Mapas/DPE_Asia?listen"));
                 } else if (ModoJuego == "CapturaLaBandera") {
