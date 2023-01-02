@@ -188,14 +188,14 @@ void ADispareitorModoJuego::SituarArmas() {
                 MapaNombrePuntoReaparicionArmaOcupado[PuntosReaparicionArmas[i]->GetActorNameOrLabel()] = true;
                 Arma->SetActorLocation(PuntosReaparicionArmas[i]->GetActorLocation());
                 Arma->ActualizarNombrePuntoReaparicion(PuntosReaparicionArmas[i]->GetActorNameOrLabel());  
-   				UE_LOG(LogTemp, Warning, TEXT("%s"), *Arma->ObtenerNombrePuntoReaparicion());
+   				//UE_LOG(LogTemp, Warning, TEXT("%s"), *Arma->ObtenerNombrePuntoReaparicion());
             }                  
         }
     }    
 }
 
 void ADispareitorModoJuego::ActualizarPuntoReaparicionArmaALibre(FString NombrePuntoReaparicionArma) {     
-	UE_LOG(LogTemp, Warning, TEXT("ADispareitorModoJuego::ActualizarPuntoReaparicionArmaALibre: %s"), *NombrePuntoReaparicionArma);  
+	//UE_LOG(LogTemp, Warning, TEXT("ADispareitorModoJuego::ActualizarPuntoReaparicionArmaALibre: %s"), *NombrePuntoReaparicionArma);  
     MapaNombrePuntoReaparicionArmaOcupado[NombrePuntoReaparicionArma] = false;            
 }
 
@@ -204,12 +204,12 @@ void ADispareitorModoJuego::SituarArmaTrasCaerEnLimitesJuego(AArma* Arma) {
         int32 i = FMath::RandRange(0, PuntosReaparicionArmas.Num() - 1);                
         while(MapaNombrePuntoReaparicionArmaOcupado[PuntosReaparicionArmas[i]->GetActorNameOrLabel()]) {
             i = (i + 1) % PuntosReaparicionArmas.Num();     
-       		UE_LOG(LogTemp, Warning, TEXT("ADispareitorModoJuego::SituarArmaTrasCaerEnLimitesJuego. Comprobando i= %d"), i);               
+       		//UE_LOG(LogTemp, Warning, TEXT("ADispareitorModoJuego::SituarArmaTrasCaerEnLimitesJuego. Comprobando i= %d"), i);               
         } 
         MapaNombrePuntoReaparicionArmaOcupado[PuntosReaparicionArmas[i]->GetActorNameOrLabel()] = true;
         Arma->SetActorLocation(PuntosReaparicionArmas[i]->GetActorLocation());
         Arma->ActualizarNombrePuntoReaparicion(PuntosReaparicionArmas[i]->GetActorNameOrLabel());
-		UE_LOG(LogTemp, Warning, TEXT("ADispareitorModoJuego::SituarArmaTrasCaerEnLimitesJuego. Arma situada en : %s"), *PuntosReaparicionArmas[i]->GetActorNameOrLabel());
+		//UE_LOG(LogTemp, Warning, TEXT("ADispareitorModoJuego::SituarArmaTrasCaerEnLimitesJuego. Arma situada en : %s"), *PuntosReaparicionArmas[i]->GetActorNameOrLabel());
     }
 }
 

@@ -189,7 +189,7 @@ void UCombateComponente::EquiparArma(class AArma* ArmaAEquipar) {
 
 		ADispareitorModoJuego* DModoJuego = GetWorld()->GetAuthGameMode<ADispareitorModoJuego>();
 		if(DModoJuego && !ArmaAEquipar->bDestruirArma) {
-			UE_LOG(LogTemp, Warning, TEXT("UCombateComponente::EquiparArma. NombrePuntoReaparicion: %s"), *ArmaAEquipar->ObtenerNombrePuntoReaparicion());
+			//UE_LOG(LogTemp, Warning, TEXT("UCombateComponente::EquiparArma. NombrePuntoReaparicion: %s"), *ArmaAEquipar->ObtenerNombrePuntoReaparicion());
 			DModoJuego->ActualizarPuntoReaparicionArmaALibre(*ArmaAEquipar->ObtenerNombrePuntoReaparicion());				
 		}	
 
@@ -389,6 +389,7 @@ void UCombateComponente::ActualizarValoresMunicion() {
 	}
 
 	int32 RecargarCantidadValor = CalcularCantidadARecargar();
+	UE_LOG(LogTemp, Warning, TEXT("UCombateComponente::ActualizarValoresMunicion. RecargarCantidadValor: %d"), RecargarCantidadValor);
 	MapaMunicionPersonaje[ArmaEquipada->ObtenerTipoArma()] -= RecargarCantidadValor;
 	MunicionPersonaje = MapaMunicionPersonaje[ArmaEquipada->ObtenerTipoArma()];
 	ArmaEquipada->AniadirMunicion(RecargarCantidadValor);

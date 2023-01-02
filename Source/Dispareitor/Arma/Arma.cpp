@@ -252,6 +252,7 @@ void AArma::ActualizarMunicion_EnCliente_Implementation(int32 MunicionEnServidor
 // Llamado por UCombateComponente::ActualizarValoresMunicion
 void AArma::AniadirMunicion(int32 Cantidad) {
 	Municion = FMath::Clamp(Municion + Cantidad, 0, CapacidadCargador);
+	UE_LOG(LogTemp, Warning, TEXT("AArma::AniadirMunicion. Municion: %d"), Municion);
 	ActualizarMunicionHUD();
 	AniadirMunicion_EnCliente(Cantidad);
 }
@@ -259,6 +260,7 @@ void AArma::AniadirMunicion(int32 Cantidad) {
 void AArma::AniadirMunicion_EnCliente_Implementation(int32 MunicionEnServidor) {
 	if(!HasAuthority()) {
 		Municion = FMath::Clamp(Municion + MunicionEnServidor, 0, CapacidadCargador);
+		UE_LOG(LogTemp, Warning, TEXT("AArma::AniadirMunicion_EnCliente_Implementation. Municion: %d"), Municion);
 		DispareitorPersonaje = DispareitorPersonaje != nullptr ? DispareitorPersonaje : Cast<ADispareitorPersonaje>(Owner);
 		if(DispareitorPersonaje && DispareitorPersonaje->ObtenerCombateComponente() && EstaConMunicionLlena()) {
 			DispareitorPersonaje->ObtenerCombateComponente()->SaltarAFinAnimacionEscopeta();
